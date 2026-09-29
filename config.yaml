@@ -182,7 +182,8 @@ shops:
       - "https://masterofgames.es/en/elite-trainer-boxes/6678--preorder-english-pokemon-tcg-30th-celebration-elite-trainer-box-0196214144828.html"
 
 # Filialbestand (Abholung) bei MediaMarkt und Saturn im Umkreis dieser Postleitzahl.
-stores:
+# Derzeit aus: Die Schnittstelle antwortet GitHub-Servern mit HTTP 403.
+stores_disabled:
   postal_code: "04275"   # Leipzig-Südvorstadt
   lat: 51.3197
   lng: 12.3714

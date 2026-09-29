@@ -162,7 +162,8 @@ def evaluate(cfg: dict, state: dict, shop: dict, best: Result | None, errors: li
     st.update(fails=0, fail_alerted=False, last_error=None)
     o = best.offer
     was_hit = st.get("hit", False)
-    hit = o.availability in ORDERABLE and in_range(o, cfg["price"])
+    # Preisvergleiche zeigen oft Einladungs-/Altpreise (z. B. Amazon 52,99 €) – nie als Treffer werten.
+    hit = o.availability in ORDERABLE and in_range(o, cfg["price"]) and not shop.get("aggregator")
     orderable = o.availability in ORDERABLE
     was_orderable = st.get("status") in ORDERABLE
     what = "VORBESTELLBAR" if o.availability == PREORDER else "VERFÜGBAR"

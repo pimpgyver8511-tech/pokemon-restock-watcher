@@ -152,6 +152,11 @@ class FlowTests(unittest.TestCase):
         subject, _ = self.run_with(JSONLD_PAGE % "InStock")
         self.assertIn("🚨", subject, "erneuter Restock wird wieder gemeldet")
 
+    def test_aggregator_never_hit(self):
+        self.cfg["shops"][0]["aggregator"] = True
+        subject, _ = self.run_with(JSONLD_PAGE % "InStock")
+        self.assertIsNone(subject)
+
     def test_out_of_price_range(self):
         subject, _ = self.run_with((JSONLD_PAGE % "InStock").replace("59.99", "169.99"))
         self.assertIsNone(subject)

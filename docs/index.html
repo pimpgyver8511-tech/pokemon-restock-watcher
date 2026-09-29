@@ -400,7 +400,8 @@
     const blocked = data.shops.filter(s => s.error).map(s => s.name);
     const shops = data.shops.filter(s => !s.error).map(s => {
       const [label, cls, rank] = STATUS[s.status] || STATUS.unknown;
-      return { ...s, label, cls, rank: s.in_range ? 0 : rank };
+      // Preisvergleiche nach den echten Shops einsortieren (Preis dort nur ein Anhaltspunkt).
+      return { ...s, label, cls, rank: s.in_range ? 0 : (s.aggregator ? 3.5 : rank) };
     }).sort((a, b) => a.rank - b.rank || (a.price ?? 1e9) - (b.price ?? 1e9) || a.name.localeCompare(b.name));
 
     const hits = shops.filter(s => s.rank === 0);
@@ -418,7 +419,7 @@
       const extra = [
         s.price != null && s.status !== "not_listed" ? `<span class="price">${euro(s.price)}</span>` : "",
         `<span class="pill ${s.cls}">${s.aggregator && s.price != null ? "günstigstes Angebot" : s.label}</span>`,
-        s.aggregator ? "<span>Preisvergleich – Händler vor dem Kauf prüfen</span>" : "",
+        s.aggregator ? "<span>Preisvergleich – günstigster gelisteter Preis, oft Amazon-Einladung oder veraltet</span>" : "",
         s.available_from && s.status !== "not_listed" ? `<span>📦 Lieferung ab <b>${esc(s.available_from)}</b></span>` : "",
         !s.ships_to_de ? "<span>Versand nach DE prüfen</span>" : "",
         s.last_restock ? `<span>zuletzt verfügbar ab ${esc(s.last_restock)}</span>` : "",

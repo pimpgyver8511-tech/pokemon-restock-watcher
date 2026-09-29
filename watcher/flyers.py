@@ -61,13 +61,17 @@ def _classify(text: str, product_cfg: dict, cfg: dict) -> str | None:
 def brochure_offers(cfg: dict, brochure_id: str, product_cfg: dict) -> list[dict]:
     data = _json(PAGES.format(id=brochure_id) + f"?partner=kaufda_web&brochureKey=&lat={cfg['lat']}&lng={cfg['lng']}")
     found = []
+    total, publisher = 0, None
     for page in data.get("contents") or []:
         for offer in page.get("offers") or []:
             c = offer.get("content") or {}
+            total += 1
+            publisher = publisher or (c.get("publisher") or {}).get("name")
             product = (c.get("products") or [{}])[0]
             desc = " ".join(d.get("paragraph") or "" for d in product.get("description") or [])
             title = " ".join(filter(None, [product.get("brandName"), product.get("name")]))
-            kind = _classify(f"{title} {desc}", product_cfg, cfg)
+            cats = " ".join(x.get("name") or "" for x in product.get("categoryPaths") or [])
+            kind = _classify(f"{title} {desc} {cats}", product_cfg, cfg)
             if not kind:
                 continue
             deal = next((d for d in c.get("deals") or [] if d.get("type") == "SALES_PRICE"), {})
@@ -81,6 +85,7 @@ def brochure_offers(cfg: dict, brochure_id: str, product_cfg: dict) -> list[dict
                 "valid_until": (validity.get("endDate") or "")[:10] or None,
                 "url": _offer_url(cfg, parent.get("id"), (parent.get("page") or {}).get("number"), c.get("id")),
             })
+    print(f"  Prospekt {brochure_id[:8]} ({publisher or '?'}): {total} Angebote, {len(found)} mit Pokémon")
     return found
 
 
@@ -114,12 +119,13 @@ def check(cfg: dict, product_cfg: dict) -> tuple[list[dict], list[str]]:
     offers: dict[str, dict] = {}
     errors: list[str] = []
     brochure_ids: set[str] = set()
-    for q in cfg.get("queries", []):
+    for q in cfg.get("queries", []) + cfg.get("retailers", []):
         try:
-            brochure_ids |= search_brochures(cfg, q)
+            brochure_ids |= search_brochures(cfg, q, max_items=48)
         except Exception as e:  # Prospekte dürfen den restlichen Lauf nie abbrechen
             errors.append(f"Suche '{q}': {type(e).__name__}: {e}")
-    print(f"Prospekte: {len(brochure_ids)} passende Prospekte gefunden")
+    brochure_ids |= set(cfg.get("brochures", []))
+    print(f"Prospekte: {len(brochure_ids)} Prospekte werden durchsucht")
     for bid in sorted(brochure_ids)[: cfg.get("max_brochures", 40)]:
         try:
             for o in brochure_offers(cfg, bid, product_cfg):

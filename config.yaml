@@ -258,8 +258,12 @@ flyers:
   lat: 51.3197
   lng: 12.3714
   queries: ["Pokemon", "Pokémon", "Pokemon Karten", "Pokémon Sammelkarten", "Top-Trainer-Box"]
+  # Alle Prospekte dieser Händler werden komplett nach Pokémon-Angeboten durchsucht.
+  retailers: ["MediaMarkt", "Saturn", "Müller", "Rossmann", "Kaufland", "HIT", "Smyths Toys", "Thalia"]
+  # Zusätzlich fest eingetragene Prospekte (ID aus dem kaufda-Link …/contentViewer/static/<ID>)
+  brochures: ["bc0cd54d-74c5-4f29-872f-92a7053cab6a"]
   pages: ["https://www.kaufda.de/Leipzig/Angebote/Pokemon"]
-  max_brochures: 60
+  max_brochures: 120
   # Alle übrigen Pokémon-Angebote (Karten, Spielzeug, Plüsch …) werden als Info angezeigt,
   # aber nie als Treffer gemeldet. Leere Liste = alles mit "Pokémon".
   related_any: []

@@ -30,13 +30,34 @@ class Result:
 
 # --------------------------------------------------------------------------- Prüfen
 
-def check_url(url: str, product_cfg: dict) -> Offer | None:
+def _dump(shop: str, url: str, html: str) -> None:
+    """Seiten ohne erkennbares Produkt zur Fehlersuche ablegen (Workflow-Artefakt)."""
+    if not (d := os.environ.get("DEBUG_DIR")):
+        return
+    import hashlib
+    import re
+    Path(d).mkdir(parents=True, exist_ok=True)
+    name = re.sub(r"\W+", "_", shop) + "_" + hashlib.sha1(url.encode()).hexdigest()[:8] + ".html"
+    (Path(d) / name).write_text(f"<!-- {url} -->\n{html}")
+
+
+def check_url(url: str, product_cfg: dict, shop: str = "") -> Offer | None:
     if "/products/" in url:  # Shopify-Shop: offizielle JSON-Schnittstelle nutzen
         try:
             return shopify_offer(fetch.get_json(url.split("?")[0].rstrip("/") + ".js"), product_cfg)
         except fetch.FetchError:
             pass
-    return extract(fetch.get(url), product_cfg)
+    html = fetch.get(url)
+    offer = extract(html, product_cfg)
+    if offer is None:
+        _dump(shop, url, html)
+    return offer
+
+
+def is_marketplace(shop: dict, offer: Offer) -> bool:
+    """Angebot eines Fremdhändlers (z. B. MediaMarkt-/Saturn-Marktplatz)?"""
+    own = [s.lower() for s in shop.get("seller_any", [])]
+    return bool(own and offer.seller and not any(s in offer.seller.lower() for s in own))
 
 
 def check_shop(shop: dict, product_cfg: dict, known_urls: list[str]) -> tuple[list[Result], list[str], list[str]]:
@@ -46,32 +67,43 @@ def check_shop(shop: dict, product_cfg: dict, known_urls: list[str]) -> tuple[li
     discovered: list[str] = []
     urls = list(dict.fromkeys(shop.get("urls", []) + known_urls))
 
-    if shop.get("search"):
-        for ean in product_cfg["eans"]:
-            search_url = shop["search"].format(ean=ean)
-            try:
-                html = fetch.get(search_url)
-            except fetch.FetchError as e:
-                errors.append(f"Suche: {e}")
-                continue
-            # Manche Shops leiten bei eindeutiger EAN direkt auf die Produktseite weiter.
-            offer = extract(html, product_cfg)
-            if offer and (offer.price is not None or offer.source.startswith(("jsonld", "microdata"))):
-                results.append(Result(search_url, offer))
-            for link in product_links(html, search_url, product_cfg):
-                if link not in urls:
-                    urls.append(link)
-                    discovered.append(link)
+    searches = shop.get("search") or []
+    searches = [searches] if isinstance(searches, str) else searches
+    search_urls = list(dict.fromkeys(t.format(ean=e) for t in searches for e in product_cfg["eans"]))
+    for search_url in search_urls:
+        try:
+            html = fetch.get(search_url)
+        except fetch.FetchError as e:
+            errors.append(f"Suche: {e}")
+            continue
+        # Manche Shops leiten bei eindeutiger EAN direkt auf die Produktseite weiter.
+        offer = extract(html, product_cfg)
+        if offer and (offer.price is not None or offer.source.startswith(("jsonld", "microdata"))):
+            results.append(Result(search_url, offer))
+        links = product_links(html, search_url, product_cfg)
+        if not offer and not links:
+            _dump(shop["name"], search_url, html)
+        for link in links:
+            if link not in urls:
+                urls.append(link)
+                discovered.append(link)
 
     for url in urls:
         try:
-            offer = check_url(url, product_cfg)
+            offer = check_url(url, product_cfg, shop["name"])
         except fetch.FetchError as e:
             errors.append(f"{url}: {e}")
             continue
         if offer:
             results.append(Result(url, offer))
-    return results, errors, discovered
+
+    kept = []
+    for r in results:
+        if is_marketplace(shop, r.offer):
+            print(f"  ↳ ignoriert (Marktplatz-Händler '{r.offer.seller}'): {r.url}")
+        else:
+            kept.append(r)
+    return kept, errors, discovered
 
 
 def in_range(offer: Offer, price_cfg: dict) -> bool:
@@ -136,7 +168,7 @@ def evaluate(cfg: dict, state: dict, shop: dict, best: Result | None, errors: li
         events.append((2, f"❌ {name}: nicht mehr im Zielbereich ({reason})"))
 
     if orderable and not was_orderable:
-        st["last_restock"] = now.isoformat(timespec="minutes")
+        st["last_restock"] = now.astimezone(BERLIN).strftime("%d.%m. %H:%M")
     st.update(hit=hit, status=o.availability, price=o.price, url=best.url,
               last_ok=now.isoformat(timespec="minutes"))
     return events
@@ -183,7 +215,7 @@ def run(cfg: dict, state: dict, now: datetime, only: str | None = None,
         best = best_result(results, cfg["price"])
         o = best.offer if best else None
         print(f"{shop['name']:<22} " + (
-            f"{LABEL.get(o.availability)} {fmt_price(o.price)} [{o.source}] {best.url}" if o
+            f"{LABEL.get(o.availability)} {fmt_price(o.price)} [{o.source}, Verkäufer: {o.seller or '?'}] {best.url}" if o
             else ("FEHLER: " + "; ".join(errors) if errors else "nicht gelistet")))
         events += evaluate(cfg, state, shop, best, errors, now)
 

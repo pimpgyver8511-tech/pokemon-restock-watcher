@@ -33,6 +33,7 @@ jobs:
       SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
       MAIL_TO: ${{ secrets.MAIL_TO }}
       STATE_FILE: state/state.json
+      DEBUG_DIR: debug
     steps:
       - uses: actions/checkout@v4
 
@@ -66,6 +67,16 @@ jobs:
         with:
           path: state
           key: watcher-state-${{ github.run_id }}
+
+      # Seiten, auf denen das Produkt nicht erkannt wurde, zur Fehlersuche aufbewahren.
+      - name: Debug-Seiten sichern
+        if: ${{ always() && !inputs.test_mail }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-pages
+          path: debug
+          retention-days: 3
+          if-no-files-found: ignore
 
       # GitHub pausiert geplante Workflows nach 60 Tagen ohne Repo-Aktivität; das verhindert es.
       - name: Keepalive

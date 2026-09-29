@@ -29,14 +29,21 @@ failure_alert_after: 12
 #   ships_to_de: "yes" = bekannt, "check" = vor dem Kauf im Warenkorb prüfen
 shops:
   # --- Große Ketten Deutschland ---
+  # seller_any: Angebote anderer Verkäufer (Marktplatz) werden ignoriert.
   - name: MediaMarkt
     country: DE
     ships_to_de: "yes"
-    search: "https://www.mediamarkt.de/de/search.html?query={ean}"
+    seller_any: ["mediamarkt", "media markt"]
+    search:
+      - "https://www.mediamarkt.de/de/search.html?query={ean}"
+      - "https://www.mediamarkt.de/de/brand/pokemon-sammelkartenspiel/top-trainer-boxen"
   - name: Saturn
     country: DE
     ships_to_de: "yes"
-    search: "https://www.saturn.de/de/search.html?query={ean}"
+    seller_any: ["saturn"]
+    search:
+      - "https://www.saturn.de/de/search.html?query={ean}"
+      - "https://www.saturn.de/de/brand/pokemon-sammelkartenspiel/top-trainer-boxen"
   - name: Müller
     country: DE
     ships_to_de: "yes"
@@ -54,22 +61,6 @@ shops:
     ships_to_de: "yes"
     urls:
       - "https://www.smythstoys.com/de/de-de/spielzeug/action-spielzeug/pokemon/pokemon-karten/pokemon-karten-top-trainer-box-30-jahre-edition/p/264148"
-  - name: Galeria
-    country: DE
-    ships_to_de: "yes"
-    search: "https://www.galeria.de/search?q={ean}"
-  - name: Weltbild
-    country: DE
-    ships_to_de: "yes"
-    search: "https://www.weltbild.de/suche/{ean}"
-  - name: bücher.de
-    country: DE
-    ships_to_de: "yes"
-    search: "https://www.buecher.de/go/search_search/quick_search/?fulltext={ean}"
-  - name: Netto Online
-    country: DE
-    ships_to_de: "yes"
-    search: "https://www.netto-online.de/search?query={ean}"
 
   # --- Etablierte TCG-Fachhändler Deutschland ---
   - name: Spiele-Riese
@@ -87,11 +78,11 @@ shops:
     ships_to_de: "yes"
     urls:
       - "https://www.brettspielbude.de/products/pokemon-30-jahre-top-trainer-box"
-  - name: Steinehelden
+  - name: Comicplanet
     country: DE
     ships_to_de: "yes"
     urls:
-      - "https://steinehelden.de/Pokemon-Sammelkartenspiel-Top-Trainer-Box-30-Jahre-Deutsch/14484"
+      - "https://www.comicplanet.de/sammelkarten/pokemon/deutsch/top-trainer-boxen-pkm/pokemon-30-jahre-top-trainer-box-deutsch"
   - name: Toys for Fun
     country: DE
     ships_to_de: "yes"
@@ -120,7 +111,8 @@ news:
     - "https://news.google.com/rss/search?q=%22Top-Trainer-Box%2030%20Jahre%22&hl=de&gl=DE&ceid=DE:de"
     - "https://news.google.com/rss/search?q=%22Pok%C3%A9mon%2030%20Jahre%22%20Restock%20OR%20Nachschub%20OR%20wieder%20verf%C3%BCgbar&hl=de&gl=DE&ceid=DE:de"
     - "https://news.google.com/rss/search?q=%2230th%20Celebration%22%20%22Elite%20Trainer%20Box%22%20restock&hl=en&gl=GB&ceid=GB:en"
-    - "https://www.mydealz.de/rss/search?q=top+trainer+box+30+jahre"
+  # Meldungen mit diesen Wörtern ignorieren (US-Deals u. Ä.).
+  exclude_any: ["$", "amazon.com", "target", "walmart", "best buy", "gamestop"]
   # Ein Eintrag muss eines dieser Wörter enthalten (Groß-/Kleinschreibung egal) ...
   must_any: ["30 jahre", "30th celebration", "jubiläum"]
   # ... und eines dieser.

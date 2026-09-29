@@ -41,6 +41,7 @@ SEARCH_PAGE = """<html><body>
 RSS = """<?xml version="1.0"?><rss><channel>
 <item><title>Pokémon 30 Jahre: Top-Trainer-Box wieder verfügbar bei Müller</title><link>https://n/1</link>
 <guid>1</guid><pubDate>Mon, 28 Sep 2026 10:00:00 GMT</pubDate></item>
+<item><title>30th Celebration Elite Trainer Box restock for $49.99 at Target</title><link>https://n/4</link><guid>4</guid></item>
 <item><title>Neue Fußballschuhe im Angebot</title><link>https://n/2</link><guid>2</guid></item>
 <item><title>30 Jahre Top-Trainer-Box Restock (alt)</title><link>https://n/3</link>
 <guid>3</guid><pubDate>Mon, 01 Jun 2026 10:00:00 GMT</pubDate></item>
@@ -139,6 +140,23 @@ class FlowTests(unittest.TestCase):
                 subjects.append(main.run(self.cfg, self.state, NOW, with_news=False)[0])
         self.assertEqual(sum(s is not None for s in subjects), 1)
         self.assertIn("⚠️", [s for s in subjects if s][0])
+
+    def test_marketplace_seller_ignored(self):
+        self.cfg["shops"][0]["seller_any"] = ["mediamarkt"]
+        page = (JSONLD_PAGE % "InStock").replace('"name":"MediaMarkt"', '"name":"Karten-Profi GmbH"')
+        subject, _ = self.run_with(page)
+        self.assertIsNone(subject)
+        self.assertEqual(self.state["shops"]["MediaMarkt"]["status"], "not_listed")
+
+    def test_search_list_and_links(self):
+        self.cfg["shops"][0] = {"name": "MediaMarkt", "country": "DE", "ships_to_de": "yes",
+                                "search": ["https://mm.example/s?q={ean}", "https://mm.example/cat"]}
+        pages = {"https://mm.example/cat": '<a href="/p/top-trainer-box-30-jahre">x</a>',
+                 "https://mm.example/p/top-trainer-box-30-jahre": JSONLD_PAGE % "InStock"}
+        with mock.patch.object(fetch, "get", side_effect=lambda u, timeout=25: pages.get(u, "<html></html>")):
+            subject, _ = main.run(self.cfg, self.state, NOW, with_news=False)
+        self.assertIn("🚨", subject)
+        self.assertEqual(self.state["discovered"]["MediaMarkt"], ["https://mm.example/p/top-trainer-box-30-jahre"])
 
     def test_weekly_report(self):
         self.state["last_report"] = (NOW - timedelta(days=8)).isoformat()

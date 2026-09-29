@@ -50,6 +50,8 @@ def parse_feed(xml_text: str, source: str) -> list[NewsItem]:
 
 def relevant(item: NewsItem, cfg: dict) -> bool:
     text = f"{item.title} {item.source}".lower()
+    if any(w in text for w in cfg.get("exclude_any", [])):
+        return False
     return any(w in text for w in cfg["must_any"]) and any(w in text for w in cfg["also_any"])
 
 

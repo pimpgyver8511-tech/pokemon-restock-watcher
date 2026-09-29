@@ -12,8 +12,8 @@ class MailConfigError(Exception):
 
 
 def send(subject: str, body: str) -> None:
-    host = os.environ.get("SMTP_HOST") or "smtp.gmail.com"
-    port = int(os.environ.get("SMTP_PORT") or "465")
+    host = os.environ.get("SMTP_HOST") or "smtp.gmx.net"
+    port = int(os.environ.get("SMTP_PORT") or "587")
     user = os.environ.get("SMTP_USER")
     password = os.environ.get("SMTP_PASSWORD")
     to = os.environ.get("MAIL_TO") or user

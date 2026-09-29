@@ -19,22 +19,24 @@ der Watcher den Restock wieder.
 
 ## Einrichtung (einmalig, ca. 10 Minuten)
 
-### 1. Gmail-App-Passwort erstellen
-Gmail lässt sich nicht mit dem normalen Passwort per SMTP nutzen.
-1. Die Bestätigung in zwei Schritten muss aktiv sein: <https://myaccount.google.com/security>
-2. App-Passwort erstellen: <https://myaccount.google.com/apppasswords>, Name z. B. „Pokemon Watcher“
-3. Das 16-stellige Passwort kopieren (Leerzeichen sind egal).
+### 1. SMTP-Versand bei GMX freischalten
+GMX erlaubt den Versand über externe Programme erst nach einmaliger Freigabe:
+1. Bei <https://www.gmx.net> einloggen → **E-Mail → Einstellungen → POP3/IMAP Abruf**
+2. Haken bei **„Senden und Empfangen von E-Mails via externer Software einschalten“** setzen → Speichern.
+3. Ist bei dir die Zwei-Faktor-Authentisierung aktiv, erstellst du unter **Sicherheit** ein
+   **anwendungsspezifisches Passwort** und nutzt es statt deines normalen Passworts.
 
 ### 2. Secrets im GitHub-Repo eintragen
 Repo → **Settings → Secrets and variables → Actions → New repository secret**:
 
 | Name | Wert |
 |---|---|
-| `SMTP_USER` | deine Gmail-Adresse |
-| `SMTP_PASSWORD` | das App-Passwort aus Schritt 1 |
+| `SMTP_USER` | deine vollständige GMX-Adresse (z. B. `name@gmx.de`) |
+| `SMTP_PASSWORD` | dein GMX-Passwort bzw. das anwendungsspezifische Passwort |
 | `MAIL_TO` | Empfängeradresse (kann dieselbe sein) |
 
-Nur nötig, wenn du **kein** Gmail nutzt: `SMTP_HOST` (z. B. `smtp.gmx.net`) und `SMTP_PORT` (`465` oder `587`).
+Server (`smtp.gmx.net`, Port `587`) ist voreingestellt. Nur bei einem anderen Anbieter zusätzlich
+`SMTP_HOST` und `SMTP_PORT` (`465` oder `587`) setzen.
 
 ### 3. Testen
 Repo → **Actions → Pokémon-Watcher → Run workflow**

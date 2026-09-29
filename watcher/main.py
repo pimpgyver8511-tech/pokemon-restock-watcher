@@ -12,7 +12,7 @@ from zoneinfo import ZoneInfo
 
 import yaml
 
-from . import fetch, mailer, news
+from . import fetch, mailer, news, stores
 from .parse import ORDERABLE, PREORDER, Offer, extract, is_asset, product_links, shopify_offer
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -100,6 +100,11 @@ def check_shop(shop: dict, product_cfg: dict, known_urls: list[str]) -> tuple[li
         if offer:
             results.append(Result(url, offer))
 
+    if shop.get("aggregator"):
+        # Preisvergleiche listen nur verfügbare Angebote; ein Preis heißt: irgendwo bestellbar.
+        for r in results:
+            if r.offer.price is not None and r.offer.availability == "unknown":
+                r.offer.availability = "in_stock"
     kept = []
     for r in results:
         if is_marketplace(shop, r.offer):
@@ -199,6 +204,7 @@ def snapshot(cfg: dict, state: dict, now: datetime) -> dict:
         status = st.get("status") or "not_listed"
         shops.append({
             "name": shop["name"], "country": shop["country"],
+            "aggregator": bool(shop.get("aggregator")),
             "ships_to_de": shop.get("ships_to_de") == "yes",
             "status": status, "price": st.get("price"),
             "in_range": bool(st.get("hit")),
@@ -214,6 +220,9 @@ def snapshot(cfg: dict, state: dict, now: datetime) -> dict:
         "price": cfg["price"],
         "shops": shops,
         "news": state.get("news_recent", []),
+        "stores": state.get("store_entries", []),
+        "stores_area": ({"postal_code": cfg["stores"].get("postal_code"), "radius_km": cfg["stores"].get("radius_km")}
+                        if cfg.get("stores") else None),
     }
 
 
@@ -267,6 +276,21 @@ def run(cfg: dict, state: dict, now: datetime, only: str | None = None,
             f"{LABEL.get(o.availability)} {fmt_price(o.price)} [{o.source}, Verkäufer: {o.seller or '?'}] {best.url}" if o
             else ("FEHLER: " + "; ".join(errors) if errors else "nicht gelistet")))
         events += evaluate(cfg, state, shop, best, errors, now)
+
+    if cfg.get("stores") and not only:
+        entries, store_errors = stores.check(cfg["stores"], cfg["product"], state)
+        for e in store_errors:
+            print(f"Filial-Fehler: {e}")
+        prev = state.get("store_status", {})
+        for e in entries:
+            key = f"{e['chain']}|{e['id']}|{e.get('product')}"
+            if e["status"] == "in_stock" and prev.get(key) != "in_stock":
+                events.append((1, f"✅ {e['chain']} {e['name']} ({e['distance_km']} km) [Filiale]: "
+                                  f"SOFORT ABHOLBAR – {e.get('product')}\n   {e.get('url') or ''}"))
+            print(f"  Filiale {e['chain']} {e['name']} ({e['distance_km']} km): {e['status']} {e.get('raw') or ''}")
+        if entries or not store_errors:
+            state["store_status"] = {f"{e['chain']}|{e['id']}|{e.get('product')}": e["status"] for e in entries}
+            state["store_entries"] = entries
 
     news_items: list[news.NewsItem] = []
     if with_news and cfg.get("news"):

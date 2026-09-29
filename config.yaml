@@ -72,6 +72,31 @@ shops:
     ships_to_de: "yes"
     search: "https://www.hugendubel.de/de/search?q={ean}"
 
+  # --- Preisvergleiche: günstigstes Angebot über viele Shops (aggregator = Händler selbst prüfen) ---
+  - name: Geizhals DE (Preisvergleich)
+    country: DE
+    ships_to_de: "yes"
+    aggregator: true
+    urls:
+      - "https://geizhals.de/pok-mon-30-jahre-top-trainer-box-a3942792.html"
+  - name: Geizhals EU (Preisvergleich)
+    country: EU
+    ships_to_de: "check"
+    aggregator: true
+    urls:
+      - "https://geizhals.eu/pok-mon-30-jahre-top-trainer-box-a3942792.html"
+  - name: idealo (Preisvergleich)
+    country: DE
+    ships_to_de: "yes"
+    aggregator: true
+    search: "https://www.idealo.de/preisvergleich/MainSearchProductCategory.html?q={ean}"
+  - name: tcgcheck (Preisvergleich)
+    country: DE
+    ships_to_de: "yes"
+    aggregator: true
+    urls:
+      - "https://www.tcgcheck.de/pokemon/set/de/30-jahre/30-jahre-top-trainer-box"
+
   # --- Etablierte TCG-Fachhändler Deutschland ---
   - name: Spiele-Riese
     country: DE
@@ -93,6 +118,21 @@ shops:
     ships_to_de: "yes"
     urls:
       - "https://geeksheaven.de/products/pokemon-30-jahre-top-trainer-box-deutsch-vorbestellung"
+  - name: Cardcosmos
+    country: DE
+    ships_to_de: "yes"
+    urls:
+      - "https://cardcosmos.de/products/pokemon-30-jahre-top-trainer-box-deutsch"
+  - name: Card-Knights
+    country: DE
+    ships_to_de: "yes"
+    urls:
+      - "https://www.card-knights.de/products/pokemon-30-jahre-top-trainer-box-de"
+  - name: Gate to the Games
+    country: DE
+    ships_to_de: "yes"
+    urls:
+      - "https://www.gate-to-the-games.de/Pokemon-30-Jahre-Top-Trainer-Box-deutsch"
   - name: Toys for Fun
     country: DE
     ships_to_de: "yes"
@@ -140,6 +180,15 @@ shops:
     ships_to_de: "check"
     urls:
       - "https://masterofgames.es/en/elite-trainer-boxes/6678--preorder-english-pokemon-tcg-30th-celebration-elite-trainer-box-0196214144828.html"
+
+# Filialbestand (Abholung) bei MediaMarkt und Saturn im Umkreis dieser Postleitzahl.
+stores:
+  postal_code: "04275"   # Leipzig-Südvorstadt
+  lat: 51.3197
+  lng: 12.3714
+  radius_km: 10
+  chains: ["MediaMarkt", "Saturn"]
+  queries: ["Top-Trainer-Box 30 Jahre", "Pokemon 30 Jahre Top Trainer Box"]
 
 # Restock-News: RSS-Feeds, neue Einträge mit passenden Stichworten werden gemeldet.
 news:

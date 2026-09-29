@@ -119,6 +119,13 @@
       <ul class="offers" id="offers"><li class="hint">Lade …</li></ul>
     </section>
 
+    <!-- Filialen -->
+    <section class="card hidden" id="storesCard">
+      <h2 id="storesTitle">🏬 Filialen in deiner Nähe</h2>
+      <ul class="offers" id="stores"></ul>
+      <p class="hint">Abholbestand laut MediaMarkt/Saturn. Vor dem Losfahren im Markt oder online reservieren.</p>
+    </section>
+
     <!-- News -->
     <section class="card">
       <h2>📰 Restock-News</h2>
@@ -406,10 +413,12 @@
 
     $("offers").innerHTML = shops.map(s => {
       const url = safeUrl(s.url) || safeUrl(s.shop_url);
-      const linkText = safeUrl(s.url) ? (s.rank === 0 ? "Jetzt kaufen →" : "Zum Angebot →") : "Im Shop ansehen →";
+      const linkText = s.aggregator ? "Angebote vergleichen →"
+        : safeUrl(s.url) ? (s.rank === 0 ? "Jetzt kaufen →" : "Zum Angebot →") : "Im Shop ansehen →";
       const extra = [
         s.price != null && s.status !== "not_listed" ? `<span class="price">${euro(s.price)}</span>` : "",
-        `<span class="pill ${s.cls}">${s.label}</span>`,
+        `<span class="pill ${s.cls}">${s.aggregator && s.price != null ? "günstigstes Angebot" : s.label}</span>`,
+        s.aggregator ? "<span>Preisvergleich – Händler vor dem Kauf prüfen</span>" : "",
         s.available_from && s.status !== "not_listed" ? `<span>📦 Lieferung ab <b>${esc(s.available_from)}</b></span>` : "",
         !s.ships_to_de ? "<span>Versand nach DE prüfen</span>" : "",
         s.last_restock ? `<span>zuletzt verfügbar ab ${esc(s.last_restock)}</span>` : "",
@@ -420,6 +429,25 @@
           <div class="meta">${extra}</div></li>`;
     }).join("") + (blocked.length
       ? `<li class="hint">Ausgeblendet, weil der Shop automatische Abrufe gerade blockt: ${blocked.map(esc).join(", ")}</li>` : "");
+
+    const area = data.stores_area;
+    if (area) {
+      $("storesCard").classList.remove("hidden");
+      $("storesTitle").textContent = `🏬 Filialen im Umkreis ${area.radius_km} km um ${area.postal_code}`;
+      const ST = { in_stock: ["sofort abholbar", "s-ok", 0], soon: ["bald abholbar", "s-run", 1],
+                   out_of_stock: ["nicht vorrätig", "s-other", 2], not_listed: ["nicht im Sortiment", "s-other", 3],
+                   unknown: ["unklar", "s-other", 4] };
+      const rows = (data.stores || []).map(e => ({ ...e, st: ST[e.status] || ST.unknown }))
+        .sort((a, b) => a.st[2] - b.st[2] || a.distance_km - b.distance_km);
+      $("stores").innerHTML = rows.map(e => {
+        const url = safeUrl(e.url);
+        return `<li class="offer${e.st[2] === 0 ? " hit" : ""}">
+          <div class="shop">${esc(e.chain)} ${esc(e.name)}</div>
+          ${url ? `<a class="go" href="${esc(url)}" target="_blank" rel="noopener">Zum Produkt →</a>` : ""}
+          <div class="meta"><span class="pill ${e.st[1]}">${e.st[0]}</span>
+            <span>${esc(e.distance_km)} km${e.street ? " · " + esc(e.street) : ""}</span></div></li>`;
+      }).join("") || `<li class="hint">Noch keine Filialdaten – kommen mit dem nächsten Abruf.</li>`;
+    }
 
     $("news").innerHTML = (data.news || []).slice(0, 12).map(n => {
       const url = safeUrl(n.link);

@@ -12,16 +12,17 @@ HEADERS = {
 try:
     from curl_cffi import requests as _http  # imitiert den TLS-Fingerprint eines echten Chrome
 
-    def _get(url: str, timeout: int):
-        return _http.get(url, headers=HEADERS, impersonate="chrome", timeout=timeout, allow_redirects=True)
+    def _get(url: str, timeout: int, headers: dict | None = None):
+        return _http.get(url, headers={**HEADERS, **(headers or {})}, impersonate="chrome",
+                         timeout=timeout, allow_redirects=True)
 except ImportError:  # pragma: no cover - lokale Umgebung ohne curl_cffi
     import requests as _http
 
     _UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
            "(KHTML, like Gecko) Chrome/128.0 Safari/537.36")
 
-    def _get(url: str, timeout: int):
-        return _http.get(url, headers={**HEADERS, "User-Agent": _UA}, timeout=timeout)
+    def _get(url: str, timeout: int, headers: dict | None = None):
+        return _http.get(url, headers={**HEADERS, "User-Agent": _UA, **(headers or {})}, timeout=timeout)
 
 
 class FetchError(Exception):
@@ -33,17 +34,18 @@ _BLOCK_MARKERS = ("captcha", "access denied", "are you a robot", "cf-challenge",
                   "pardon our interruption", "just a moment...", "attention required")
 
 
-def get(url: str, timeout: int = 25) -> str:
+def get(url: str, timeout: int = 25, headers: dict | None = None) -> str:
     """Seite laden; wirft FetchError bei HTTP-Fehler oder erkennbarer Bot-Sperre."""
     time.sleep(random.uniform(0.5, 1.5))  # höflich bleiben
     try:
-        r = _get(url, timeout)
+        r = _get(url, timeout, headers) if headers else _get(url, timeout)
     except Exception as e:  # Netzwerkfehler jeglicher Art
         raise FetchError(f"{type(e).__name__}: {e}") from e
     if r.status_code == 404:
         raise FetchError("HTTP 404 (Seite existiert nicht mehr?)")
     if r.status_code >= 400:
-        raise FetchError(f"HTTP {r.status_code}")
+        body = r.text.strip()[:150] if r.text.lstrip().startswith("{") else ""
+        raise FetchError(f"HTTP {r.status_code} {body}".strip())
     text = r.text
     head = text[:5000].lower()
     if len(text) < 20000 and any(m in head for m in _BLOCK_MARKERS):

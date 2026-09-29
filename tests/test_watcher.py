@@ -5,7 +5,7 @@ from unittest import mock
 
 import yaml
 
-from watcher import fetch, main, news
+from watcher import fetch, main, news, stores
 from watcher.parse import (IN_STOCK, OUT_OF_STOCK, PREORDER, available_from_text, extract, parse_price,
                            product_links, shopify_offer)
 
@@ -124,7 +124,7 @@ class FlowTests(unittest.TestCase):
     """Zustandswechsel: nur bei Änderung mailen."""
 
     def setUp(self):
-        self.cfg = {**CFG, "shops": [{"name": "MediaMarkt", "country": "DE", "ships_to_de": "yes",
+        self.cfg = {**CFG, "stores": None, "shops": [{"name": "MediaMarkt", "country": "DE", "ships_to_de": "yes",
                                       "urls": ["https://mm.example/p"]}]}
         self.state = main.load_state(Path("/nonexistent"))
         self.state["last_digest"] = "2026-09-29"  # Tagesmail für NOW schon verschickt
@@ -226,6 +226,38 @@ class SnapshotTests(unittest.TestCase):
     def test_shop_link_from_search(self):
         shop = {"search": ["https://s.example/?q={ean}"]}
         self.assertEqual(main.shop_link(shop, P), "https://s.example/?q=0196214144842")
+
+
+class StoreTests(unittest.TestCase):
+    CFG = {"lat": 51.3197, "lng": 12.3714, "radius_km": 10, "chains": ["MediaMarkt"], "queries": ["x"]}
+
+    def fake_gql(self, chain, operation, variables):
+        if operation == "GetClosestStoresWithFoundLocation":
+            return {"stores": [
+                {"outlet_id": 1, "name": "Leipzig Paunsdorf", "position": {"lat": 51.35, "lng": 12.46},
+                 "address": {"street": "Paunsdorfer Allee", "houseNumber": "1"}},
+                {"outlet_id": 2, "name": "Halle", "position": {"lat": 51.48, "lng": 11.97}}]}
+        if operation == "SearchV4":
+            return {"searchV4": {"products": [
+                {"id": "Media:de:2087300:1", "title": "POKÉMON Top-Trainer-Box 30 Jahre Sammelkarten", "url": "/de/p/x"},
+                {"id": "Media:de:111:1", "title": "Pokémon Top-Trainer-Box Karmesin"}]}}
+        return {"cofrPickupFeature": [{"id": "Media:de:2087300:1", "pickupStatus": "AVAILABLE_WITHIN_THIRTY_MINUTES"}]}
+
+    def test_store_check(self):
+        with mock.patch.object(stores, "_gql", side_effect=self.fake_gql):
+            entries, errors = stores.check(self.CFG, P, {})
+        self.assertEqual(errors, [])
+        self.assertEqual(len(entries), 1, "Halle liegt außerhalb von 10 km")
+        e = entries[0]
+        self.assertEqual((e["name"], e["status"], e["url"]),
+                         ("Leipzig Paunsdorf", "in_stock", "https://www.mediamarkt.de/de/p/x"))
+        self.assertLess(e["distance_km"], 10)
+
+    def test_store_errors_do_not_break_run(self):
+        with mock.patch.object(stores, "_gql", side_effect=ValueError("kaputt")):
+            entries, errors = stores.check(self.CFG, P, {})
+        self.assertEqual(entries, [])
+        self.assertIn("kaputt", errors[0])
 
 
 class ScheduleTests(unittest.TestCase):

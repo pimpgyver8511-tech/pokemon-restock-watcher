@@ -389,9 +389,11 @@
     }
     $("checkedAt").textContent = "zuletzt geprüft: " + fmt.format(new Date(data.checked_at));
     const range = `${euro(data.price.min)} – ${euro(data.price.max)}`;
-    const shops = data.shops.map(s => {
-      const [label, cls, rank] = s.error ? ["nicht prüfbar", "s-err", 5] : (STATUS[s.status] || STATUS.unknown);
-      return { ...s, label, cls, rank: s.in_range && !s.error ? 0 : rank };
+    // Shops, die gerade automatische Abrufe blocken, ausblenden – ihr Stand wäre nicht aktuell.
+    const blocked = data.shops.filter(s => s.error).map(s => s.name);
+    const shops = data.shops.filter(s => !s.error).map(s => {
+      const [label, cls, rank] = STATUS[s.status] || STATUS.unknown;
+      return { ...s, label, cls, rank: s.in_range ? 0 : rank };
     }).sort((a, b) => a.rank - b.rank || (a.price ?? 1e9) - (b.price ?? 1e9) || a.name.localeCompare(b.name));
 
     const hits = shops.filter(s => s.rank === 0);
@@ -408,15 +410,16 @@
       const extra = [
         s.price != null && s.status !== "not_listed" ? `<span class="price">${euro(s.price)}</span>` : "",
         `<span class="pill ${s.cls}">${s.label}</span>`,
+        s.available_from && s.status !== "not_listed" ? `<span>📦 Lieferung ab <b>${esc(s.available_from)}</b></span>` : "",
         !s.ships_to_de ? "<span>Versand nach DE prüfen</span>" : "",
         s.last_restock ? `<span>zuletzt verfügbar ab ${esc(s.last_restock)}</span>` : "",
-        s.error ? `<span title="${esc(s.error)}">Shop blockt automatische Abrufe</span>` : "",
       ].filter(Boolean).join("");
       return `<li class="offer${s.rank === 0 ? " hit" : ""}">
           <div class="shop">${flag(esc(s.country))}&nbsp;${esc(s.name)}</div>
           ${url ? `<a class="go" href="${esc(url)}" target="_blank" rel="noopener">${linkText}</a>` : ""}
           <div class="meta">${extra}</div></li>`;
-    }).join("");
+    }).join("") + (blocked.length
+      ? `<li class="hint">Ausgeblendet, weil der Shop automatische Abrufe gerade blockt: ${blocked.map(esc).join(", ")}</li>` : "");
 
     $("news").innerHTML = (data.news || []).slice(0, 12).map(n => {
       const url = safeUrl(n.link);

@@ -150,7 +150,8 @@ def evaluate(cfg: dict, state: dict, shop: dict, best: Result | None, errors: li
             if st.get("hit"):
                 events.append((2, f"❌ {name}: nicht mehr im Zielbereich (nicht mehr gelistet)"))
             st.update(fails=0, fail_alerted=False, last_error=None, status="not_listed",
-                      hit=False, price=None, url=None, last_ok=now.isoformat(timespec="minutes"))
+                      hit=False, price=None, url=None, available_from=None,
+                      last_ok=now.isoformat(timespec="minutes"))
         return events
 
     st.update(fails=0, fail_alerted=False, last_error=None)
@@ -160,6 +161,8 @@ def evaluate(cfg: dict, state: dict, shop: dict, best: Result | None, errors: li
     orderable = o.availability in ORDERABLE
     was_orderable = st.get("status") in ORDERABLE
     what = "VORBESTELLBAR" if o.availability == PREORDER else "VERFÜGBAR"
+    if o.available_from:
+        what += f" (Lieferung ab {o.available_from})"
 
     if hit and not was_hit:
         events.append((1, f"✅ {name} [{shop['country']}]: {what} für {fmt_price(o.price)}{ship}\n   {best.url}"))
@@ -174,7 +177,7 @@ def evaluate(cfg: dict, state: dict, shop: dict, best: Result | None, errors: li
 
     if orderable and not was_orderable:
         st["last_restock"] = now.astimezone(BERLIN).strftime("%d.%m. %H:%M")
-    st.update(hit=hit, status=o.availability, price=o.price, url=best.url,
+    st.update(hit=hit, status=o.availability, price=o.price, url=best.url, available_from=o.available_from,
               last_ok=now.isoformat(timespec="minutes"))
     return events
 
@@ -202,6 +205,7 @@ def snapshot(cfg: dict, state: dict, now: datetime) -> dict:
             "url": st.get("url") if status != "not_listed" and st.get("url") else None,
             "shop_url": shop_link(shop, cfg["product"]),
             "error": st.get("last_error") if st.get("fails") else None,
+            "available_from": st.get("available_from"),
             "last_ok": st.get("last_ok"), "last_restock": st.get("last_restock"),
         })
     return {
@@ -223,6 +227,8 @@ def overview(cfg: dict, state: dict) -> str:
             status = "nicht gelistet"
         else:
             status = f"{LABEL.get(st['status'], st['status'])}, {fmt_price(st.get('price'))}"
+            if st.get("available_from"):
+                status += f", Lieferung ab {st['available_from']}"
         restock = f", zuletzt verfügbar ab {st['last_restock']}" if st.get("last_restock") else ""
         lines.append(f"- {shop['name']} [{shop['country']}]: {status}{restock}")
     return "\n".join(lines)

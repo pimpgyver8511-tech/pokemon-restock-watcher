@@ -6,7 +6,7 @@ from unittest import mock
 import yaml
 
 from watcher import fetch, main, news
-from watcher.parse import (IN_STOCK, OUT_OF_STOCK, PREORDER, extract, parse_price,
+from watcher.parse import (IN_STOCK, OUT_OF_STOCK, PREORDER, available_from_text, extract, parse_price,
                            product_links, shopify_offer)
 
 CFG = yaml.safe_load((Path(__file__).parent.parent / "config.yaml").read_text())
@@ -77,6 +77,16 @@ class ParseTests(unittest.TestCase):
     def test_search_links(self):
         links = product_links(SEARCH_PAGE, "https://www.mediamarkt.at/de/search.html?query=x", P)
         self.assertEqual(links, ["https://www.mediamarkt.at/de/product/_pokemon-top-trainer-box-30-jahre-sammelkarten-2087300.html"])
+
+    def test_available_from(self):
+        page = (MICRODATA_PAGE.replace("</div></body>", "<p>Vorbestellung – verfügbar ab 9.10.</p></div></body>"))
+        self.assertEqual(extract(page, P).available_from, "09.10.")
+        self.assertEqual(available_from_text("Erscheinungstermin: 16.09.2026"), "16.09.2026")
+        self.assertEqual(available_from_text("Pokémon 30 Jahre TTB | EVT 16.09.26"), "16.09.2026")
+        self.assertIsNone(available_from_text("Versand in 1-3 Tagen, 30.5 cm"))
+        ld = (JSONLD_PAGE % "PreOrder").replace('"priceCurrency"', '"availabilityStarts":"2026-10-09","priceCurrency"')
+        o = extract(ld, P)
+        self.assertEqual((o.availability, o.available_from), (PREORDER, "09.10.2026"))
 
     def test_shopify(self):
         o = shopify_offer({"title": "Pokémon 30 Jahre Top-Trainer-Box", "available": True, "price": 6999,
@@ -190,6 +200,13 @@ class SnapshotTests(unittest.TestCase):
         self.run_with(OTHER_PRODUCT)  # Produkt verschwindet von der Seite
         mm = main.snapshot(self.cfg, self.state, NOW)["shops"][0]
         self.assertEqual((mm["status"], mm["price"], mm["in_range"], mm["url"]), ("not_listed", None, False, None))
+
+    def test_preorder_hit_with_date(self):
+        page = (JSONLD_PAGE % "PreOrder").replace('"priceCurrency"', '"availabilityStarts":"2026-10-09","priceCurrency"')
+        subject, body = self.run_with(page)
+        self.assertIn("🚨", subject)
+        self.assertIn("VORBESTELLBAR (Lieferung ab 09.10.2026)", body)
+        self.assertEqual(main.snapshot(self.cfg, self.state, NOW)["shops"][0]["available_from"], "09.10.2026")
 
     def test_shop_link_from_search(self):
         shop = {"search": ["https://s.example/?q={ean}"]}

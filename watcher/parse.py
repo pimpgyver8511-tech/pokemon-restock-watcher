@@ -31,6 +31,7 @@ class Offer:
     availability: str = UNKNOWN
     gtins: set[str] = field(default_factory=set)
     seller: str | None = None
+    available_from: str | None = None  # Liefertermin bei Vorbestellungen, "TT.MM.JJJJ" oder "TT.MM."
     source: str = ""  # jsonld | microdata | meta | text | shopify
 
 
@@ -134,6 +135,7 @@ def _offers_from_product(p: dict) -> list[Offer]:
             name=name, price=parse_price(price), currency=o.get("priceCurrency"),
             availability=normalize_availability(o.get("availability")),
             gtins=gt, seller=seller, source="jsonld",
+            available_from=_iso_to_de(o.get("availabilityStarts")),
         ))
     if not result:
         result.append(Offer(name=name, gtins=base_gtins, source="jsonld"))
@@ -248,6 +250,39 @@ def offers_from_meta(c: _AttrCollector) -> list[Offer]:
     )]
 
 
+# --------------------------------------------------------------------------- Liefertermin
+
+_DATE_RE = re.compile(
+    r"(?:verfügbar ab|lieferbar ab|erhältlich ab|versand ab|erscheint am|erscheint|erscheinungstermin|"
+    r"erscheinungsdatum|release|releasedatum|evt|vsl\.? ab|voraussichtlich ab|voraussichtlich)"
+    r"\s*:?\s*(?:am\s*)?(\d{1,2})\.\s?(\d{1,2})\.(?:\s?(\d{4}|\d{2})\b)?",
+    re.I,
+)
+
+
+def _iso_to_de(value) -> str | None:
+    m = re.match(r"(\d{4})-(\d{2})-(\d{2})", str(value or ""))
+    return f"{m[3]}.{m[2]}.{m[1]}" if m else None
+
+
+def available_from_text(text: str) -> str | None:
+    """Erstes plausibles "verfügbar ab 09.10."-Datum im Text."""
+    for m in _DATE_RE.finditer(text):
+        day, month, year = int(m[1]), int(m[2]), m[3]
+        if not (1 <= day <= 31 and 1 <= month <= 12):
+            continue
+        if year:
+            year = int(year) + (2000 if len(year) == 2 else 0)
+            return f"{day:02d}.{month:02d}.{year}"
+        return f"{day:02d}.{month:02d}."
+    return None
+
+
+def _plain_text(html: str) -> str:
+    text = re.sub(r"<script.*?</script>|<style.*?</style>", " ", html, flags=re.S | re.I)
+    return re.sub(r"\s+", " ", htmllib.unescape(re.sub(r"<[^>]+>", " ", text)))
+
+
 # --------------------------------------------------------------------------- Text-Heuristik
 
 _NEG = [
@@ -265,9 +300,7 @@ _POS = [
 
 
 def availability_from_text(html: str) -> str:
-    text = re.sub(r"<script.*?</script>|<style.*?</style>", " ", html, flags=re.S | re.I)
-    text = htmllib.unescape(re.sub(r"<[^>]+>", " ", text)).lower()
-    text = re.sub(r"\s+", " ", text)
+    text = _plain_text(html).lower()
     if any(p in text for p in _NEG):
         return OUT_OF_STOCK
     if any(p in text for p in _PRE):
@@ -322,9 +355,13 @@ def extract(html: str, product_cfg: dict) -> Offer | None:
             best.availability = o.availability
         if best.seller is None and o.seller:
             best.seller = o.seller
+        if best.available_from is None and o.available_from:
+            best.available_from = o.available_from
     if best.availability == UNKNOWN:
         best.availability = availability_from_text(html)
         best.source += "+text"
+    if best.available_from is None:
+        best.available_from = available_from_text(f"{best.name or ''} {_plain_text(html)}")
     return best
 
 
@@ -354,7 +391,9 @@ def shopify_offer(data: dict, product_cfg: dict) -> Offer | None:
     if not matches_product(title, gtins, product_cfg):
         return None
     price = data.get("price")
+    body = re.sub(r"<[^>]+>", " ", htmllib.unescape(data.get("description") or ""))
     return Offer(
+        available_from=available_from_text(f"{title} {body}"),
         name=title,
         price=price / 100 if isinstance(price, (int, float)) else parse_price(price),
         currency="EUR",

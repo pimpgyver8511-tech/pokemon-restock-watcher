@@ -35,6 +35,8 @@ notify_out_of_range: false
 failure_alert_after: 12
 
 # Shops: nur Händler, die selbst verkaufen (keine Marktplätze) und nach Deutschland liefern.
+# Entfernt, weil sie automatische Abrufe dauerhaft blocken: Thalia (DE/AT), Smyths Toys, Morawa,
+# Card Corner, Comicplanet.
 #   urls:        bekannte Produktseiten (am zuverlässigsten)
 #   search:      Such-URL, {ean} wird ersetzt; gefundene Produktlinks werden verfolgt
 #   ships_to_de: "yes" = bekannt, "check" = vor dem Kauf im Warenkorb prüfen
@@ -63,15 +65,6 @@ shops:
     country: DE
     ships_to_de: "yes"
     search: "https://www.hugendubel.de/de/search?q={ean}"
-  - name: Thalia
-    country: DE
-    ships_to_de: "yes"
-    search: "https://www.thalia.de/suche?sq={ean}"
-  - name: Smyths Toys
-    country: DE
-    ships_to_de: "yes"
-    urls:
-      - "https://www.smythstoys.com/de/de-de/spielzeug/action-spielzeug/pokemon/pokemon-karten/pokemon-karten-top-trainer-box-30-jahre-edition/p/264148"
 
   # --- Etablierte TCG-Fachhändler Deutschland ---
   - name: Spiele-Riese
@@ -79,21 +72,21 @@ shops:
     ships_to_de: "yes"
     urls:
       - "https://www.spiele-riese.de/shop/spielwelten/sammelkarten/19831/pokemon-30-jahre-top-trainer-box"
-  - name: Card Corner
-    country: DE
-    ships_to_de: "yes"
-    urls:
-      - "https://www.card-corner.de/Pokemon-30-Jahre-Top-Trainer-Box"
   - name: Brettspielbude
     country: DE
     ships_to_de: "yes"
     urls:
       - "https://www.brettspielbude.de/products/pokemon-30-jahre-top-trainer-box"
-  - name: Comicplanet
+  - name: Cards Paradise
     country: DE
     ships_to_de: "yes"
     urls:
-      - "https://www.comicplanet.de/sammelkarten/pokemon/deutsch/top-trainer-boxen-pkm/pokemon-30-jahre-top-trainer-box-deutsch"
+      - "https://www.cardsparadise.com/Pokemon-Jubilaeum-30-Jahre-Pokemon-Elite-Trainer-Box-Deutsch"
+  - name: Geeksheaven
+    country: DE
+    ships_to_de: "yes"
+    urls:
+      - "https://geeksheaven.de/products/pokemon-30-jahre-top-trainer-box-deutsch-vorbestellung"
   - name: Toys for Fun
     country: DE
     ships_to_de: "yes"
@@ -101,15 +94,11 @@ shops:
       - "https://www.toys-for-fun.com/de/pokemon-30-jahre-top-trainer-box.html"
 
   # --- EU (Versand nach DE im Warenkorb prüfen) ---
-  - name: Morawa
+  - name: SpielRaum
     country: AT
     ships_to_de: "check"
     urls:
-      - "https://www.morawa.at/detail/ISBN-0196214144842/Pok%C3%A9mon-Sammelkartenspiel-PKM-30-Jahre-Top-Trainer-Box"
-  - name: Thalia AT
-    country: AT
-    ships_to_de: "check"
-    search: "https://www.thalia.at/suche?sq={ean}"
+      - "https://www.spielraum.co.at/de/pokemon/product/30-jahre-top-trainer-box-de"
   - name: Master of Games (EN)
     country: ES
     ships_to_de: "check"

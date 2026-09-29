@@ -52,24 +52,26 @@ INFO: dict = {}  # Diagnose der zuletzt gelesenen Seite (Bildgröße, erkannte Z
 
 
 def ocr_image(url: str) -> str:
-    data = fetch.get_bytes(url)
+    data = fetch.get_bytes(url, headers={"Accept": "image/jpeg,image/png;q=0.9,*/*;q=0.5"})
     with tempfile.TemporaryDirectory() as d:
-        img = Path(d) / "page"
-        img.write_bytes(data)
-        size = ""
-        if shutil.which("identify"):
-            size = subprocess.run(["identify", "-format", "%wx%h", str(img)],
-                                  capture_output=True, text=True, timeout=30).stdout.strip()
-            # Kleine Seitenbilder hochskalieren – Tesseract liest Prospektschrift sonst schlecht.
-            w = int(size.split("x")[0]) if size[:1].isdigit() else 0
-            if 0 < w < 1800 and shutil.which("convert"):
-                big = Path(d) / "page_big.png"
-                subprocess.run(["convert", str(img), "-resize", f"{int(2000 / w * 100)}%", str(big)],
-                               capture_output=True, timeout=60)
-                img = big if big.exists() else img
-        out = subprocess.run(["tesseract", str(img), "stdout", "-l", "deu+eng", "--psm", "3"],
-                             capture_output=True, text=True, timeout=120)
-    INFO.update(size=size, chars=len(out.stdout))
+        img = Path(d) / "page.png"
+        size = f"{len(data) // 1024} KB"
+        try:  # Pillow liest auch WebP; Graustufen + Vergrößern verbessert die Erkennung deutlich
+            from PIL import Image, ImageOps
+            import io
+            im = Image.open(io.BytesIO(data))
+            size = f"{im.width}x{im.height}, {size}, {im.format}"
+            im = ImageOps.grayscale(im)
+            if im.width < 2200:
+                f = 2200 / im.width
+                im = im.resize((2200, int(im.height * f)), Image.LANCZOS)
+            im.save(img)
+        except Exception as e:
+            size += f", Pillow: {type(e).__name__}"
+            img.write_bytes(data)
+        out = subprocess.run(["tesseract", str(img), "stdout", "-l", "deu+eng", "--psm", "11"],
+                             capture_output=True, text=True, timeout=180)
+    INFO.update(size=size, chars=len(out.stdout), err=out.stderr.strip()[:120])
     return out.stdout
 
 
@@ -104,7 +106,8 @@ def scan(brochure_id: str, publisher: str | None, pages_data: dict, product_cfg:
             continue
         chars += INFO.get("chars", 0)
         if n == 0:
-            print(f"    Seite 1: {url[:90]} – Bild {INFO.get('size') or '?'}, {INFO.get('chars', 0)} Zeichen erkannt")
+            print(f"    Seite 1: {url[:90]} – Bild {INFO.get('size') or '?'}, {INFO.get('chars', 0)} Zeichen erkannt"
+                  + (f", tesseract: {INFO['err']}" if INFO.get("err") else ""))
         if found:
             hits.append({"page": n, **found})
     if not first and pages:

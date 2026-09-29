@@ -56,10 +56,10 @@ def get(url: str, timeout: int = 25, headers: dict | None = None) -> str:
     return text
 
 
-def get_bytes(url: str, timeout: int = 40) -> bytes:
+def get_bytes(url: str, timeout: int = 40, headers: dict | None = None) -> bytes:
     """Binärdaten (z. B. Prospektbilder) laden."""
     try:
-        r = _get(url, timeout)
+        r = _get(url, timeout, headers) if headers else _get(url, timeout)
     except Exception as e:
         raise FetchError(f"{type(e).__name__}: {e}") from e
     if r.status_code >= 400:

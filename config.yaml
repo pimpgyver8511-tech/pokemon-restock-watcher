@@ -95,6 +95,18 @@ shops:
     aggregator: true
     urls:
       - "https://geizhals.eu/pok-mon-30-jahre-top-trainer-box-a3942792.html"
+  - name: Geizhals AT (Preisvergleich)
+    country: AT
+    ships_to_de: "check"
+    aggregator: true
+    urls:
+      - "https://geizhals.at/pok-mon-30-jahre-top-trainer-box-a3942792.html"
+  - name: PokeSelect NL/BE (Preisvergleich)
+    country: NL
+    ships_to_de: "check"
+    aggregator: true
+    urls:
+      - "https://pokeselect.nl/product/30th-celebration-elite-trainer-box"
   - name: idealo (Preisvergleich)
     country: DE
     ships_to_de: "yes"
@@ -185,6 +197,47 @@ shops:
     ships_to_de: "yes"
     urls:
       - "https://www.maxgaming.com/en/pokemon/pokemon-30th-celebration-elite-trainer-box"
+  # --- Nachbarländer (Versand nach DE im Warenkorb prüfen) ---
+  - name: TCG Love
+    country: DE
+    ships_to_de: "yes"
+    urls:
+      - "https://tcg-love.de/pokemon-30-jahre-top-trainer-box-deutsch/"
+  - name: Speelkaartenwinkel (EN)
+    country: NL
+    ships_to_de: "check"
+    urls:
+      - "https://www.speelkaartenwinkel.nl/pokemon-30th-celebration-elite-trainer-box.html"
+  - name: TCG World (EN)
+    country: NL
+    ships_to_de: "check"
+    urls:
+      - "https://tcgworld.nl/products/30th-celebration-elite-trainer-box"
+  - name: TCG Company (EN)
+    country: NL
+    ships_to_de: "check"
+    urls:
+      - "https://tcgcompany.nl/30th-celebration-elite-trainer-box/"
+  - name: TBHstore (EN)
+    country: NL
+    ships_to_de: "check"
+    urls:
+      - "https://www.tbhstore.nl/a-113751641/sealed-producten-pokemon-tcg-engels/pre-order-pokemon-tcg-30th-celebration-elite-trainer-box-langere-levertijd/"
+  - name: Dracoon (EN)
+    country: NL
+    ships_to_de: "check"
+    urls:
+      - "https://dracoon.nl/product/pokemon-30th-celebration-elite-trainer-box/"
+  - name: Fox & Co (EN)
+    country: BE
+    ships_to_de: "check"
+    urls:
+      - "https://www.foxandco-oostende.be/pokemon-30th-celebration-elite-trainer-box.html"
+  - name: Global Card Shop (EN)
+    country: EU
+    ships_to_de: "check"
+    urls:
+      - "https://globalcardshop.com/product/30th-celebration-elite-trainer-box/"
   - name: Master of Games (EN)
     country: ES
     ships_to_de: "check"

@@ -1,12 +1,12 @@
 name: Pokémon-Watcher
+# Von außen angestoßene Takt-Läufe (auto=true) bekommen einen eigenen Namen, damit die UI sie erkennt.
+run-name: ${{ inputs.auto && 'Automatischer Abruf' || 'Pokémon-Watcher' }}
 
 on:
   schedule:
     # Alle 10 Minuten anstoßen; ob wirklich geprüft wird, entscheiden Intervall und Zeitfenster
     # (Web-Oberfläche bzw. config.yaml). GitHub startet geplante Läufe teils einige Minuten später.
     - cron: "3-59/10 * * * *"
-    # Einmaliger Testlauf am 29.09. um 15:25 Uhr deutscher Zeit (13:25 UTC)
-    - cron: "25 13 29 9 *"
   workflow_dispatch:
     inputs:
       test_mail:
@@ -16,6 +16,12 @@ on:
       shop:
         description: "Nur diesen Shop prüfen (leer = alle)"
         required: false
+      auto:
+        # Für externe Taktgeber (z. B. cron-job.org), falls GitHubs eigener Zeitplan ausfällt:
+        # dann gelten Intervall und Zeitfenster wie bei einem geplanten Lauf.
+        description: "Automatischer Takt-Lauf (Intervall/Zeitfenster beachten)"
+        type: boolean
+        default: false
 
 permissions:
   contents: write # Stand für die Web-Oberfläche auf den Branch "status" schreiben
@@ -75,7 +81,7 @@ jobs:
         # Manuell gestartete Läufe prüfen immer, unabhängig von Intervall und Zeitfenster.
         run: >-
           python -m watcher.main
-          ${{ (github.event_name == 'workflow_dispatch' || github.event.schedule == '25 13 29 9 *') && '--force' || '' }}
+          ${{ (github.event_name == 'workflow_dispatch' && !inputs.auto) && '--force' || '' }}
           ${{ inputs.shop && format('--shop "{0}"', inputs.shop) || '' }}
 
       - name: Stand speichern

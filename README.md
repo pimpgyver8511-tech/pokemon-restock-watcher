@@ -63,6 +63,22 @@ Der Stand jedes Abrufs wird als `status.json` auf den Branch `status` geschriebe
 Die Einstellungen landen als Repo-Variablen (Settings → Secrets and variables → Actions → Variables) und haben
 Vorrang vor `config.yaml`.
 
+## Externer Taktgeber (falls GitHubs Zeitplan nicht startet)
+GitHub führt geplante Läufe (`schedule`) nicht immer zuverlässig aus. Dann stößt ein kostenloser externer
+Cron-Dienst den Watcher alle 10 Minuten an; Intervall und Zeitfenster aus der Web-Oberfläche gelten weiterhin.
+
+Einrichtung bei [cron-job.org](https://cron-job.org) (kostenlos): *Create cronjob* →
+- **URL:** `https://api.github.com/repos/pimpgyver8511-tech/pokemon-restock-watcher/actions/workflows/watch.yml/dispatches`
+- **Zeitplan:** alle 10 Minuten
+- **Advanced → Request method:** `POST`
+- **Headers:** `Authorization: Bearer <dein Token>`, `Accept: application/vnd.github+json`,
+  `Content-Type: application/json`
+- **Request body:** `{"ref":"main","inputs":{"auto":"true"}}`
+
+Als Token genügt der Fine-grained Token der Web-Oberfläche (Actions: Read and write).
+Erfolgreich ist der Aufruf, wenn cron-job.org den Status **204** meldet; in der Oberfläche erscheinen die Läufe
+als „automatisch“.
+
 ## Anpassen
 Alles steht in `config.yaml`: Preisgrenzen, Shops, Such-URLs, News-Feeds.
 - **Neuen Shop hinzufügen:** Eintrag mit `name`, `country`, `ships_to_de` und entweder `urls`

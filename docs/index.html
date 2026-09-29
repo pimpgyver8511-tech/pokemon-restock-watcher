@@ -354,7 +354,7 @@
       const data = await gh(`/actions/workflows/${WORKFLOW}/runs?per_page=12`);
       const rows = data.workflow_runs.map(r => `<tr>
           <td>${fmt.format(new Date(r.created_at))}</td>
-          <td>${r.event === "schedule" ? "automatisch" : "manuell"}</td>
+          <td>${r.event === "schedule" || r.display_title === "Automatischer Abruf" ? "automatisch" : "manuell"}</td>
           <td>${statusPill(r)}</td>
           <td><a href="${r.html_url}" target="_blank" rel="noopener">Details</a></td></tr>`);
       $("runs").innerHTML = rows.join("") || `<tr><td colspan="4" class="hint">Noch keine Läufe.</td></tr>`;
@@ -439,7 +439,7 @@
       for (let i = 0; i < 36; i++) {
         await new Promise(r => setTimeout(r, 5000));
         const runs = await loadRuns();
-        const mine = runs.find(r => r.event === "workflow_dispatch" && new Date(r.created_at) >= new Date(before - 60000));
+        const mine = runs.find(r => r.event === "workflow_dispatch" && r.display_title !== "Automatischer Abruf" && new Date(r.created_at) >= new Date(before - 60000));
         if (mine && mine.status === "completed") {
           const ok = mine.conclusion === "success";
           msg($("runMsg"), ok ? `✓ ${label} abgeschlossen.` : `✗ ${label} fehlgeschlagen – siehe „Details“.`, ok ? "ok" : "err");

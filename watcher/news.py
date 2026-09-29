@@ -49,10 +49,18 @@ def parse_feed(xml_text: str, source: str) -> list[NewsItem]:
 
 
 def relevant(item: NewsItem, cfg: dict) -> bool:
-    text = f"{item.title} {item.source}".lower()
+    """Nur Meldungen zur Top-Trainer-/Elite-Trainer-Box, nicht zu anderen 30-Jahre-Produkten."""
+    title = item.title.lower()
+    text = f"{title} {item.source}".lower()
     if any(w in text for w in cfg.get("exclude_any", [])):
         return False
-    return any(w in text for w in cfg["must_any"]) and any(w in text for w in cfg["also_any"])
+    return any(w in title for w in cfg["must_any"]) and any(w in text for w in cfg["type_any"])
+
+
+def relevant_title(title: str, cfg: dict) -> bool:
+    """Grobprüfung für bereits gespeicherte Meldungen (nur die Überschrift ist bekannt)."""
+    t = title.lower()
+    return any(w in t for w in cfg["must_any"]) and not any(w in t for w in cfg.get("exclude_any", []))
 
 
 def check(cfg: dict, state: dict, now: datetime | None = None) -> tuple[list[NewsItem], list[str]]:

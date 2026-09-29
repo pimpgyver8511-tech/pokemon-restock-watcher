@@ -152,9 +152,11 @@ news:
     - "https://collectors-junkies.com/feed/"
     # Tipp: Den RSS-Feed eines eigenen mydealz-Schlagwort-Alarms (Profil → Einstellungen →
     # Schlagwort-Alarme) kannst du hier zusätzlich eintragen.
-  # Meldungen mit diesen Wörtern ignorieren (US-Deals u. Ä.).
-  exclude_any: ["$", "amazon.com", "target", "walmart", "best buy", "gamestop"]
-  # Ein Eintrag muss eines dieser Wörter enthalten (Groß-/Kleinschreibung egal) ...
+  # Die Überschrift muss eines dieser Wörter enthalten (Groß-/Kleinschreibung egal) …
   must_any: ["30 jahre", "30th celebration", "jubiläum"]
-  # ... und eines dieser.
-  also_any: ["top-trainer", "top trainer", "elite trainer", "restock", "nachschub", "wieder verfügbar", "wieder da", "vorbestell", "lieferbar", "angebot", "deal"]
+  # … und Überschrift oder Text muss sich auf die Top-Trainer-/Elite-Trainer-Box beziehen.
+  type_any: ["top-trainer", "top trainer", "toptrainer", "elite trainer", "elite-trainer", "ttb", "etb"]
+  # Meldungen mit diesen Wörtern ignorieren (US-Deals, andere Produkte, andere Sprachen).
+  exclude_any: ["$", "amazon.com", "target", "walmart", "best buy", "gamestop",
+                "sticker", "mini-tin", "tin box", "booster bundle", "tcg live", "blister", "sammelmappe",
+                "amazon it", "amazon fr", "amazon jp", "amazon es", "japanisch", "japanese"]

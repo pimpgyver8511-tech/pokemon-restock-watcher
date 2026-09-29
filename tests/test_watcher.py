@@ -43,6 +43,9 @@ RSS = """<?xml version="1.0"?><rss><channel>
 <item><title>Pokémon 30 Jahre: Top-Trainer-Box wieder verfügbar bei Müller</title><link>https://n/1</link>
 <guid>1</guid><pubDate>Mon, 28 Sep 2026 10:00:00 GMT</pubDate></item>
 <item><title>30th Celebration Elite Trainer Box restock for $49.99 at Target</title><link>https://n/4</link><guid>4</guid></item>
+<item><title>Pokemon 30th Celebration Tech Sticker Kollektion</title><link>https://n/5</link><guid>5</guid>
+<description>Passend zur Top-Trainer-Box</description></item>
+<item><title>Rain World Deluxe Edition</title><link>https://n/6</link><guid>6</guid><description>30 Jahre Jubiläum Top Trainer</description></item>
 <item><title>Neue Fußballschuhe im Angebot</title><link>https://n/2</link><guid>2</guid></item>
 <item><title>30 Jahre Top-Trainer-Box Restock (alt)</title><link>https://n/3</link>
 <guid>3</guid><pubDate>Mon, 01 Jun 2026 10:00:00 GMT</pubDate></item>

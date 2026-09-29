@@ -237,6 +237,10 @@ def load_state(path: Path) -> dict:
         state = {}
     state.setdefault("shops", {})
     state.setdefault("discovered", {})
+    # Altes ISO-Format stammt aus dem ersten Lauf vor dem Marktplatz-Filter und ist teils falsch.
+    for st in state["shops"].values():
+        if "T" in (st.get("last_restock") or ""):
+            del st["last_restock"]
     return state
 
 

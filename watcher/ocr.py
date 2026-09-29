@@ -39,11 +39,17 @@ def page_images(page: dict) -> str | None:
     if not candidates:
         return None
 
+    # kaufda/bonial liefert Varianten über ?impolicy=…: zoomlarge (größte) > large > 768x1024 > preview
+    rank = {"zoomlarge": 4, "large": 3, "preview": 0}
+
     def score(kv):
         k, v = kv
-        text = f"{k} {v}".lower()
-        size = max([int(n) for n in re.findall(r"(\d{3,4})(?=\D)", v)] or [0])
-        return (any(w in text for w in ("zoom", "large", "original", "full", "hd")), size)
+        policy = (re.search(r"impolicy=([\w-]+)", v) or [None, ""])[1].lower()
+        if policy in rank:
+            return rank[policy]
+        if re.fullmatch(r"\d+x\d+", policy or ""):
+            return 2
+        return 1 if "page" in v else -1  # Produktbilder (main.jpg o. ä.) nur notfalls
     return max(candidates, key=score)[1]
 
 

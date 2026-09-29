@@ -353,10 +353,16 @@ class OcrTests(unittest.TestCase):
         self.assertFalse(ocr.find_pokemon("Pokémon Booster 4,99", P)["exact"])
         self.assertIsNone(ocr.find_pokemon("Krombacher 11,99", P))
 
+    def test_page_images_bonial_policy(self):
+        base = "https://content-media.bonial.biz/5006-86be/zoomlarge_page_0.jpg?impolicy="
+        page = {"a": [{"url": base + p} for p in ("768x1024", "large", "preview", "zoomlarge")],
+                "image": "https://content-media.bonial.biz/x/main.jpg"}
+        self.assertEqual(ocr.page_images(page), base + "zoomlarge")
+
     def test_page_images_prefers_large(self):
-        page = {"images": {"thumb": "https://img.example/p1_200.jpg", "zoom": "https://img.example/p1_1600.jpg"},
+        page = {"images": {"thumb": "https://img.example/thumb.jpg", "zoom": "https://img.example/page_1.jpg"},
                 "link": "https://example/x.html"}
-        self.assertEqual(ocr.page_images(page), "https://img.example/p1_1600.jpg")
+        self.assertEqual(ocr.page_images(page), "https://img.example/page_1.jpg")
         self.assertIsNone(ocr.page_images({"offers": []}))
 
 

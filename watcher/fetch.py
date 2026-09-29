@@ -29,7 +29,8 @@ class FetchError(Exception):
 
 
 _BLOCK_MARKERS = ("captcha", "access denied", "are you a robot", "cf-challenge",
-                  "request unsuccessful", "px-captcha", "_incapsula_", "bot protection")
+                  "request unsuccessful", "px-captcha", "_incapsula_", "bot protection",
+                  "pardon our interruption", "just a moment...", "attention required")
 
 
 def get(url: str, timeout: int = 25) -> str:

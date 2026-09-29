@@ -67,6 +67,16 @@ shops:
     country: DE
     ships_to_de: "yes"
     search: "https://www.mueller.de/search/?q={ean}"
+  - name: Rossmann
+    country: DE
+    ships_to_de: "yes"
+    search: "https://www.rossmann.de/de/search/?text={ean}"
+  # kaufland.de ist überwiegend Marktplatz – nur Angebote, die Kaufland selbst verkauft.
+  - name: Kaufland
+    country: DE
+    ships_to_de: "yes"
+    seller_any: ["kaufland"]
+    search: "https://www.kaufland.de/s/?search_value={ean}"
   - name: Hugendubel
     country: DE
     ships_to_de: "yes"
@@ -196,11 +206,12 @@ flyers:
   postal_code: "04275"
   lat: 51.3197
   lng: 12.3714
-  queries: ["Pokemon", "Pokémon Sammelkarten", "Top-Trainer-Box"]
+  queries: ["Pokemon", "Pokémon", "Pokemon Karten", "Pokémon Sammelkarten", "Top-Trainer-Box"]
   pages: ["https://www.kaufda.de/Leipzig/Angebote/Pokemon"]
-  max_brochures: 40
-  # Sonstige Pokémon-Sammelkarten-Angebote (Booster, Displays …) nur als Info, nie als Treffer.
-  related_any: ["sammelkarte", "sammelkartenspiel", "karten", "tcg", "booster", "trading card", "trainer"]
+  max_brochures: 60
+  # Alle übrigen Pokémon-Angebote (Karten, Spielzeug, Plüsch …) werden als Info angezeigt,
+  # aber nie als Treffer gemeldet. Leere Liste = alles mit "Pokémon".
+  related_any: []
 
 # Restock-News: RSS-Feeds, neue Einträge mit passenden Stichworten werden gemeldet.
 news:

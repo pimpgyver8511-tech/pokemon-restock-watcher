@@ -312,7 +312,7 @@ def run(cfg: dict, state: dict, now: datetime, only: str | None = None,
                                   f"{fmt_price(o['price'])} (gültig {period})\n   {o.get('url') or ''}"))
                 seen.add(o["id"])
         if offers or not flyer_errors:
-            state["flyer_offers"] = [o for o in offers if not o.get("valid_until") or o["valid_until"] >= today][:40]
+            state["flyer_offers"] = [o for o in offers if not o.get("valid_until") or o["valid_until"] >= today][:80]
             state["flyer_seen"] = sorted(seen)[-300:]
 
     news_items: list[news.NewsItem] = []

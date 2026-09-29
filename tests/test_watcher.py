@@ -268,7 +268,7 @@ class StoreTests(unittest.TestCase):
 
 class FlyerTests(unittest.TestCase):
     CFG = {"postal_code": "04275", "lat": 51.3, "lng": 12.37, "queries": ["Pokemon"], "pages": [],
-           "related_any": ["booster", "sammelkarte"]}
+           "related_any": []}
     SEARCH = {"searchResults": {"contents": {"brochures": [{"content": {"id": "b1"}}]}}}
     PAGES = {"contents": [{"offers": [
         {"content": {"id": "o1", "publisher": {"name": "Müller"},
@@ -291,7 +291,7 @@ class FlyerTests(unittest.TestCase):
             offers, errors = flyers.check(self.CFG, P)
         self.assertEqual(errors, [])
         self.assertEqual([(o["kind"], o["store"], o["price"]) for o in offers],
-                         [("exact", "Müller", 54.99), ("pokemon", "Kaufland", 4.99)])
+                         [("exact", "Müller", 54.99), ("pokemon", "Kaufland", 4.99), ("pokemon", None, None)])
         self.assertIn("contentViewer/static/b1", offers[0]["url"])
         self.assertEqual(offers[0]["valid_until"], "2026-10-04")
 

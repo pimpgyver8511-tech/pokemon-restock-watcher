@@ -52,10 +52,10 @@
   .s-ok { color: var(--ok); } .s-run { color: var(--warn); } .s-err { color: var(--err); } .s-other { color: var(--muted); }
   .hidden { display: none; }
   .offers { list-style: none; margin: 0; padding: 0; }
-  .offer { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: center;
+  .offer { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; align-items: center;
            padding: 12px; border: 1px solid var(--line); border-radius: 10px; margin-bottom: 8px; }
   .offer.hit { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 10%, var(--card)); }
-  .offer .shop { font-weight: 600; }
+  .offer .shop { font-weight: 600; overflow-wrap: anywhere; }
   .offer .meta { grid-column: 1; display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center;
                  font-size: .88rem; color: var(--muted); }
   .offer .price { font-weight: 700; color: var(--text); font-size: 1rem; }
@@ -71,6 +71,17 @@
   .news li:last-child { border-bottom: 0; }
   .news a { color: var(--text); }
   .news small { color: var(--muted); display: block; }
+  .sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+  .sec-head h2 { margin: 0; }
+  .sec-desc { margin: 4px 0 12px; }
+  .count { font-size: .8rem; color: var(--muted); border: 1px solid var(--line); border-radius: 99px; padding: 1px 9px; }
+  .jump { display: flex; flex-wrap: wrap; gap: 8px; }
+  .jump a { text-decoration: none; color: var(--text); border: 1px solid var(--line); border-radius: 99px;
+            padding: 5px 12px; font-size: .88rem; background: var(--input); }
+  .jump a b { color: var(--ok); }
+  .sub { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted);
+         margin: 14px 0 6px; list-style: none; }
+  .sub:first-child { margin-top: 0; }
   details summary { cursor: pointer; color: var(--muted); font-size: .9rem; }
   code { font-size: .85em; }
   .table-wrap { overflow-x: auto; }
@@ -109,33 +120,50 @@
   </section>
 
   <div id="app" class="hidden">
-    <!-- Angebote -->
-    <section class="card">
+    <!-- Übersicht -->
+    <section class="card" id="summary">
       <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:10px">
-        <h2 style="margin:0">🛒 Angebote</h2>
+        <h2 style="margin:0">📋 Übersicht</h2>
         <span class="hint" id="checkedAt" style="margin:0"></span>
       </div>
       <div id="banner" class="banner hidden"></div>
+      <nav class="jump" id="jump"></nav>
+    </section>
+
+    <!-- Shop-Angebote -->
+    <section class="card" id="sec-shops">
+      <div class="sec-head"><h2>🛒 Shop-Angebote</h2><span class="count" id="cnt-shops"></span></div>
+      <p class="hint sec-desc">Direkt bei Händlern ohne Marktplatz. Treffer im Preisbereich stehen oben.</p>
       <ul class="offers" id="offers"><li class="hint">Lade …</li></ul>
     </section>
 
-    <!-- Filialen -->
-    <section class="card hidden" id="storesCard">
-      <h2 id="storesTitle">🏬 Filialen in deiner Nähe</h2>
-      <ul class="offers" id="stores"></ul>
-      <p class="hint">Abholbestand laut MediaMarkt/Saturn. Vor dem Losfahren im Markt oder online reservieren.</p>
+    <!-- Preisvergleiche -->
+    <section class="card" id="sec-compare">
+      <div class="sec-head"><h2>📊 Preisvergleiche</h2><span class="count" id="cnt-compare"></span></div>
+      <p class="hint sec-desc">Günstigster gelisteter Preis über viele Shops – nur ein Anhaltspunkt (oft Amazon-Einladung
+        oder veraltet), deshalb nie als Treffer gewertet.</p>
+      <ul class="offers" id="compare"></ul>
     </section>
 
     <!-- Prospekte -->
     <section class="card hidden" id="flyersCard">
-      <h2 id="flyersTitle">🗞️ Prospekt-Angebote</h2>
+      <div class="sec-head"><h2 id="flyersTitle">🗞️ Prospekte</h2><span class="count" id="cnt-flyers"></span></div>
+      <p class="hint sec-desc">Pokémon-Angebote aus aktuellen Prospekten (kaufda.de, marktguru.de). Hervorgehoben: die
+        Top-Trainer-Box im Preisbereich.</p>
       <ul class="offers" id="flyers"></ul>
-      <p class="hint">Aus den aktuellen Prospekten auf kaufda.de und marktguru.de. „Weitere Pokémon-Angebote“ sind nur zur Info.</p>
+    </section>
+
+    <!-- Filialen -->
+    <section class="card hidden" id="storesCard">
+      <div class="sec-head"><h2 id="storesTitle">🏬 Filialen in deiner Nähe</h2></div>
+      <ul class="offers" id="stores"></ul>
+      <p class="hint">Abholbestand laut MediaMarkt/Saturn. Vor dem Losfahren im Markt oder online reservieren.</p>
     </section>
 
     <!-- News -->
-    <section class="card">
-      <h2>📰 Restock-News</h2>
+    <section class="card" id="sec-news">
+      <div class="sec-head"><h2>📰 Restock-News</h2><span class="count" id="cnt-news"></span></div>
+      <p class="hint sec-desc">Deal-Portale, mydealz, TCG-Newsseiten und Google News – nur Meldungen zur Top-Trainer-Box.</p>
       <ul class="news" id="news"><li class="hint">Lade …</li></ul>
     </section>
 
@@ -407,37 +435,64 @@
     const blocked = data.shops.filter(s => s.error).map(s => s.name);
     const shops = data.shops.filter(s => !s.error).map(s => {
       const [label, cls, rank] = STATUS[s.status] || STATUS.unknown;
-      // Preisvergleiche nach den echten Shops einsortieren (Preis dort nur ein Anhaltspunkt).
-      return { ...s, label, cls, rank: s.in_range ? 0 : (s.aggregator ? 3.5 : rank) };
+      return { ...s, label, cls, rank: s.in_range ? 0 : rank };
     }).sort((a, b) => a.rank - b.rank || (a.price ?? 1e9) - (b.price ?? 1e9) || a.name.localeCompare(b.name));
+    const direct = shops.filter(s => !s.aggregator);
+    const compare = shops.filter(s => s.aggregator);
 
-    const hits = shops.filter(s => s.rank === 0);
-    const banner = $("banner");
-    banner.classList.remove("hidden");
-    banner.className = "banner" + (hits.length ? " hit" : "");
-    banner.textContent = hits.length
-      ? `🎉 ${hits.length} Angebot${hits.length > 1 ? "e" : ""} im Preisbereich ${range} – schnell sein!`
-      : `Aktuell kein Angebot im Preisbereich ${range}. Sobald eins auftaucht, steht es hier ganz oben.`;
-
-    $("offers").innerHTML = shops.map(s => {
+    const renderShop = s => {
       const url = safeUrl(s.url) || safeUrl(s.shop_url);
-      const linkText = s.aggregator ? "Angebote vergleichen →"
+      const linkText = s.aggregator ? "Vergleichen →"
         : safeUrl(s.url) ? (s.rank === 0 ? "Jetzt kaufen →" : "Zum Angebot →") : "Im Shop ansehen →";
       const extra = [
-        s.price != null && s.status !== "not_listed" ? `<span class="price">${euro(s.price)}</span>` : "",
-        `<span class="pill ${s.cls}">${s.aggregator && s.price != null ? "günstigstes Angebot" : s.label}</span>`,
+        s.price != null && s.status !== "not_listed" ? `<span class="price">${s.aggregator ? "ab " : ""}${euro(s.price)}</span>` : "",
+        s.aggregator ? "" : `<span class="pill ${s.cls}">${s.label}</span>`,
         s.discovered ? "<span>🆕 per Shopify-Suche gefunden</span>" : "",
-        s.aggregator ? "<span>Preisvergleich – günstigster gelisteter Preis, oft Amazon-Einladung oder veraltet</span>" : "",
         s.available_from && s.status !== "not_listed" ? `<span>📦 Lieferung ab <b>${esc(s.available_from)}</b></span>` : "",
         !s.ships_to_de ? "<span>Versand nach DE prüfen</span>" : "",
-        s.last_restock ? `<span>zuletzt verfügbar ab ${esc(s.last_restock)}</span>` : "",
+        s.last_restock && !s.aggregator ? `<span>zuletzt verfügbar ab ${esc(s.last_restock)}</span>` : "",
       ].filter(Boolean).join("");
       return `<li class="offer${s.rank === 0 ? " hit" : ""}">
-          <div class="shop">${flag(esc(s.country))}&nbsp;${esc(s.name)}</div>
+          <div class="shop">${flag(esc(s.country))}&nbsp;${esc(s.name.replace(" (Preisvergleich)", ""))}</div>
           ${url ? `<a class="go" href="${esc(url)}" target="_blank" rel="noopener">${linkText}</a>` : ""}
           <div class="meta">${extra}</div></li>`;
-    }).join("") + (blocked.length
-      ? `<li class="hint">Ausgeblendet, weil der Shop automatische Abrufe gerade blockt: ${blocked.map(esc).join(", ")}</li>` : "");
+    };
+
+    // Shop-Angebote in Gruppen: Treffer, bestellbar, ausverkauft (mit Preis), nicht gelistet
+    const groups = [
+      ["Im Preisbereich", direct.filter(s => s.rank === 0)],
+      ["Lieferbar, aber teurer", direct.filter(s => s.rank === 1)],
+      ["Ausverkauft – wird bei Restock gemeldet", direct.filter(s => s.rank === 2 || s.rank === 3)],
+      ["Nicht gelistet", direct.filter(s => s.rank === 4)],
+    ].filter(([, list]) => list.length);
+    $("offers").innerHTML = groups.map(([title, list]) =>
+      `<li class="sub">${title} (${list.length})</li>` + list.map(renderShop).join("")).join("")
+      + (blocked.length ? `<li class="hint">Ausgeblendet, weil der Shop automatische Abrufe gerade blockt: ${blocked.map(esc).join(", ")}</li>` : "");
+    $("compare").innerHTML = compare.map(renderShop).join("") || `<li class="hint">Keine Preisvergleiche erreichbar.</li>`;
+
+    const flyerHits = (data.flyers || []).filter(o => o.kind === "exact" && o.price != null
+      && o.price >= data.price.min && o.price <= data.price.max);
+    const hits = direct.filter(s => s.rank === 0).length + flyerHits.length;
+    const banner = $("banner");
+    banner.classList.remove("hidden");
+    banner.className = "banner" + (hits ? " hit" : "");
+    banner.textContent = hits
+      ? `🎉 ${hits} Angebot${hits > 1 ? "e" : ""} im Preisbereich ${range} – schnell sein!`
+      : `Aktuell kein Angebot im Preisbereich ${range}. Sobald eins auftaucht, steht es hier ganz oben.`;
+
+    const inRange = direct.filter(s => s.rank === 0).length;
+    const newsCount = (data.news || []).length;
+    const flyerCount = (data.flyers || []).length;
+    $("cnt-shops").textContent = `${direct.length} Shops`;
+    $("cnt-compare").textContent = `${compare.length}`;
+    $("cnt-flyers").textContent = `${flyerCount}`;
+    $("cnt-news").textContent = `${newsCount}`;
+    $("jump").innerHTML = [
+      ["sec-shops", "🛒 Shops", inRange ? `<b>${inRange} im Preisbereich</b>` : `${direct.length}`],
+      ["sec-compare", "📊 Preisvergleiche", `${compare.length}`],
+      ...(data.flyers_area ? [["flyersCard", "🗞️ Prospekte", flyerHits.length ? `<b>${flyerHits.length} Treffer</b>` : `${flyerCount}`]] : []),
+      ["sec-news", "📰 News", `${newsCount}`],
+    ].map(([id, label, n]) => `<a href="#${id}">${label} · ${n}</a>`).join("");
 
     const area = data.stores_area;
     if (area) {
@@ -460,7 +515,7 @@
 
     if (data.flyers_area) {
       $("flyersCard").classList.remove("hidden");
-      $("flyersTitle").textContent = `🗞️ Prospekt-Angebote rund um ${data.flyers_area}`;
+      $("flyersTitle").textContent = `🗞️ Prospekte rund um ${data.flyers_area}`;
       const d = v => v ? new Date(v).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit" }) : "?";
       $("flyers").innerHTML = (data.flyers || []).map(o => {
         const url = safeUrl(o.url);

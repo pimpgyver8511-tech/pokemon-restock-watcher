@@ -42,7 +42,7 @@ failure_alert_after: 12
 
 # Shops: nur Händler, die selbst verkaufen (keine Marktplätze) und nach Deutschland liefern.
 # Entfernt, weil sie automatische Abrufe dauerhaft blocken: Thalia (DE/AT), Smyths Toys, Morawa,
-# Card Corner, Comicplanet, gameware.at, Poromagia.
+# Card Corner, Comicplanet, gameware.at, Poromagia, TCG Company, TBHstore.
 #   urls:        bekannte Produktseiten (am zuverlässigsten)
 #   search:      Such-URL, {ean} wird ersetzt; gefundene Produktlinks werden verfolgt
 #   ships_to_de: "yes" = bekannt, "check" = vor dem Kauf im Warenkorb prüfen
@@ -213,16 +213,6 @@ shops:
     ships_to_de: "check"
     urls:
       - "https://tcgworld.nl/products/30th-celebration-elite-trainer-box"
-  - name: TCG Company (EN)
-    country: NL
-    ships_to_de: "check"
-    urls:
-      - "https://tcgcompany.nl/30th-celebration-elite-trainer-box/"
-  - name: TBHstore (EN)
-    country: NL
-    ships_to_de: "check"
-    urls:
-      - "https://www.tbhstore.nl/a-113751641/sealed-producten-pokemon-tcg-engels/pre-order-pokemon-tcg-30th-celebration-elite-trainer-box-langere-levertijd/"
   - name: Dracoon (EN)
     country: NL
     ships_to_de: "check"

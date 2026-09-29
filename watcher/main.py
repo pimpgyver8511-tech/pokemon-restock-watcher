@@ -6,7 +6,7 @@ import json
 import os
 import sys
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -18,7 +18,6 @@ from .parse import ORDERABLE, PREORDER, Offer, extract, product_links, shopify_o
 ROOT = Path(__file__).resolve().parent.parent
 LABEL = {"in_stock": "lieferbar", "preorder": "vorbestellbar",
          "out_of_stock": "nicht verfügbar", "unknown": "unklar"}
-REPORT_EVERY = timedelta(days=7)
 BERLIN = ZoneInfo("Europe/Berlin")
 
 
@@ -229,35 +228,41 @@ def run(cfg: dict, state: dict, now: datetime, only: str | None = None,
         for e in news_errors:
             print(f"News-Feed-Fehler: {e}")
 
+    local = now.astimezone(BERLIN)
+    stamp = local.strftime("%d.%m. %H:%M")
+    instant = cfg.get("instant_alerts", True)
     hits = [t for p, t in events if p == 1 and t.startswith("✅")]
-    urgent = [t for p, t in events if p == 1]
-    report_due = now - datetime.fromisoformat(state.get("last_report", "2000-01-01T00:00+00:00")) >= REPORT_EVERY
+    pending: list[str] = state.setdefault("pending", [])
+    pending += [f"[{stamp}] {t}" for p, t in sorted(events) if not (instant and t in hits)]
+    pending += [f"[{stamp}] 📰 {i.title}\n   {i.link}" for i in news_items]
+
+    today = local.strftime("%Y-%m-%d")
+    digest_due = (not only and state.get("last_digest") != today
+                  and local.hour >= cfg.get("digest_hour", 8))
+    alert_now = bool(hits) and instant
+    if not (alert_now or digest_due):
+        return None, ""
 
     body_parts = []
-    if events:
-        body_parts.append("Änderungen:\n" + "\n".join(t for _, t in sorted(events)))
-    if news_items:
-        body_parts.append("Neue Restock-/News-Meldungen:\n" + "\n".join(
-            f"- {i.title}\n  {i.link}" for i in news_items))
+    if alert_now:
+        body_parts.append("JETZT VERFÜGBAR – schnell sein:\n" + "\n".join(hits))
+    if digest_due:
+        body_parts.append("Seit der letzten Tagesmail:\n" + ("\n".join(pending) or "Keine neuen Meldungen."))
     body_parts.append("Aktueller Stand aller Shops:\n" + overview(cfg, state))
     body_parts.append(f"Preisbereich: {fmt_price(cfg['price']['min'])} – {fmt_price(cfg['price']['max'])} "
-                      f"(ohne Versand). Stand: {now.astimezone(BERLIN).strftime('%d.%m.%Y %H:%M')} Uhr")
-    body = "\n\n".join(body_parts)
+                      f"(ohne Versand). Stand: {local.strftime('%d.%m.%Y %H:%M')} Uhr")
 
     product = cfg["product"]["name"]
-    if hits:
+    if alert_now:
         subject = f"🚨 {product} verfügbar: " + ", ".join(h.split(" [")[0][2:] for h in hits)
-    elif urgent:
-        subject = f"{product}: {urgent[0].splitlines()[0][:90]}"
-    elif news_items:
-        subject = f"📰 {product}: {len(news_items)} neue Restock-Meldung(en)"
-    elif report_due and not only:
-        subject = f"📋 {product}: Wochenübersicht (Watcher läuft)"
     else:
-        return None, body
-    if not only:
-        state["last_report"] = now.isoformat(timespec="minutes")
-    return subject, body
+        n = len(pending)
+        subject = f"📋 {product}: Tagesübersicht {local.strftime('%d.%m.')}" + (
+            f" – {n} neue Meldung(en)" if n else " – nichts Neues")
+    if digest_due:
+        state["last_digest"] = today
+        pending.clear()
+    return subject, "\n\n".join(body_parts)
 
 
 def main(argv: list[str] | None = None) -> int:

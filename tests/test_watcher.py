@@ -102,7 +102,7 @@ class FlowTests(unittest.TestCase):
         self.cfg = {**CFG, "shops": [{"name": "MediaMarkt", "country": "DE", "ships_to_de": "yes",
                                       "urls": ["https://mm.example/p"]}]}
         self.state = main.load_state(Path("/nonexistent"))
-        self.state["last_report"] = NOW.isoformat()
+        self.state["last_digest"] = "2026-09-29"  # Tagesmail für NOW schon verschickt
 
     def run_with(self, page, now=NOW):
         with mock.patch.object(fetch, "get", return_value=page):
@@ -131,15 +131,13 @@ class FlowTests(unittest.TestCase):
         subject, _ = self.run_with((JSONLD_PAGE % "InStock").replace("59.99", "169.99"))
         self.assertIsNone(subject)
 
-    def test_failures_alert_once(self):
+    def test_failures_warn_once_in_digest(self):
         def boom(url, timeout=25):
             raise fetch.FetchError("HTTP 403")
-        subjects = []
         with mock.patch.object(fetch, "get", side_effect=boom):
             for _ in range(CFG["failure_alert_after"] + 3):
-                subjects.append(main.run(self.cfg, self.state, NOW, with_news=False)[0])
-        self.assertEqual(sum(s is not None for s in subjects), 1)
-        self.assertIn("⚠️", [s for s in subjects if s][0])
+                self.assertIsNone(main.run(self.cfg, self.state, NOW, with_news=False)[0])
+        self.assertEqual(sum("⚠️" in p for p in self.state["pending"]), 1)
 
     def test_marketplace_seller_ignored(self):
         self.cfg["shops"][0]["seller_any"] = ["mediamarkt"]
@@ -158,11 +156,23 @@ class FlowTests(unittest.TestCase):
         self.assertIn("🚨", subject)
         self.assertEqual(self.state["discovered"]["MediaMarkt"], ["https://mm.example/p/top-trainer-box-30-jahre"])
 
-    def test_weekly_report(self):
-        self.state["last_report"] = (NOW - timedelta(days=8)).isoformat()
+    def test_daily_digest(self):
+        self.state["last_digest"] = "2026-09-28"
+        early = datetime(2026, 9, 29, 4, 0, tzinfo=timezone.utc)  # 06:00 Uhr – noch vor digest_hour
+        subject, _ = self.run_with(JSONLD_PAGE % "OutOfStock", early)
+        self.assertIsNone(subject)
         subject, body = self.run_with(JSONLD_PAGE % "OutOfStock")
-        self.assertIn("Wochenübersicht", subject)
+        self.assertIn("Tagesübersicht 29.09.", subject)
         self.assertIn("MediaMarkt [DE]: nicht verfügbar", body)
+        self.assertIsNone(self.run_with(JSONLD_PAGE % "OutOfStock")[0], "nur eine Tagesmail pro Tag")
+
+    def test_news_and_warnings_wait_for_digest(self):
+        self.state["pending"] = ["[29.09. 10:00] 📰 Restock bei Müller"]
+        self.state["last_digest"] = "2026-09-28"
+        subject, body = self.run_with(JSONLD_PAGE % "OutOfStock")
+        self.assertIn("1 neue Meldung", subject)
+        self.assertIn("Restock bei Müller", body)
+        self.assertEqual(self.state["pending"], [])
 
 
 if __name__ == "__main__":

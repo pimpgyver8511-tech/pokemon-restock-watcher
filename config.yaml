@@ -17,10 +17,15 @@ price:
   min: 50.00   # EUR, ohne Versand
   max: 80.00
 
+# E-Mails: eine Tagesübersicht (News, Warnungen, Stand aller Shops) ab dieser Uhrzeit (deutsche Zeit).
+digest_hour: 8
+# Treffer im Preisbereich sofort per Mail melden (true) oder nur in der Tagesübersicht (false)?
+instant_alerts: true
+
 # Auch melden, wenn ein Shop wieder lieferbar ist, der Preis aber außerhalb liegt?
 notify_out_of_range: false
 
-# Nach so vielen Fehlschlägen in Folge kommt einmalig eine Warn-Mail (bei 20-Min-Takt ≈ 4 h).
+# Nach so vielen Fehlschlägen in Folge erscheint einmalig eine Warnung in der Tagesübersicht (bei 20-Min-Takt ≈ 4 h).
 failure_alert_after: 12
 
 # Shops: nur Händler, die selbst verkaufen (keine Marktplätze) und nach Deutschland liefern.

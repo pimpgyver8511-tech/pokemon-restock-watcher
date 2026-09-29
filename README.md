@@ -8,14 +8,12 @@ und schickt eine E-Mail, sobald ein Shop sie **zwischen 50 € und 80 €** (ohn
 
 | Wann | Was |
 |---|---|
-| alle 20 Minuten | Prüft alle Shops aus `config.yaml`: Produktseite bzw. EAN-Suche → Preis + Verfügbarkeit |
-| sofort bei Änderung | 🚨 Mail, wenn ein Shop **lieferbar/vorbestellbar im Preisbereich** wird |
-| bei jedem Lauf | Durchsucht Google News und mydealz nach **Restock-Meldungen** → 📰 Mail bei neuen Treffern |
-| wenn ein Shop dauerhaft blockt | ⚠️ einmalige Mail (nach ca. 4 Std. ohne Erfolg) |
-| wöchentlich | 📋 Übersicht aller Shops inkl. „zuletzt verfügbar ab …“, damit du weißt, dass alles läuft |
+| alle 20 Minuten | Prüft alle Shops aus `config.yaml` (Preis + Verfügbarkeit) und sucht in Google News nach Restock-Meldungen |
+| **sofort** | 🚨 Mail, wenn ein Shop **lieferbar/vorbestellbar im Preisbereich** wird – bei Restocks zählt jede Minute |
+| **einmal täglich** (ab 8 Uhr) | 📋 Tagesübersicht: neue Restock-Meldungen, Warnungen (z. B. Shop blockt), Stand aller Shops inkl. „zuletzt verfügbar ab …“ |
 
-Wird ein Shop wieder ausverkauft, gibt es keine eigene Mail. Kommt die Ware später erneut, meldet
-der Watcher den Restock wieder.
+Die Uhrzeit der Tagesübersicht (`digest_hour`) und ob Treffer sofort kommen (`instant_alerts`) stellst du
+in `config.yaml` ein.
 
 ## Einrichtung (einmalig, ca. 10 Minuten)
 

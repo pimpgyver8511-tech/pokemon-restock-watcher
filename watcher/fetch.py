@@ -48,6 +48,9 @@ def get(url: str, timeout: int = 25) -> str:
     head = text[:5000].lower()
     if len(text) < 20000 and any(m in head for m in _BLOCK_MARKERS):
         raise FetchError("Bot-Schutz/Captcha")
+    # Kleine Seite ganz ohne Links = JavaScript-Prüfseite statt Shop (z. B. Cards Paradise).
+    if len(text) < 40000 and "<a " not in text.lower() and not text.lstrip().startswith(("{", "[", "<?xml", "<rss")):
+        raise FetchError("Bot-Schutz (JavaScript-Prüfseite)")
     return text
 
 

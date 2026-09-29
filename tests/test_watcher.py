@@ -94,6 +94,17 @@ class ParseTests(unittest.TestCase):
         self.assertEqual((o.price, o.availability), (69.99, IN_STOCK))
 
 
+class FetchTests(unittest.TestCase):
+    def test_js_challenge_page_is_blocked(self):
+        resp = mock.Mock(status_code=200, text="<html><head><title>shop.com</title><script>x()</script></head></html>")
+        with mock.patch.object(fetch, "_get", return_value=resp), mock.patch.object(fetch.time, "sleep"):
+            with self.assertRaises(fetch.FetchError):
+                fetch.get("https://shop.example/p")
+        resp.text = JSONLD_PAGE % "InStock" + '<a href="/">Start</a>'
+        with mock.patch.object(fetch, "_get", return_value=resp), mock.patch.object(fetch.time, "sleep"):
+            self.assertIn("MediaMarkt", fetch.get("https://shop.example/p"))
+
+
 class NewsTests(unittest.TestCase):
     def test_filter_dedupe_age(self):
         state = {}

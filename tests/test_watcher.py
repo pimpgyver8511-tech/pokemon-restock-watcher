@@ -36,7 +36,8 @@ OTHER_PRODUCT = """<html><head><title>Pokémon Karmesin & Purpur Top-Trainer-Box
 SEARCH_PAGE = """<html><body>
 <a href="/de/product/_pokemon-top-trainer-box-30-jahre-sammelkarten-2087300.html">Top-Trainer-Box 30 Jahre</a>
 <a href="/de/product/_pokemon-top-trainer-box-karmesin-1.html">Top-Trainer-Box Karmesin</a>
-<a href="https://evil.example/pokemon-30-jahre-top-trainer-box">extern</a></body></html>"""
+<a href="https://evil.example/pokemon-30-jahre-top-trainer-box">extern</a>
+<a href="/images/Pokemon-30-Jahre-Top-Trainer-Box-Deutsch.jpg">Bild</a></body></html>"""
 
 RSS = """<?xml version="1.0"?><rss><channel>
 <item><title>Pokémon 30 Jahre: Top-Trainer-Box wieder verfügbar bei Müller</title><link>https://n/1</link>

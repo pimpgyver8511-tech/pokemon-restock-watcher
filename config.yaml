@@ -40,7 +40,7 @@ failure_alert_after: 12
 
 # Shops: nur Händler, die selbst verkaufen (keine Marktplätze) und nach Deutschland liefern.
 # Entfernt, weil sie automatische Abrufe dauerhaft blocken: Thalia (DE/AT), Smyths Toys, Morawa,
-# Card Corner, Comicplanet.
+# Card Corner, Comicplanet, gameware.at, Poromagia.
 #   urls:        bekannte Produktseiten (am zuverlässigsten)
 #   search:      Such-URL, {ean} wird ersetzt; gefundene Produktlinks werden verfolgt
 #   ships_to_de: "yes" = bekannt, "check" = vor dem Kauf im Warenkorb prüfen
@@ -109,10 +109,6 @@ shops:
     ships_to_de: "yes"
     urls:
       - "https://keepseven.de/product/pokemon-30-jahre-top-trainer-box-de/"
-  - name: gameware.at
-    country: AT
-    ships_to_de: "yes"
-    search: "https://www.gameware.at/info/space/Pokemon+30+Jahre+Top+Trainer+Box"
   - name: Grubi & Co
     country: AT
     ships_to_de: "check"
@@ -137,11 +133,6 @@ shops:
     ships_to_de: "yes"
     urls:
       - "https://www.maxgaming.com/en/pokemon/pokemon-30th-celebration-elite-trainer-box"
-  - name: Poromagia (EN)
-    country: FI
-    ships_to_de: "check"
-    urls:
-      - "https://poromagia.com/en/catalogue/pokemon-30th-celebration-elite-trainer-box_1805905/"
   - name: Master of Games (EN)
     country: ES
     ships_to_de: "check"

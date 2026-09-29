@@ -13,7 +13,7 @@ from zoneinfo import ZoneInfo
 import yaml
 
 from . import fetch, mailer, news
-from .parse import ORDERABLE, PREORDER, Offer, extract, product_links, shopify_offer
+from .parse import ORDERABLE, PREORDER, Offer, extract, is_asset, product_links, shopify_offer
 
 ROOT = Path(__file__).resolve().parent.parent
 LABEL = {"in_stock": "lieferbar", "preorder": "vorbestellbar",
@@ -68,7 +68,7 @@ def check_shop(shop: dict, product_cfg: dict, known_urls: list[str]) -> tuple[li
     results: list[Result] = []
     errors: list[str] = []
     discovered: list[str] = []
-    urls = list(dict.fromkeys(shop.get("urls", []) + known_urls))
+    urls = list(dict.fromkeys(shop.get("urls", []) + [u for u in known_urls if not is_asset(u)]))
 
     searches = shop.get("search") or []
     searches = [searches] if isinstance(searches, str) else searches

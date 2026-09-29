@@ -1,0 +1,127 @@
+# Konfiguration des Pokémon-Restock-Watchers.
+# Änderungen hier wirken beim nächsten Lauf – kein Code nötig.
+
+product:
+  name: "Pokémon 30 Jahre Top-Trainer-Box"
+  eans:
+    - "0196214144842"   # Deutsch: Top-Trainer-Box 30 Jahre
+    - "0196214144828"   # Englisch: 30th Celebration Elite Trainer Box
+  # Eine Seite gilt als "das richtige Produkt", wenn sie eine der EANs enthält
+  # ODER ein Muster aus name_any UND eines aus type_any im Produktnamen vorkommt.
+  name_any: ["30 jahre", "30th celebration"]
+  type_any: ["top-trainer", "top trainer", "elite trainer", "elite-trainer"]
+  # Varianten, die NICHT gemeint sind.
+  exclude_any: ["pokémon center", "pokemon center", "2-pack", "2er", "leer", "empty", "display", "sleeves", "hüllen"]
+
+price:
+  min: 50.00   # EUR, ohne Versand
+  max: 80.00
+
+# Auch melden, wenn ein Shop wieder lieferbar ist, der Preis aber außerhalb liegt?
+notify_out_of_range: false
+
+# Nach so vielen Fehlschlägen in Folge kommt einmalig eine Warn-Mail (bei 20-Min-Takt ≈ 4 h).
+failure_alert_after: 12
+
+# Shops: nur Händler, die selbst verkaufen (keine Marktplätze) und nach Deutschland liefern.
+#   urls:        bekannte Produktseiten (am zuverlässigsten)
+#   search:      Such-URL, {ean} wird ersetzt; gefundene Produktlinks werden verfolgt
+#   ships_to_de: "yes" = bekannt, "check" = vor dem Kauf im Warenkorb prüfen
+shops:
+  # --- Große Ketten Deutschland ---
+  - name: MediaMarkt
+    country: DE
+    ships_to_de: "yes"
+    search: "https://www.mediamarkt.de/de/search.html?query={ean}"
+  - name: Saturn
+    country: DE
+    ships_to_de: "yes"
+    search: "https://www.saturn.de/de/search.html?query={ean}"
+  - name: Müller
+    country: DE
+    ships_to_de: "yes"
+    search: "https://www.mueller.de/search/?q={ean}"
+  - name: Hugendubel
+    country: DE
+    ships_to_de: "yes"
+    search: "https://www.hugendubel.de/de/search?q={ean}"
+  - name: Thalia
+    country: DE
+    ships_to_de: "yes"
+    search: "https://www.thalia.de/suche?sq={ean}"
+  - name: Smyths Toys
+    country: DE
+    ships_to_de: "yes"
+    urls:
+      - "https://www.smythstoys.com/de/de-de/spielzeug/action-spielzeug/pokemon/pokemon-karten/pokemon-karten-top-trainer-box-30-jahre-edition/p/264148"
+  - name: Galeria
+    country: DE
+    ships_to_de: "yes"
+    search: "https://www.galeria.de/search?q={ean}"
+  - name: Weltbild
+    country: DE
+    ships_to_de: "yes"
+    search: "https://www.weltbild.de/suche/{ean}"
+  - name: bücher.de
+    country: DE
+    ships_to_de: "yes"
+    search: "https://www.buecher.de/go/search_search/quick_search/?fulltext={ean}"
+  - name: Netto Online
+    country: DE
+    ships_to_de: "yes"
+    search: "https://www.netto-online.de/search?query={ean}"
+
+  # --- Etablierte TCG-Fachhändler Deutschland ---
+  - name: Spiele-Riese
+    country: DE
+    ships_to_de: "yes"
+    urls:
+      - "https://www.spiele-riese.de/shop/spielwelten/sammelkarten/19831/pokemon-30-jahre-top-trainer-box"
+  - name: Card Corner
+    country: DE
+    ships_to_de: "yes"
+    urls:
+      - "https://www.card-corner.de/Pokemon-30-Jahre-Top-Trainer-Box"
+  - name: Brettspielbude
+    country: DE
+    ships_to_de: "yes"
+    urls:
+      - "https://www.brettspielbude.de/products/pokemon-30-jahre-top-trainer-box"
+  - name: Steinehelden
+    country: DE
+    ships_to_de: "yes"
+    urls:
+      - "https://steinehelden.de/Pokemon-Sammelkartenspiel-Top-Trainer-Box-30-Jahre-Deutsch/14484"
+  - name: Toys for Fun
+    country: DE
+    ships_to_de: "yes"
+    urls:
+      - "https://www.toys-for-fun.com/de/pokemon-30-jahre-top-trainer-box.html"
+
+  # --- EU (Versand nach DE im Warenkorb prüfen) ---
+  - name: Morawa
+    country: AT
+    ships_to_de: "check"
+    urls:
+      - "https://www.morawa.at/detail/ISBN-0196214144842/Pok%C3%A9mon-Sammelkartenspiel-PKM-30-Jahre-Top-Trainer-Box"
+  - name: Thalia AT
+    country: AT
+    ships_to_de: "check"
+    search: "https://www.thalia.at/suche?sq={ean}"
+  - name: Master of Games (EN)
+    country: ES
+    ships_to_de: "check"
+    urls:
+      - "https://masterofgames.es/en/elite-trainer-boxes/6678--preorder-english-pokemon-tcg-30th-celebration-elite-trainer-box-0196214144828.html"
+
+# Restock-News: RSS-Feeds, neue Einträge mit passenden Stichworten werden gemeldet.
+news:
+  feeds:
+    - "https://news.google.com/rss/search?q=%22Top-Trainer-Box%2030%20Jahre%22&hl=de&gl=DE&ceid=DE:de"
+    - "https://news.google.com/rss/search?q=%22Pok%C3%A9mon%2030%20Jahre%22%20Restock%20OR%20Nachschub%20OR%20wieder%20verf%C3%BCgbar&hl=de&gl=DE&ceid=DE:de"
+    - "https://news.google.com/rss/search?q=%2230th%20Celebration%22%20%22Elite%20Trainer%20Box%22%20restock&hl=en&gl=GB&ceid=GB:en"
+    - "https://www.mydealz.de/rss/search?q=top+trainer+box+30+jahre"
+  # Ein Eintrag muss eines dieser Wörter enthalten (Groß-/Kleinschreibung egal) ...
+  must_any: ["30 jahre", "30th celebration", "jubiläum"]
+  # ... und eines dieser.
+  also_any: ["top-trainer", "top trainer", "elite trainer", "restock", "nachschub", "wieder verfügbar", "wieder da", "vorbestell", "lieferbar", "angebot", "deal"]

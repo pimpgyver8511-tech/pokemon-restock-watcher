@@ -145,6 +145,13 @@ news:
     - "https://news.google.com/rss/search?q=%22Top-Trainer-Box%2030%20Jahre%22&hl=de&gl=DE&ceid=DE:de"
     - "https://news.google.com/rss/search?q=%22Pok%C3%A9mon%2030%20Jahre%22%20Restock%20OR%20Nachschub%20OR%20wieder%20verf%C3%BCgbar&hl=de&gl=DE&ceid=DE:de"
     - "https://news.google.com/rss/search?q=%2230th%20Celebration%22%20%22Elite%20Trainer%20Box%22%20restock&hl=en&gl=GB&ceid=GB:en"
+    # Deals der mydealz-Gruppe "Pokémon" (Community meldet Restocks oft als Erstes)
+    - "https://www.mydealz.de/rss/gruppe/pokemon"
+    # Pokémon-TCG-Newsseiten (WordPress-Feeds)
+    - "https://pokezentrum.de/feed/"
+    - "https://collectors-junkies.com/feed/"
+    # Tipp: Den RSS-Feed eines eigenen mydealz-Schlagwort-Alarms (Profil → Einstellungen →
+    # Schlagwort-Alarme) kannst du hier zusätzlich eintragen.
   # Meldungen mit diesen Wörtern ignorieren (US-Deals u. Ä.).
   exclude_any: ["$", "amazon.com", "target", "walmart", "best buy", "gamestop"]
   # Ein Eintrag muss eines dieser Wörter enthalten (Groß-/Kleinschreibung egal) ...

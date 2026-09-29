@@ -68,6 +68,8 @@ def check(cfg: dict, state: dict, now: datetime | None = None) -> tuple[list[New
         except (fetch.FetchError, ET.ParseError) as e:
             errors.append(f"{url.split('/')[2]}: {e}")
             continue
+        hits = sum(relevant(i, cfg) for i in items)
+        print(f"News-Feed {url.split('/')[2]}: {len(items)} Einträge, {hits} passend")
         for item in items:
             if item.id in seen or any(f.id == item.id for f in fresh):
                 continue

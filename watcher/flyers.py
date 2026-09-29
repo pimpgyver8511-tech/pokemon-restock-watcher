@@ -120,8 +120,8 @@ def page_offers(cfg: dict, url: str, product_cfg: dict) -> list[dict]:
 def ocr_offers(cfg: dict, product_cfg: dict, state: dict, current_ids: set[str]) -> list[dict]:
     """Seitenbilder ausgewählter Händler per OCR lesen (je Prospekt nur einmal)."""
     ocfg = cfg.get("ocr") or {}
-    if state.get("ocr_version") != 3:  # verbesserte Erkennung → alte Ergebnisse neu lesen
-        state["ocr_cache"], state["ocr_version"] = {}, 3
+    if state.get("ocr_version") != 4:  # verbesserte Erkennung → alte Ergebnisse neu lesen
+        state["ocr_cache"], state["ocr_version"] = {}, 4
     cache: dict = state.setdefault("ocr_cache", {})
     for bid in list(cache):  # abgelaufene Prospekte vergessen
         if bid not in current_ids:

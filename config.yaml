@@ -269,7 +269,7 @@ flyers:
     enabled: true
     retailers: ["MediaMarkt", "Saturn", "Müller", "Rossmann", "Kaufland", "HIT", "Smyths", "Thalia", "expert", "Globus"]
     max_pages: 60
-    max_brochures_per_run: 6   # neue Prospekte werden über mehrere Läufe verteilt gelesen
+    max_brochures_per_run: 2   # neue Prospekte werden über mehrere Läufe verteilt gelesen
   # Alle übrigen Pokémon-Angebote (Karten, Spielzeug, Plüsch …) werden als Info angezeigt,
   # aber nie als Treffer gemeldet. Leere Liste = alles mit "Pokémon".
   related_any: []

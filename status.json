@@ -1,5 +1,5 @@
 {
- "checked_at": "2026-09-29T12:51:46+00:00",
+ "checked_at": "2026-09-29T12:57:18+00:00",
  "product": "Pokémon 30 Jahre Top-Trainer-Box",
  "price": {
   "min": 50.0,
@@ -17,7 +17,7 @@
    "shop_url": "https://www.mediamarkt.de/de/search.html?query=0196214144842",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-09-29T12:51+00:00",
+   "last_ok": "2026-09-29T12:57+00:00",
    "last_restock": null
   },
   {
@@ -31,7 +31,7 @@
    "shop_url": "https://www.saturn.de/de/search.html?query=0196214144842",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-09-29T12:51+00:00",
+   "last_ok": "2026-09-29T12:57+00:00",
    "last_restock": null
   },
   {
@@ -45,7 +45,7 @@
    "shop_url": "https://www.mueller.de/search/?q=0196214144842",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-09-29T12:51+00:00",
+   "last_ok": "2026-09-29T12:57+00:00",
    "last_restock": null
   },
   {
@@ -59,7 +59,7 @@
    "shop_url": "https://www.hugendubel.de/de/search?q=0196214144842",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-09-29T12:51+00:00",
+   "last_ok": "2026-09-29T12:57+00:00",
    "last_restock": null
   },
   {
@@ -73,7 +73,7 @@
    "shop_url": "https://www.spiele-riese.de/shop/spielwelten/sammelkarten/19831/pokemon-30-jahre-top-trainer-box",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-09-29T12:51+00:00",
+   "last_ok": "2026-09-29T12:57+00:00",
    "last_restock": null
   },
   {
@@ -87,7 +87,7 @@
    "shop_url": "https://www.brettspielbude.de/products/pokemon-30-jahre-top-trainer-box",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-09-29T12:51+00:00",
+   "last_ok": "2026-09-29T12:57+00:00",
    "last_restock": null
   },
   {
@@ -99,7 +99,7 @@
    "in_range": false,
    "url": null,
    "shop_url": "https://www.cardsparadise.com/Pokemon-Jubilaeum-30-Jahre-Pokemon-Elite-Trainer-Box-Deutsch",
-   "error": null,
+   "error": "https://www.cardsparadise.com/Pokemon-Jubilaeum-30-Jahre-Pokemon-Elite-Trainer-Box-Deutsch: Bot-Schutz (JavaScript-Prüfseite)",
    "available_from": null,
    "last_ok": "2026-09-29T12:51+00:00",
    "last_restock": null
@@ -115,7 +115,7 @@
    "shop_url": "https://geeksheaven.de/products/pokemon-30-jahre-top-trainer-box-deutsch-vorbestellung",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-09-29T12:51+00:00",
+   "last_ok": "2026-09-29T12:57+00:00",
    "last_restock": null
   },
   {
@@ -129,7 +129,77 @@
    "shop_url": "https://www.toys-for-fun.com/de/pokemon-30-jahre-top-trainer-box.html",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-09-29T12:51+00:00",
+   "last_ok": "2026-09-29T12:57+00:00",
+   "last_restock": null
+  },
+  {
+   "name": "playingcards.de (EN)",
+   "country": "DE",
+   "ships_to_de": true,
+   "status": "out_of_stock",
+   "price": 229.0,
+   "in_range": false,
+   "url": "https://www.playingcards.de/pokemon-sammelkartenspiel-top-trainer-box-30-jahre-englisch.html",
+   "shop_url": "https://www.playingcards.de/pokemon-sammelkartenspiel-top-trainer-box-30-jahre-englisch.html",
+   "error": null,
+   "available_from": null,
+   "last_ok": "2026-09-29T12:57+00:00",
+   "last_restock": null
+  },
+  {
+   "name": "Keepseven",
+   "country": "DE",
+   "ships_to_de": true,
+   "status": "out_of_stock",
+   "price": 169.99,
+   "in_range": false,
+   "url": "https://keepseven.de/product/pokemon-30-jahre-top-trainer-box-de/",
+   "shop_url": "https://keepseven.de/product/pokemon-30-jahre-top-trainer-box-de/",
+   "error": null,
+   "available_from": null,
+   "last_ok": "2026-09-29T12:57+00:00",
+   "last_restock": null
+  },
+  {
+   "name": "gameware.at",
+   "country": "AT",
+   "ships_to_de": true,
+   "status": "not_listed",
+   "price": null,
+   "in_range": false,
+   "url": null,
+   "shop_url": "https://www.gameware.at/info/space/Pokemon+30+Jahre+Top+Trainer+Box",
+   "error": "Suche: HTTP 403",
+   "available_from": null,
+   "last_ok": null,
+   "last_restock": null
+  },
+  {
+   "name": "Grubi & Co",
+   "country": "AT",
+   "ships_to_de": false,
+   "status": "not_listed",
+   "price": null,
+   "in_range": false,
+   "url": null,
+   "shop_url": "https://www.grubi-co.at/de/sammelkarten/pokemon/special-editions-55/30-jahre.html",
+   "error": "https://www.grubi-co.at/de/sammelkarten/pokemon/special-editions-55/images/product_images/original_images/Pokemon-30-Jahre-30th-Celebration-Top-Trianer-Box-Deutsch-TCG-Jubilaeum-768x732.jpg: HTTP 500",
+   "available_from": null,
+   "last_ok": null,
+   "last_restock": null
+  },
+  {
+   "name": "Spielbrett",
+   "country": "AT",
+   "ships_to_de": false,
+   "status": "out_of_stock",
+   "price": 119.95,
+   "in_range": false,
+   "url": "https://spielbrett.co.at/30-Jahre-Jubilaeum-Top-Trainer-Box-DE",
+   "shop_url": "https://spielbrett.co.at/30-Jahre-Jubilaeum-Top-Trainer-Box-DE",
+   "error": null,
+   "available_from": null,
+   "last_ok": "2026-09-29T12:57+00:00",
    "last_restock": null
   },
   {
@@ -143,7 +213,49 @@
    "shop_url": "https://www.spielraum.co.at/de/pokemon/product/30-jahre-top-trainer-box-de",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-09-29T12:51+00:00",
+   "last_ok": "2026-09-29T12:57+00:00",
+   "last_restock": null
+  },
+  {
+   "name": "playingcardshop.eu (EN)",
+   "country": "EU",
+   "ships_to_de": false,
+   "status": "out_of_stock",
+   "price": 229.0,
+   "in_range": false,
+   "url": "https://www.playingcardshop.eu/pokemon-tcg-30th-celebration-elite-trainer-box.html",
+   "shop_url": "https://www.playingcardshop.eu/pokemon-tcg-30th-celebration-elite-trainer-box.html",
+   "error": null,
+   "available_from": null,
+   "last_ok": "2026-09-29T12:57+00:00",
+   "last_restock": null
+  },
+  {
+   "name": "MaxGaming (EN)",
+   "country": "SE",
+   "ships_to_de": true,
+   "status": "out_of_stock",
+   "price": 82.9,
+   "in_range": false,
+   "url": "https://www.maxgaming.com/en/pokemon/pokemon-30th-celebration-elite-trainer-box",
+   "shop_url": "https://www.maxgaming.com/en/pokemon/pokemon-30th-celebration-elite-trainer-box",
+   "error": null,
+   "available_from": null,
+   "last_ok": "2026-09-29T12:57+00:00",
+   "last_restock": null
+  },
+  {
+   "name": "Poromagia (EN)",
+   "country": "FI",
+   "ships_to_de": false,
+   "status": "not_listed",
+   "price": null,
+   "in_range": false,
+   "url": null,
+   "shop_url": "https://poromagia.com/en/catalogue/pokemon-30th-celebration-elite-trainer-box_1805905/",
+   "error": "https://poromagia.com/en/catalogue/pokemon-30th-celebration-elite-trainer-box_1805905/: HTTP 403",
+   "available_from": null,
+   "last_ok": null,
    "last_restock": null
   },
   {
@@ -157,7 +269,7 @@
    "shop_url": "https://masterofgames.es/en/elite-trainer-boxes/6678--preorder-english-pokemon-tcg-30th-celebration-elite-trainer-box-0196214144828.html",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-09-29T12:51+00:00",
+   "last_ok": "2026-09-29T12:57+00:00",
    "last_restock": null
   }
  ],

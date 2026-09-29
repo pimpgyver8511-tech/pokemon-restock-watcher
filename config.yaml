@@ -264,6 +264,12 @@ flyers:
   brochures: ["bc0cd54d-74c5-4f29-872f-92a7053cab6a"]
   pages: ["https://www.kaufda.de/Leipzig/Angebote/Pokemon"]
   max_brochures: 120
+  # Texterkennung auf Prospektseiten dieser Händler (findet auch Artikel, die kaufda nicht erfasst).
+  ocr:
+    enabled: true
+    retailers: ["MediaMarkt", "Saturn", "Müller", "Rossmann", "Kaufland", "HIT", "Smyths", "Thalia", "expert", "Globus"]
+    max_pages: 60
+    max_brochures_per_run: 6   # neue Prospekte werden über mehrere Läufe verteilt gelesen
   # Alle übrigen Pokémon-Angebote (Karten, Spielzeug, Plüsch …) werden als Info angezeigt,
   # aber nie als Treffer gemeldet. Leere Liste = alles mit "Pokémon".
   related_any: []

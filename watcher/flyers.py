@@ -11,12 +11,13 @@ import json
 import re
 from urllib.parse import quote, urlencode
 
-from . import fetch
+from . import fetch, ocr
 from .parse import matches_product
 
 API = "https://www.kaufda.de/api/search"
 PAGES = "https://content-viewer-be.kaufda.de/v1/brochures/{id}/pages"
 JSON_HEADERS = {"Accept": "application/json"}
+_PAGES: dict[str, tuple[dict, str | None]] = {}  # Prospekt-ID -> (Seitendaten, Händler) für die OCR
 
 
 def _json(url: str):
@@ -85,6 +86,7 @@ def brochure_offers(cfg: dict, brochure_id: str, product_cfg: dict) -> list[dict
                 "valid_until": (validity.get("endDate") or "")[:10] or None,
                 "url": _offer_url(cfg, parent.get("id"), (parent.get("page") or {}).get("number"), c.get("id")),
             })
+    _PAGES[brochure_id] = (data, publisher)
     print(f"  Prospekt {brochure_id[:8]} ({publisher or '?'}): {total} Angebote, {len(found)} mit Pokémon")
     return found
 
@@ -115,7 +117,46 @@ def page_offers(cfg: dict, url: str, product_cfg: dict) -> list[dict]:
     return found
 
 
-def check(cfg: dict, product_cfg: dict) -> tuple[list[dict], list[str]]:
+def ocr_offers(cfg: dict, product_cfg: dict, state: dict, current_ids: set[str]) -> list[dict]:
+    """Seitenbilder ausgewählter Händler per OCR lesen (je Prospekt nur einmal)."""
+    ocfg = cfg.get("ocr") or {}
+    cache: dict = state.setdefault("ocr_cache", {})
+    for bid in list(cache):  # abgelaufene Prospekte vergessen
+        if bid not in current_ids:
+            del cache[bid]
+    if not ocfg.get("enabled"):
+        return []
+    if not ocr.available():
+        print("OCR: tesseract nicht installiert – übersprungen")
+        return []
+    wanted = [r.lower() for r in ocfg.get("retailers", [])]
+    budget = ocfg.get("max_brochures_per_run", 6)
+    pinned = set(cfg.get("brochures", []))
+    for bid in sorted(_PAGES, key=lambda b: b not in pinned):  # fest eingetragene Prospekte zuerst
+        data, publisher = _PAGES[bid]
+        if bid in cache or budget <= 0:
+            continue
+        if bid not in pinned and wanted and not any(w in (publisher or "").lower() for w in wanted):
+            continue
+        budget -= 1
+        hits = ocr.scan(bid, publisher, data, product_cfg, ocfg.get("max_pages", 60))
+        if hits is not None:
+            cache[bid] = {"publisher": publisher, "hits": hits}
+    offers = []
+    for bid, entry in cache.items():
+        for h in entry["hits"]:
+            params = urlencode({"lat": cfg["lat"], "lng": cfg["lng"], "zip": cfg["postal_code"], "page": h["page"]})
+            offers.append({
+                "id": f"ocr-{bid}-{h['page']}", "kind": "exact" if h["exact"] else "pokemon",
+                "store": entry["publisher"], "title": f"Pokémon auf Seite {h['page'] + 1} (Texterkennung)",
+                "description": h["snippet"][:160], "price": None, "ocr_prices": h["prices"],
+                "valid_from": None, "valid_until": None, "source": "ocr",
+                "url": f"https://www.kaufda.de/contentViewer/static/{bid}?{params}",
+            })
+    return offers
+
+
+def check(cfg: dict, product_cfg: dict, state: dict | None = None) -> tuple[list[dict], list[str]]:
     offers: dict[str, dict] = {}
     errors: list[str] = []
     brochure_ids: set[str] = set()
@@ -138,6 +179,11 @@ def check(cfg: dict, product_cfg: dict) -> tuple[list[dict], list[str]]:
                 offers.setdefault(o["id"] or o["title"], o)
         except Exception as e:
             errors.append(f"{url}: {type(e).__name__}: {e}")
+    try:
+        for o in ocr_offers(cfg, product_cfg, state if state is not None else {}, brochure_ids):
+            offers.setdefault(o["id"], o)
+    except Exception as e:
+        errors.append(f"OCR: {type(e).__name__}: {e}")
     if cfg.get("marktguru", True):
         try:
             mg = marktguru_offers(cfg, product_cfg)

@@ -299,7 +299,7 @@ def run(cfg: dict, state: dict, now: datetime, only: str | None = None,
             state["store_entries"] = entries
 
     if cfg.get("flyers") and not only:
-        offers, flyer_errors = flyers.check(cfg["flyers"], cfg["product"])
+        offers, flyer_errors = flyers.check(cfg["flyers"], cfg["product"], state)
         for e in flyer_errors:
             print(f"Prospekt-Fehler: {e}")
         today = now.astimezone(BERLIN).strftime("%Y-%m-%d")

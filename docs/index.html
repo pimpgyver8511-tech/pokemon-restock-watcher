@@ -526,8 +526,10 @@
           ${url ? `<a class="go" href="${esc(url)}" target="_blank" rel="noopener">Prospekt →</a>` : ""}
           <div class="meta">${o.price != null ? `<span class="price">${euro(o.price)}</span>` : ""}
             <span class="pill ${exact ? "s-ok" : "s-other"}">${exact ? "Top-Trainer-Box" : "weiteres Pokémon-Angebot"}</span>
-            <span>gültig ${d(o.valid_from)} – ${d(o.valid_until)}</span>
-            <span>via ${o.source === "marktguru" ? "marktguru" : "kaufda"}</span></div></li>`;
+            ${o.valid_from || o.valid_until ? `<span>gültig ${d(o.valid_from)} – ${d(o.valid_until)}</span>` : ""}
+            ${o.ocr_prices && o.ocr_prices.length ? `<span>erkannte Preise: ${o.ocr_prices.map(euro).join(", ")}</span>` : ""}
+            ${o.source === "ocr" ? `<span title="${esc(o.description || "")}">via Texterkennung</span>`
+              : `<span>via ${o.source === "marktguru" ? "marktguru" : "kaufda"}</span>`}</div></li>`;
       }).join("") || `<li class="hint">Aktuell keine Pokémon-Angebote in den Prospekten.</li>`;
     }
 

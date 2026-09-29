@@ -56,6 +56,17 @@ def get(url: str, timeout: int = 25, headers: dict | None = None) -> str:
     return text
 
 
+def get_bytes(url: str, timeout: int = 40) -> bytes:
+    """Binärdaten (z. B. Prospektbilder) laden."""
+    try:
+        r = _get(url, timeout)
+    except Exception as e:
+        raise FetchError(f"{type(e).__name__}: {e}") from e
+    if r.status_code >= 400:
+        raise FetchError(f"HTTP {r.status_code}")
+    return r.content
+
+
 def get_json(url: str, timeout: int = 25):
     import json
     try:

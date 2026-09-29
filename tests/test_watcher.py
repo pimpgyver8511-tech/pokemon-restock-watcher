@@ -6,7 +6,7 @@ from unittest import mock
 
 import yaml
 
-from watcher import fetch, flyers, main, news, shopify, stores
+from watcher import fetch, flyers, main, news, ocr, shopify, stores
 from watcher.parse import (IN_STOCK, OUT_OF_STOCK, PREORDER, available_from_text, extract, parse_price,
                            product_links, shopify_offer)
 
@@ -343,6 +343,21 @@ class ShopifySearchTests(unittest.TestCase):
             extra = shopify.discover(cfg, [{"urls": ["https://known.example/products/x"]}], P, state)
         self.assertEqual(extra, [{"name": "neu.example", "country": "DE", "ships_to_de": "yes",
                                   "urls": ["https://neu.example/products/ttb-30"], "discovered": True}])
+
+
+class OcrTests(unittest.TestCase):
+    def test_find_pokemon(self):
+        hit = ocr.find_pokemon("Spielwaren\nPOKEMON Top-Trainer-Box\n30 Jahre 59,99 €\nLEGO", P)
+        self.assertTrue(hit["exact"])
+        self.assertIn(59.99, hit["prices"])
+        self.assertFalse(ocr.find_pokemon("Pokémon Booster 4,99", P)["exact"])
+        self.assertIsNone(ocr.find_pokemon("Krombacher 11,99", P))
+
+    def test_page_images_prefers_large(self):
+        page = {"images": {"thumb": "https://img.example/p1_200.jpg", "zoom": "https://img.example/p1_1600.jpg"},
+                "link": "https://example/x.html"}
+        self.assertEqual(ocr.page_images(page), "https://img.example/p1_1600.jpg")
+        self.assertIsNone(ocr.page_images({"offers": []}))
 
 
 class ScheduleTests(unittest.TestCase):

@@ -31,6 +31,8 @@ schedule:
 digest_hour: 8
 # Treffer im Preisbereich sofort per Mail melden (true) oder nur in der Tagesübersicht (false)?
 instant_alerts: true
+# E-Mails ganz abschalten – die Web-Oberfläche zeigt alles an (Schalter dort hat Vorrang).
+email_enabled: false
 
 # Auch melden, wenn ein Shop wieder lieferbar ist, der Preis aber außerhalb liegt?
 notify_out_of_range: false

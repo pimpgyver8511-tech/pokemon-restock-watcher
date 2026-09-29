@@ -395,7 +395,9 @@ def main(argv: list[str] | None = None) -> int:
         with open(summary, "a") as f:
             f.write(f"### {cfg['product']['name']}\n\n{overview(cfg, state)}\n")
 
-    mail_on = os.environ.get("EMAIL_ENABLED", "").strip().lower() not in ("false", "0", "nein", "no", "off")
+    # Schalter der Web-Oberfläche (Variable EMAIL_ENABLED) hat Vorrang vor config.yaml.
+    env_mail = os.environ.get("EMAIL_ENABLED", "").strip().lower()
+    mail_on = (env_mail not in ("false", "0", "nein", "no", "off")) if env_mail else cfg.get("email_enabled", True)
     if subject:
         print(f"\n--- Mail: {subject}\n{body}")
         if not mail_on:

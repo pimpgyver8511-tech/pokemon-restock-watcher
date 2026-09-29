@@ -47,19 +47,35 @@ def page_images(page: dict) -> str | None:
     return max(candidates, key=score)[1]
 
 
+_POKEMON_RE = re.compile(r"p\s?[o0]\s?k\s?[eéèë]\s?m\s?[o0]\s?n", re.I)
+INFO: dict = {}  # Diagnose der zuletzt gelesenen Seite (Bildgröße, erkannte Zeichen)
+
+
 def ocr_image(url: str) -> str:
     data = fetch.get_bytes(url)
     with tempfile.TemporaryDirectory() as d:
         img = Path(d) / "page"
         img.write_bytes(data)
+        size = ""
+        if shutil.which("identify"):
+            size = subprocess.run(["identify", "-format", "%wx%h", str(img)],
+                                  capture_output=True, text=True, timeout=30).stdout.strip()
+            # Kleine Seitenbilder hochskalieren – Tesseract liest Prospektschrift sonst schlecht.
+            w = int(size.split("x")[0]) if size[:1].isdigit() else 0
+            if 0 < w < 1800 and shutil.which("convert"):
+                big = Path(d) / "page_big.png"
+                subprocess.run(["convert", str(img), "-resize", f"{int(2000 / w * 100)}%", str(big)],
+                               capture_output=True, timeout=60)
+                img = big if big.exists() else img
         out = subprocess.run(["tesseract", str(img), "stdout", "-l", "deu+eng", "--psm", "3"],
-                             capture_output=True, text=True, timeout=90)
+                             capture_output=True, text=True, timeout=120)
+    INFO.update(size=size, chars=len(out.stdout))
     return out.stdout
 
 
 def find_pokemon(text: str, product_cfg: dict) -> dict | None:
-    t = re.sub(r"\s+", " ", text)
-    low = t.lower().replace("pokemon", "pokémon")
+    t = _POKEMON_RE.sub("Pokémon", re.sub(r"\s+", " ", text))
+    low = t.lower()
     if "pokémon" not in low:
         return None
     exact = any(w in low for w in product_cfg["name_any"]) and any(w in low for w in product_cfg["type_any"])
@@ -75,6 +91,7 @@ def scan(brochure_id: str, publisher: str | None, pages_data: dict, product_cfg:
     hits = []
     pages = (pages_data.get("contents") or [])[:max_pages]
     first = None
+    chars = 0
     for n, page in enumerate(pages):
         url = page_images(page)
         first = first or url
@@ -85,11 +102,14 @@ def scan(brochure_id: str, publisher: str | None, pages_data: dict, product_cfg:
         except Exception as e:  # einzelne Seiten dürfen scheitern
             print(f"    OCR Seite {n}: {type(e).__name__}: {e}")
             continue
+        chars += INFO.get("chars", 0)
+        if n == 0:
+            print(f"    Seite 1: {url[:90]} – Bild {INFO.get('size') or '?'}, {INFO.get('chars', 0)} Zeichen erkannt")
         if found:
             hits.append({"page": n, **found})
     if not first and pages:
         import json
         print("    Aufbau Seite 0:", json.dumps(pages[0], ensure_ascii=False)[:700])
-    print(f"  OCR {brochure_id[:8]} ({publisher or '?'}): {len(pages)} Seiten, {len(hits)} mit Pokémon"
+    print(f"  OCR {brochure_id[:8]} ({publisher or '?'}): {len(pages)} Seiten, {chars} Zeichen, {len(hits)} mit Pokémon"
           + ("" if first else " – keine Seitenbilder gefunden"))
     return hits if first else None

@@ -22,7 +22,7 @@ der Watcher den Restock wieder.
 ### 1. SMTP-Versand bei GMX freischalten
 GMX erlaubt den Versand über externe Programme erst nach einmaliger Freigabe:
 1. Bei <https://www.gmx.net> einloggen → **E-Mail → Einstellungen → POP3/IMAP Abruf**
-2. Haken bei **„Senden und Empfangen von E-Mails via externer Software einschalten“** setzen → Speichern.
+2. Schalter **„POP3- und IMAP-Zugriff erlauben“** einschalten.
 3. Ist bei dir die Zwei-Faktor-Authentisierung aktiv, erstellst du unter **Sicherheit** ein
    **anwendungsspezifisches Passwort** und nutzt es statt deines normalen Passworts.
 
@@ -35,7 +35,7 @@ Repo → **Settings → Secrets and variables → Actions → New repository sec
 | `SMTP_PASSWORD` | dein GMX-Passwort bzw. das anwendungsspezifische Passwort |
 | `MAIL_TO` | Empfängeradresse (kann dieselbe sein) |
 
-Server (`smtp.gmx.net`, Port `587`) ist voreingestellt. Nur bei einem anderen Anbieter zusätzlich
+Server (`mail.gmx.net`, Port `587`) ist voreingestellt. Nur bei einem anderen Anbieter zusätzlich
 `SMTP_HOST` und `SMTP_PORT` (`465` oder `587`) setzen.
 
 ### 3. Testen

@@ -12,7 +12,7 @@ class MailConfigError(Exception):
 
 
 def send(subject: str, body: str) -> None:
-    host = os.environ.get("SMTP_HOST") or "smtp.gmx.net"
+    host = os.environ.get("SMTP_HOST") or "mail.gmx.net"
     port = int(os.environ.get("SMTP_PORT") or "587")
     user = os.environ.get("SMTP_USER")
     password = os.environ.get("SMTP_PASSWORD")
@@ -30,10 +30,21 @@ def send(subject: str, body: str) -> None:
     ctx = ssl.create_default_context()
     if port == 465:
         with smtplib.SMTP_SSL(host, port, context=ctx, timeout=30) as s:
-            s.login(user, password)
+            _login(s, user, password, host)
             s.send_message(msg)
     else:
         with smtplib.SMTP(host, port, timeout=30) as s:
             s.starttls(context=ctx)
-            s.login(user, password)
+            _login(s, user, password, host)
             s.send_message(msg)
+
+
+def _login(s: smtplib.SMTP, user: str, password: str, host: str) -> None:
+    try:
+        s.login(user, password)
+    except smtplib.SMTPAuthenticationError as e:
+        raise MailConfigError(
+            f"{host} hat die Anmeldung für '{user}' abgelehnt ({e.smtp_code}). Prüfen: vollständige "
+            "E-Mail-Adresse als SMTP_USER, Passwort ohne Leerzeichen, bei aktiver Zwei-Faktor-"
+            "Anmeldung ein anwendungsspezifisches Passwort, Versand via externer Software erlaubt."
+        ) from e

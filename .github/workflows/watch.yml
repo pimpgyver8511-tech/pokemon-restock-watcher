@@ -5,6 +5,8 @@ on:
     # Alle 10 Minuten anstoßen; ob wirklich geprüft wird, entscheiden Intervall und Zeitfenster
     # (Web-Oberfläche bzw. config.yaml). GitHub startet geplante Läufe teils einige Minuten später.
     - cron: "3-59/10 * * * *"
+    # Einmaliger Testlauf am 29.09. um 15:25 Uhr deutscher Zeit (13:25 UTC)
+    - cron: "25 13 29 9 *"
   workflow_dispatch:
     inputs:
       test_mail:
@@ -73,7 +75,7 @@ jobs:
         # Manuell gestartete Läufe prüfen immer, unabhängig von Intervall und Zeitfenster.
         run: >-
           python -m watcher.main
-          ${{ github.event_name == 'workflow_dispatch' && '--force' || '' }}
+          ${{ (github.event_name == 'workflow_dispatch' || github.event.schedule == '25 13 29 9 *') && '--force' || '' }}
           ${{ inputs.shop && format('--shop "{0}"', inputs.shop) || '' }}
 
       - name: Stand speichern

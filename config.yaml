@@ -201,7 +201,15 @@ stores_disabled:
   chains: ["MediaMarkt", "Saturn"]
   queries: ["Top-Trainer-Box 30 Jahre", "Pokemon 30 Jahre Top Trainer Box"]
 
-# Prospekt-Angebote von kaufda.de rund um diese Postleitzahl (wie in der Bier-App).
+# Shopify-Kartenläden durchsuchen: taucht die Box dort (neu) auf, wird sie automatisch überwacht.
+# Läden, die oben schon als Shop eingetragen sind, werden übersprungen.
+shopify_search:
+  queries: ["30 Jahre Top-Trainer-Box", "30 Jahre Top Trainer Box"]
+  domains: ["racoon-rises.com", "godofcards.com", "adventurecardz.de", "www.cartaro.de", "blackprism.de",
+            "kofuku.de", "www.pokesynek.de", "jk-entertainment.de", "sapphire-cards.de", "brettspielbude.de",
+            "geeksheaven.de", "cardcosmos.de", "www.card-knights.de"]
+
+# Prospekt-Angebote von kaufda.de (wie in der Bier-App) und marktguru.de rund um diese Postleitzahl.
 flyers:
   postal_code: "04275"
   lat: 51.3197
@@ -224,6 +232,12 @@ news:
     # Pokémon-TCG-Newsseiten (WordPress-Feeds)
     - "https://pokezentrum.de/feed/"
     - "https://collectors-junkies.com/feed/"
+    # Deal-Portale (Einladungs-Deals, Restocks, Preisfehler)
+    - "https://www.mytopdeals.net/feed/"
+    - "https://www.easydealz.de/feed/"
+    - "https://www.dealdoktor.de/feed/"
+    - "https://www.schnaeppchenfuchs.com/feed"
+    - "https://www.preisjaeger.at/rss/gruppe/pokemon"
     # Tipp: Den RSS-Feed eines eigenen mydealz-Schlagwort-Alarms (Profil → Einstellungen →
     # Schlagwort-Alarme) kannst du hier zusätzlich eintragen.
   # Die Überschrift muss eines dieser Wörter enthalten (Groß-/Kleinschreibung egal) …

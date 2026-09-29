@@ -6,7 +6,7 @@ from unittest import mock
 
 import yaml
 
-from watcher import fetch, flyers, main, news, stores
+from watcher import fetch, flyers, main, news, shopify, stores
 from watcher.parse import (IN_STOCK, OUT_OF_STOCK, PREORDER, available_from_text, extract, parse_price,
                            product_links, shopify_offer)
 
@@ -125,7 +125,7 @@ class FlowTests(unittest.TestCase):
     """Zustandswechsel: nur bei Änderung mailen."""
 
     def setUp(self):
-        self.cfg = {**CFG, "stores": None, "flyers": None, "shops": [{"name": "MediaMarkt", "country": "DE", "ships_to_de": "yes",
+        self.cfg = {**CFG, "stores": None, "flyers": None, "shopify_search": None, "shops": [{"name": "MediaMarkt", "country": "DE", "ships_to_de": "yes",
                                       "urls": ["https://mm.example/p"]}]}
         self.state = main.load_state(Path("/nonexistent"))
         self.state["last_digest"] = "2026-09-29"  # Tagesmail für NOW schon verschickt
@@ -268,7 +268,7 @@ class StoreTests(unittest.TestCase):
 
 class FlyerTests(unittest.TestCase):
     CFG = {"postal_code": "04275", "lat": 51.3, "lng": 12.37, "queries": ["Pokemon"], "pages": [],
-           "related_any": []}
+           "related_any": [], "marktguru": False}
     SEARCH = {"searchResults": {"contents": {"brochures": [{"content": {"id": "b1"}}]}}}
     PAGES = {"contents": [{"offers": [
         {"content": {"id": "o1", "publisher": {"name": "Müller"},
@@ -296,7 +296,7 @@ class FlyerTests(unittest.TestCase):
         self.assertEqual(offers[0]["valid_until"], "2026-10-04")
 
     def test_flyer_hit_in_run(self):
-        cfg = {**CFG, "stores": None, "shops": [], "flyers": self.CFG}
+        cfg = {**CFG, "stores": None, "shopify_search": None, "shops": [], "flyers": self.CFG}
         state = main.load_state(Path("/nonexistent"))
         state["last_digest"] = "2026-09-29"
         with mock.patch.object(fetch, "get", side_effect=self.fake_get):
@@ -304,6 +304,45 @@ class FlyerTests(unittest.TestCase):
             self.assertIn("🚨", subject)
             self.assertIn("Prospekt Leipzig", body)
             self.assertIsNone(main.run(cfg, state, NOW, with_news=False)[0], "nur einmal melden")
+
+
+class MarktguruTests(unittest.TestCase):
+    HOME = '<script type="application/json">{"config":{"apiKey":"A","clientKey":"C"}}</script>'
+    RESULTS = {"results": [
+        {"id": 7, "product": {"name": "Top-Trainer-Box 30 Jahre"}, "brand": {"name": "Pokémon"},
+         "advertisers": [{"name": "HIT"}], "price": 59.99,
+         "validityDates": [{"from": "2026-09-28T00:00:00Z", "to": "2026-10-03T23:59:59Z"}]},
+        {"id": 8, "product": {"name": "Pils"}, "brand": {"name": "Krombacher"}, "price": 11.99}]}
+
+    def test_marktguru(self):
+        def get(url, timeout=25, headers=None):
+            if "api.marktguru" in url:
+                self.assertEqual(headers["x-apikey"], "A")
+                return json.dumps(self.RESULTS)
+            return self.HOME
+        cfg = {"postal_code": "04275", "queries": ["Pokemon"], "related_any": []}
+        with mock.patch.object(fetch, "get", side_effect=get):
+            offers = flyers.marktguru_offers(cfg, P)
+        self.assertEqual([(o["kind"], o["store"], o["price"], o["valid_until"]) for o in offers],
+                         [("exact", "HIT", 59.99, "2026-10-03")])
+
+
+class ShopifySearchTests(unittest.TestCase):
+    def test_discover_new_listing(self):
+        suggest = {"resources": {"results": {"products": [
+            {"title": "Pokémon 30 Jahre Top-Trainer-Box (DE)", "url": "/products/ttb-30?_pos=1"},
+            {"title": "Pokémon Top-Trainer-Box Karmesin", "url": "/products/ttb-kp"}]}}}
+
+        def get(url, timeout=25, headers=None):
+            if "neu.example" in url:
+                return json.dumps(suggest)
+            raise fetch.FetchError("HTTP 404")
+        cfg = {"queries": ["30 Jahre"], "domains": ["neu.example", "kaputt.example", "known.example"]}
+        state = {}
+        with mock.patch.object(fetch, "get", side_effect=get):
+            extra = shopify.discover(cfg, [{"urls": ["https://known.example/products/x"]}], P, state)
+        self.assertEqual(extra, [{"name": "neu.example", "country": "DE", "ships_to_de": "yes",
+                                  "urls": ["https://neu.example/products/ttb-30"], "discovered": True}])
 
 
 class ScheduleTests(unittest.TestCase):

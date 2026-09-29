@@ -1,4 +1,4 @@
-"""Prospekt-Angebote von kaufda.de rund um eine Postleitzahl (wie in der Bier-App).
+"""Prospekt-Angebote von kaufda.de (wie in der Bier-App) und marktguru.de rund um eine Postleitzahl.
 
 1. /api/search liefert die IDs aller Prospekte, die zu einem Suchbegriff passen.
 2. content-viewer-be.kaufda.de liefert pro Prospekt alle Angebote mit Produktname,
@@ -132,5 +132,59 @@ def check(cfg: dict, product_cfg: dict) -> tuple[list[dict], list[str]]:
                 offers.setdefault(o["id"] or o["title"], o)
         except Exception as e:
             errors.append(f"{url}: {type(e).__name__}: {e}")
+    if cfg.get("marktguru", True):
+        try:
+            mg = marktguru_offers(cfg, product_cfg)
+            print(f"Prospekte marktguru: {len(mg)} Pokémon-Angebote")
+            for o in mg:
+                offers.setdefault(o["id"], o)
+        except Exception as e:
+            errors.append(f"marktguru: {type(e).__name__}: {e}")
     result = sorted(offers.values(), key=lambda o: (o["kind"] != "exact", o.get("price") or 1e9))
     return result, errors
+
+
+# --------------------------------------------------------------------------- marktguru.de
+
+MARKTGURU = "https://api.marktguru.de/api/v1/offers/search"
+
+
+def marktguru_keys() -> dict:
+    """Öffentliche API-Schlüssel, die marktguru.de selbst in die Startseite einbettet."""
+    html = fetch.get("https://www.marktguru.de/")
+    for raw in re.findall(r'<script\s+type="application/json">(.*?)</script>', html, re.S):
+        try:
+            conf = json.loads(raw).get("config") or {}
+        except (json.JSONDecodeError, AttributeError):
+            continue
+        if conf.get("apiKey") and conf.get("clientKey"):
+            return {"x-apikey": conf["apiKey"], "x-clientkey": conf["clientKey"], "Accept": "application/json"}
+    raise fetch.FetchError("marktguru: API-Schlüssel nicht gefunden")
+
+
+def marktguru_offers(cfg: dict, product_cfg: dict) -> list[dict]:
+    headers = marktguru_keys()
+    found = []
+    for q in cfg.get("queries", []):
+        url = f"{MARKTGURU}?as=web&q={quote(q)}&zipCode={cfg['postal_code']}&limit=100&offset=0"
+        try:
+            data = json.loads(fetch.get(url, headers=headers))
+        except json.JSONDecodeError as e:
+            raise fetch.FetchError(f"marktguru: keine JSON-Antwort ({e})") from e
+        for o in data.get("results") or []:
+            product = o.get("product") or {}
+            title = " ".join(filter(None, [(o.get("brand") or {}).get("name"), product.get("name")]))
+            kind = _classify(f"{title} {o.get('description') or ''}", product_cfg, cfg)
+            if not kind:
+                continue
+            validity = (o.get("validityDates") or [{}])[0]
+            found.append({
+                "id": f"mg-{o.get('id')}", "kind": kind,
+                "store": ", ".join(a.get("name", "") for a in o.get("advertisers") or []) or None,
+                "title": title, "description": (o.get("description") or "")[:160], "price": o.get("price"),
+                "valid_from": (validity.get("from") or "")[:10] or None,
+                "valid_until": (validity.get("to") or "")[:10] or None,
+                "url": f"https://www.marktguru.de/search/{quote(q)}",
+                "source": "marktguru",
+            })
+    return found

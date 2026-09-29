@@ -12,7 +12,7 @@ from zoneinfo import ZoneInfo
 
 import yaml
 
-from . import fetch, flyers, mailer, news, stores
+from . import fetch, flyers, mailer, news, shopify, stores
 from .parse import ORDERABLE, PREORDER, Offer, extract, is_asset, product_links, shopify_offer
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -205,7 +205,7 @@ def snapshot(cfg: dict, state: dict, now: datetime) -> dict:
         status = st.get("status") or "not_listed"
         shops.append({
             "name": shop["name"], "country": shop["country"],
-            "aggregator": bool(shop.get("aggregator")),
+            "aggregator": bool(shop.get("aggregator")), "discovered": bool(shop.get("discovered")),
             "ships_to_de": shop.get("ships_to_de") == "yes",
             "status": status, "price": st.get("price"),
             "in_range": bool(st.get("hit")),
@@ -266,6 +266,9 @@ def run(cfg: dict, state: dict, now: datetime, only: str | None = None,
         with_news: bool = True) -> tuple[str | None, str]:
     """Führt einen Durchlauf aus. -> (Betreff oder None, wenn keine Mail nötig; Mail-Text)"""
     events: list[tuple[int, str]] = []
+    if cfg.get("shopify_search") and not only:
+        cfg["shops"] = [s for s in cfg["shops"] if not s.get("discovered")]
+        cfg["shops"] += shopify.discover(cfg["shopify_search"], cfg["shops"], cfg["product"], state)
     for shop in cfg["shops"]:
         if only and shop["name"].lower() != only.lower():
             continue

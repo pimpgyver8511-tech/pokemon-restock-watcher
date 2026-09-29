@@ -130,7 +130,7 @@
     <section class="card hidden" id="flyersCard">
       <h2 id="flyersTitle">🗞️ Prospekt-Angebote</h2>
       <ul class="offers" id="flyers"></ul>
-      <p class="hint">Aus den aktuellen Prospekten auf kaufda.de. „Weitere Pokémon-Angebote“ sind nur zur Info.</p>
+      <p class="hint">Aus den aktuellen Prospekten auf kaufda.de und marktguru.de. „Weitere Pokémon-Angebote“ sind nur zur Info.</p>
     </section>
 
     <!-- News -->
@@ -426,6 +426,7 @@
       const extra = [
         s.price != null && s.status !== "not_listed" ? `<span class="price">${euro(s.price)}</span>` : "",
         `<span class="pill ${s.cls}">${s.aggregator && s.price != null ? "günstigstes Angebot" : s.label}</span>`,
+        s.discovered ? "<span>🆕 per Shopify-Suche gefunden</span>" : "",
         s.aggregator ? "<span>Preisvergleich – günstigster gelisteter Preis, oft Amazon-Einladung oder veraltet</span>" : "",
         s.available_from && s.status !== "not_listed" ? `<span>📦 Lieferung ab <b>${esc(s.available_from)}</b></span>` : "",
         !s.ships_to_de ? "<span>Versand nach DE prüfen</span>" : "",
@@ -470,7 +471,8 @@
           ${url ? `<a class="go" href="${esc(url)}" target="_blank" rel="noopener">Prospekt →</a>` : ""}
           <div class="meta">${o.price != null ? `<span class="price">${euro(o.price)}</span>` : ""}
             <span class="pill ${exact ? "s-ok" : "s-other"}">${exact ? "Top-Trainer-Box" : "weiteres Pokémon-Angebot"}</span>
-            <span>gültig ${d(o.valid_from)} – ${d(o.valid_until)}</span></div></li>`;
+            <span>gültig ${d(o.valid_from)} – ${d(o.valid_until)}</span>
+            <span>via ${o.source === "marktguru" ? "marktguru" : "kaufda"}</span></div></li>`;
       }).join("") || `<li class="hint">Aktuell keine Pokémon-Angebote in den Prospekten.</li>`;
     }
 

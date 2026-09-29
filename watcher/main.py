@@ -36,6 +36,10 @@ def _dump(shop: str, url: str, html: str) -> None:
         return
     import hashlib
     import re
+    title = re.search(r"<title[^>]*>(.*?)</title>", html, re.S | re.I)
+    print(f"  ↳ Debug {shop}: {len(html)} Bytes, Titel: {title.group(1).strip()[:80] if title else '-'!r}, "
+          f"JSON-LD: {html.count('application/ld+json')}, '30 Jahre' im Text: {html.lower().count('30 jahre')}, "
+          f"Links: {html.count('<a ')}, URL: {url}")
     Path(d).mkdir(parents=True, exist_ok=True)
     name = re.sub(r"\W+", "_", shop) + "_" + hashlib.sha1(url.encode()).hexdigest()[:8] + ".html"
     (Path(d) / name).write_text(f"<!-- {url} -->\n{html}")

@@ -191,6 +191,17 @@ stores_disabled:
   chains: ["MediaMarkt", "Saturn"]
   queries: ["Top-Trainer-Box 30 Jahre", "Pokemon 30 Jahre Top Trainer Box"]
 
+# Prospekt-Angebote von kaufda.de rund um diese Postleitzahl (wie in der Bier-App).
+flyers:
+  postal_code: "04275"
+  lat: 51.3197
+  lng: 12.3714
+  queries: ["Pokemon", "Pokémon Sammelkarten", "Top-Trainer-Box"]
+  pages: ["https://www.kaufda.de/Leipzig/Angebote/Pokemon"]
+  max_brochures: 40
+  # Sonstige Pokémon-Angebote werden als Info angezeigt, aber nie als Treffer gemeldet.
+  related_any: ["pokémon", "pokemon"]
+
 # Restock-News: RSS-Feeds, neue Einträge mit passenden Stichworten werden gemeldet.
 news:
   feeds:

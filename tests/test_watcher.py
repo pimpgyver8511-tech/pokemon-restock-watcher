@@ -1,3 +1,4 @@
+import json
 import unittest
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -5,7 +6,7 @@ from unittest import mock
 
 import yaml
 
-from watcher import fetch, main, news, stores
+from watcher import fetch, flyers, main, news, stores
 from watcher.parse import (IN_STOCK, OUT_OF_STOCK, PREORDER, available_from_text, extract, parse_price,
                            product_links, shopify_offer)
 
@@ -124,7 +125,7 @@ class FlowTests(unittest.TestCase):
     """Zustandswechsel: nur bei Änderung mailen."""
 
     def setUp(self):
-        self.cfg = {**CFG, "stores": None, "shops": [{"name": "MediaMarkt", "country": "DE", "ships_to_de": "yes",
+        self.cfg = {**CFG, "stores": None, "flyers": None, "shops": [{"name": "MediaMarkt", "country": "DE", "ships_to_de": "yes",
                                       "urls": ["https://mm.example/p"]}]}
         self.state = main.load_state(Path("/nonexistent"))
         self.state["last_digest"] = "2026-09-29"  # Tagesmail für NOW schon verschickt
@@ -263,6 +264,45 @@ class StoreTests(unittest.TestCase):
             entries, errors = stores.check(self.CFG, P, {})
         self.assertEqual(entries, [])
         self.assertIn("kaputt", errors[0])
+
+
+class FlyerTests(unittest.TestCase):
+    CFG = {"postal_code": "04275", "lat": 51.3, "lng": 12.37, "queries": ["Pokemon"], "pages": [],
+           "related_any": ["pokemon", "pokémon"]}
+    SEARCH = {"searchResults": {"contents": {"brochures": [{"content": {"id": "b1"}}]}}}
+    PAGES = {"contents": [{"offers": [
+        {"content": {"id": "o1", "publisher": {"name": "Müller"},
+                     "parentContent": {"id": "b1", "page": {"number": 3}},
+                     "products": [{"brandName": "Pokémon", "name": "Top-Trainer-Box 30 Jahre",
+                                   "description": [{"paragraph": "Sammelkartenspiel"}]}],
+                     "deals": [{"type": "SALES_PRICE", "min": 54.99}],
+                     "publicationProfiles": [{"validity": {"startDate": "2026-09-28T00:00:00",
+                                                           "endDate": "2026-10-04T23:59:59"}}]}},
+        {"content": {"id": "o2", "publisher": {"name": "Kaufland"},
+                     "products": [{"name": "Pokémon Booster"}], "deals": [{"type": "SALES_PRICE", "min": 4.99}]}},
+        {"content": {"id": "o3", "products": [{"name": "Krombacher Pils"}]}}]}]}
+
+    def fake_get(self, url, timeout=25, headers=None):
+        return json.dumps(self.SEARCH if "/api/search" in url else self.PAGES)
+
+    def test_flyer_offers(self):
+        with mock.patch.object(fetch, "get", side_effect=self.fake_get):
+            offers, errors = flyers.check(self.CFG, P)
+        self.assertEqual(errors, [])
+        self.assertEqual([(o["kind"], o["store"], o["price"]) for o in offers],
+                         [("exact", "Müller", 54.99), ("pokemon", "Kaufland", 4.99)])
+        self.assertIn("contentViewer/static/b1", offers[0]["url"])
+        self.assertEqual(offers[0]["valid_until"], "2026-10-04")
+
+    def test_flyer_hit_in_run(self):
+        cfg = {**CFG, "stores": None, "shops": [], "flyers": self.CFG}
+        state = main.load_state(Path("/nonexistent"))
+        state["last_digest"] = "2026-09-29"
+        with mock.patch.object(fetch, "get", side_effect=self.fake_get):
+            subject, body = main.run(cfg, state, NOW, with_news=False)
+            self.assertIn("🚨", subject)
+            self.assertIn("Prospekt Leipzig", body)
+            self.assertIsNone(main.run(cfg, state, NOW, with_news=False)[0], "nur einmal melden")
 
 
 class ScheduleTests(unittest.TestCase):

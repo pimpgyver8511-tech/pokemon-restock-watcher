@@ -126,6 +126,13 @@
       <p class="hint">Abholbestand laut MediaMarkt/Saturn. Vor dem Losfahren im Markt oder online reservieren.</p>
     </section>
 
+    <!-- Prospekte -->
+    <section class="card hidden" id="flyersCard">
+      <h2 id="flyersTitle">🗞️ Prospekt-Angebote</h2>
+      <ul class="offers" id="flyers"></ul>
+      <p class="hint">Aus den aktuellen Prospekten auf kaufda.de. „Weitere Pokémon-Angebote“ sind nur zur Info.</p>
+    </section>
+
     <!-- News -->
     <section class="card">
       <h2>📰 Restock-News</h2>
@@ -448,6 +455,23 @@
           <div class="meta"><span class="pill ${e.st[1]}">${e.st[0]}</span>
             <span>${esc(e.distance_km)} km${e.street ? " · " + esc(e.street) : ""}</span></div></li>`;
       }).join("") || `<li class="hint">Noch keine Filialdaten – kommen mit dem nächsten Abruf.</li>`;
+    }
+
+    if (data.flyers_area) {
+      $("flyersCard").classList.remove("hidden");
+      $("flyersTitle").textContent = `🗞️ Prospekt-Angebote rund um ${data.flyers_area}`;
+      const d = v => v ? new Date(v).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit" }) : "?";
+      $("flyers").innerHTML = (data.flyers || []).map(o => {
+        const url = safeUrl(o.url);
+        const exact = o.kind === "exact";
+        const hit = exact && o.price != null && o.price >= data.price.min && o.price <= data.price.max;
+        return `<li class="offer${hit ? " hit" : ""}">
+          <div class="shop">${esc(o.store || "?")} – ${esc(o.title || "")}</div>
+          ${url ? `<a class="go" href="${esc(url)}" target="_blank" rel="noopener">Prospekt →</a>` : ""}
+          <div class="meta">${o.price != null ? `<span class="price">${euro(o.price)}</span>` : ""}
+            <span class="pill ${exact ? "s-ok" : "s-other"}">${exact ? "Top-Trainer-Box" : "weiteres Pokémon-Angebot"}</span>
+            <span>gültig ${d(o.valid_from)} – ${d(o.valid_until)}</span></div></li>`;
+      }).join("") || `<li class="hint">Aktuell keine Pokémon-Angebote in den Prospekten.</li>`;
     }
 
     $("news").innerHTML = (data.news || []).slice(0, 12).map(n => {

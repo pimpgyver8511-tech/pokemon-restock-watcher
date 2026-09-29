@@ -12,7 +12,7 @@ from zoneinfo import ZoneInfo
 
 import yaml
 
-from . import fetch, mailer, news, stores
+from . import fetch, flyers, mailer, news, stores
 from .parse import ORDERABLE, PREORDER, Offer, extract, is_asset, product_links, shopify_offer
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -222,6 +222,8 @@ def snapshot(cfg: dict, state: dict, now: datetime) -> dict:
         "shops": shops,
         "news": state.get("news_recent", []),
         "stores": state.get("store_entries", []),
+        "flyers": state.get("flyer_offers", []),
+        "flyers_area": cfg["flyers"].get("postal_code") if cfg.get("flyers") else None,
         "stores_area": ({"postal_code": cfg["stores"].get("postal_code"), "radius_km": cfg["stores"].get("radius_km")}
                         if cfg.get("stores") else None),
     }
@@ -292,6 +294,26 @@ def run(cfg: dict, state: dict, now: datetime, only: str | None = None,
         if entries or not store_errors:
             state["store_status"] = {f"{e['chain']}|{e['id']}|{e.get('product')}": e["status"] for e in entries}
             state["store_entries"] = entries
+
+    if cfg.get("flyers") and not only:
+        offers, flyer_errors = flyers.check(cfg["flyers"], cfg["product"])
+        for e in flyer_errors:
+            print(f"Prospekt-Fehler: {e}")
+        today = now.astimezone(BERLIN).strftime("%Y-%m-%d")
+        seen = set(state.get("flyer_seen", []))
+        for o in offers:
+            current = not o.get("valid_until") or o["valid_until"] >= today
+            print(f"  Prospekt {o['kind']}: {o.get('store')} – {o.get('title')} {o.get('price')} € "
+                  f"({o.get('valid_from')}–{o.get('valid_until')})")
+            if (o["kind"] == "exact" and current and o.get("price") is not None
+                    and cfg["price"]["min"] <= o["price"] <= cfg["price"]["max"] and o["id"] not in seen):
+                period = f"{o.get('valid_from') or '?'} bis {o.get('valid_until') or '?'}"
+                events.append((1, f"✅ {o.get('store')} [Prospekt Leipzig]: {o.get('title')} für "
+                                  f"{fmt_price(o['price'])} (gültig {period})\n   {o.get('url') or ''}"))
+                seen.add(o["id"])
+        if offers or not flyer_errors:
+            state["flyer_offers"] = [o for o in offers if not o.get("valid_until") or o["valid_until"] >= today][:40]
+            state["flyer_seen"] = sorted(seen)[-300:]
 
     news_items: list[news.NewsItem] = []
     if with_news and cfg.get("news"):

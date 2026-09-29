@@ -265,6 +265,47 @@ def run(cfg: dict, state: dict, now: datetime, only: str | None = None,
     return subject, "\n\n".join(body_parts)
 
 
+def apply_overrides(cfg: dict, env=os.environ) -> dict:
+    """Einstellungen aus der Web-Oberfläche (GitHub-Variablen) überschreiben config.yaml."""
+    def num(name, cast=float):
+        try:
+            return cast(env[name]) if env.get(name, "").strip() else None
+        except ValueError:
+            print(f"Ungültiger Wert für {name}: {env[name]!r} – ignoriert")
+            return None
+    sched = cfg.setdefault("schedule", {})
+    for key, name, cast in [("interval_minutes", "WATCH_INTERVAL_MIN", int),
+                            ("active_from", "WATCH_FROM_HOUR", int), ("active_to", "WATCH_TO_HOUR", int)]:
+        if (v := num(name, cast)) is not None:
+            sched[key] = v
+    if (v := num("DIGEST_HOUR", int)) is not None:
+        cfg["digest_hour"] = v
+    if (v := num("PRICE_MIN")) is not None:
+        cfg["price"]["min"] = v
+    if (v := num("PRICE_MAX")) is not None:
+        cfg["price"]["max"] = v
+    if env.get("INSTANT_ALERTS", "").strip():
+        cfg["instant_alerts"] = env["INSTANT_ALERTS"].strip().lower() in ("1", "true", "ja", "yes", "on")
+    return cfg
+
+
+def is_due(cfg: dict, state: dict, now: datetime) -> tuple[bool, str]:
+    """Soll dieser (geplante) Lauf prüfen? Berücksichtigt Intervall und aktives Zeitfenster."""
+    sched = cfg.get("schedule", {})
+    start, end = sched.get("active_from", 0), sched.get("active_to", 24)
+    hour = now.astimezone(BERLIN).hour
+    inside = start <= hour < end if start <= end else (hour >= start or hour < end)  # auch über Mitternacht
+    if start != end and not inside:
+        return False, f"außerhalb des Zeitfensters {start}–{end} Uhr"
+    interval = sched.get("interval_minutes", 20)
+    if last := state.get("last_check"):
+        elapsed = (now - datetime.fromisoformat(last)).total_seconds() / 60
+        # 3 Minuten Toleranz, weil GitHub geplante Läufe ungenau startet.
+        if elapsed < interval - 3:
+            return False, f"letzte Prüfung vor {elapsed:.0f} min, Intervall {interval} min"
+    return True, ""
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--config", default=str(ROOT / "config.yaml"))
@@ -273,6 +314,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--shop", help="nur diesen Shop prüfen")
     ap.add_argument("--no-news", action="store_true")
     ap.add_argument("--test-mail", action="store_true", help="nur eine Test-Mail schicken")
+    ap.add_argument("--force", action="store_true", help="Intervall/Zeitfenster ignorieren (manueller Start)")
     args = ap.parse_args(argv)
 
     if args.test_mail:
@@ -280,10 +322,18 @@ def main(argv: list[str] | None = None) -> int:
         print("Test-Mail gesendet.")
         return 0
 
-    cfg = yaml.safe_load(Path(args.config).read_text())
+    cfg = apply_overrides(yaml.safe_load(Path(args.config).read_text()))
     state_path = Path(args.state)
     state = load_state(state_path)
     now = datetime.now(timezone.utc)
+
+    if not args.force and not args.shop:
+        due, reason = is_due(cfg, state, now)
+        if not due:
+            print(f"Übersprungen: {reason}")
+            return 0
+    if not args.dry_run and not args.shop:
+        state["last_check"] = now.isoformat(timespec="seconds")
 
     subject, body = run(cfg, state, now, only=args.shop, with_news=not args.no_news)
 

@@ -175,5 +175,29 @@ class FlowTests(unittest.TestCase):
         self.assertEqual(self.state["pending"], [])
 
 
+class ScheduleTests(unittest.TestCase):
+    def test_overrides(self):
+        cfg = main.apply_overrides(yaml.safe_load(yaml.safe_dump(CFG)), {
+            "WATCH_INTERVAL_MIN": "30", "WATCH_FROM_HOUR": "7", "WATCH_TO_HOUR": "23",
+            "PRICE_MAX": "70", "INSTANT_ALERTS": "false", "DIGEST_HOUR": "", "PRICE_MIN": "abc"})
+        self.assertEqual(cfg["schedule"], {"interval_minutes": 30, "active_from": 7, "active_to": 23})
+        self.assertEqual((cfg["price"]["min"], cfg["price"]["max"]), (50.0, 70.0))
+        self.assertFalse(cfg["instant_alerts"])
+        self.assertEqual(cfg["digest_hour"], CFG["digest_hour"])
+
+    def test_is_due(self):
+        cfg = {"schedule": {"interval_minutes": 30, "active_from": 7, "active_to": 23}}
+        at = lambda h, m=0: datetime(2026, 9, 29, h - 2, m, tzinfo=timezone.utc)  # Berlin = UTC+2
+        self.assertTrue(main.is_due(cfg, {}, at(12))[0])
+        self.assertFalse(main.is_due(cfg, {}, at(6))[0])
+        self.assertFalse(main.is_due(cfg, {}, at(23, 30))[0])
+        self.assertFalse(main.is_due(cfg, {"last_check": at(12).isoformat()}, at(12, 20))[0])
+        self.assertTrue(main.is_due(cfg, {"last_check": at(12).isoformat()}, at(12, 28))[0])
+        night = {"schedule": {"interval_minutes": 10, "active_from": 22, "active_to": 7}}
+        self.assertTrue(main.is_due(night, {}, at(23))[0])
+        self.assertTrue(main.is_due(night, {}, at(3))[0])
+        self.assertFalse(main.is_due(night, {}, at(12))[0])
+
+
 if __name__ == "__main__":
     unittest.main()

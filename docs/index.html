@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pokémon-Watcher</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='46' fill='%23e3350d' stroke='%23222' stroke-width='6'/><rect x='4' y='46' width='92' height='8' fill='%23222'/><path d='M4 54a46 46 0 0 0 92 0z' fill='%23fff' stroke='%23222' stroke-width='6'/><circle cx='50' cy='50' r='13' fill='%23fff' stroke='%23222' stroke-width='6'/></svg>">
+<style>
+  :root {
+    --bg: #f5f6f8; --card: #ffffff; --text: #1d2330; --muted: #677084; --line: #e1e4ea;
+    --accent: #d8330f; --accent-text: #ffffff; --ok: #1b8a4b; --warn: #b7791f; --err: #c53030;
+    --input: #ffffff; --shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #12151b; --card: #1b1f27; --text: #e8eaef; --muted: #9aa2b4; --line: #2c323e;
+      --accent: #ff5a36; --accent-text: #14161b; --ok: #4cc38a; --warn: #e0b04d; --err: #ff6b6b;
+      --input: #12151b; --shadow: none;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 760px; margin: 0 auto; padding: 24px 16px 48px; }
+  header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+  header svg { width: 36px; height: 36px; flex: none; }
+  h1 { font-size: 1.35rem; margin: 0; }
+  header p { margin: 0; color: var(--muted); font-size: .9rem; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+          padding: 18px; margin-bottom: 16px; box-shadow: var(--shadow); }
+  h2 { font-size: 1rem; margin: 0 0 12px; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; }
+  button { font: inherit; border: 1px solid var(--line); background: var(--input); color: var(--text);
+           border-radius: 8px; padding: 9px 14px; cursor: pointer; }
+  button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-text); font-weight: 600; }
+  button:disabled { opacity: .55; cursor: default; }
+  label { display: block; font-size: .85rem; color: var(--muted); margin-bottom: 4px; }
+  input, select { font: inherit; width: 100%; padding: 8px 10px; border-radius: 8px;
+                  border: 1px solid var(--line); background: var(--input); color: var(--text); }
+  input[type=checkbox] { width: auto; margin: 4px 8px 0 0; flex: none; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; }
+  .check { display: flex; align-items: flex-start; color: var(--text); font-size: .95rem; margin: 0; }
+  .hint { color: var(--muted); font-size: .85rem; margin: 8px 0 0; }
+  .msg { margin-top: 10px; font-size: .9rem; }
+  .msg:empty { display: none; }
+  .msg.ok { color: var(--ok); } .msg.err { color: var(--err); }
+  table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+  th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); }
+  th { color: var(--muted); font-weight: 500; }
+  td a { color: var(--accent); }
+  .pill { display: inline-block; padding: 1px 8px; border-radius: 99px; font-size: .8rem; border: 1px solid currentColor; white-space: nowrap; }
+  .s-ok { color: var(--ok); } .s-run { color: var(--warn); } .s-err { color: var(--err); } .s-other { color: var(--muted); }
+  .hidden { display: none; }
+  details summary { cursor: pointer; color: var(--muted); font-size: .9rem; }
+  code { font-size: .85em; }
+  .table-wrap { overflow-x: auto; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="46" fill="#e3350d" stroke="#222" stroke-width="6"/><rect x="4" y="46" width="92" height="8" fill="#222"/><path d="M4 54a46 46 0 0 0 92 0z" fill="#fff" stroke="#222" stroke-width="6"/><circle cx="50" cy="50" r="13" fill="#fff" stroke="#222" stroke-width="6"/></svg>
+    <div>
+      <h1>Pokémon-Watcher</h1>
+      <p>30 Jahre Top-Trainer-Box · <span id="repoName"></span></p>
+    </div>
+  </header>
+
+  <!-- Zugang -->
+  <section class="card" id="tokenCard">
+    <h2>🔑 Zugang einrichten</h2>
+    <p class="hint" style="margin-top:0">Die Seite steuert den Watcher über die GitHub-API. Dafür brauchst du einmalig einen
+      <b>Fine-grained Personal Access Token</b>. Er wird nur in diesem Browser gespeichert.</p>
+    <details style="margin:10px 0 14px">
+      <summary>So erstellst du den Token (2 Minuten)</summary>
+      <ol class="hint">
+        <li><a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens/new</a> öffnen</li>
+        <li>Name z. B. „Pokémon-Watcher UI“, Ablaufdatum nach Wunsch</li>
+        <li><b>Repository access:</b> „Only select repositories“ → <code>pokemon-restock-watcher</code></li>
+        <li><b>Permissions → Repository:</b> <i>Actions</i> = Read and write, <i>Variables</i> = Read and write</li>
+        <li>„Generate token“ → Token kopieren und hier einfügen</li>
+      </ol>
+    </details>
+    <div class="row">
+      <input id="tokenInput" type="password" placeholder="github_pat_…" autocomplete="off" style="flex:1;min-width:200px">
+      <button class="primary" id="saveToken">Speichern</button>
+    </div>
+    <div class="msg" id="tokenMsg"></div>
+  </section>
+
+  <div id="app" class="hidden">
+    <!-- Aktionen -->
+    <section class="card">
+      <h2>▶️ Manuell starten</h2>
+      <div class="row">
+        <button class="primary" id="runNow">Jetzt alle Shops prüfen</button>
+        <button id="testMail">Test-Mail senden</button>
+      </div>
+      <p class="hint">Ein manueller Abruf prüft sofort, unabhängig von Intervall und Zeitfenster, und dauert etwa 1–2 Minuten.
+        Ist etwas im Preisbereich verfügbar, kommt direkt eine Mail.</p>
+      <div class="msg" id="runMsg"></div>
+    </section>
+
+    <!-- Einstellungen -->
+    <section class="card">
+      <h2>⚙️ Abrufzeiten &amp; Benachrichtigung</h2>
+      <div class="grid">
+        <div>
+          <label for="interval">Prüfen alle</label>
+          <select id="interval">
+            <option value="10">10 Minuten</option><option value="15">15 Minuten</option>
+            <option value="20">20 Minuten</option><option value="30">30 Minuten</option>
+            <option value="45">45 Minuten</option><option value="60">1 Stunde</option>
+            <option value="120">2 Stunden</option><option value="240">4 Stunden</option>
+            <option value="720">12 Stunden</option><option value="1440">1× täglich</option>
+          </select>
+        </div>
+        <div>
+          <label for="from">Aktiv von</label>
+          <select id="from"></select>
+        </div>
+        <div>
+          <label for="to">bis</label>
+          <select id="to"></select>
+        </div>
+        <div>
+          <label for="digest">Tagesübersicht um</label>
+          <select id="digest"></select>
+        </div>
+        <div>
+          <label for="pmin">Preis ab (€)</label>
+          <input id="pmin" type="number" min="0" step="1" inputmode="decimal">
+        </div>
+        <div>
+          <label for="pmax">Preis bis (€)</label>
+          <input id="pmax" type="number" min="0" step="1" inputmode="decimal">
+        </div>
+      </div>
+      <p class="hint">„Aktiv von 0 bis 24 Uhr“ = rund um die Uhr. Über Mitternacht geht auch, z. B. 22 bis 7 Uhr.
+        Alle Zeiten in deutscher Zeit.</p>
+      <p style="margin:14px 0 0"><label class="check"><input type="checkbox" id="instant">
+        <span>Treffer im Preisbereich <b>sofort</b> per Mail melden (sonst nur in der Tagesübersicht)</span></label></p>
+      <div class="row" style="margin-top:16px">
+        <button class="primary" id="saveSettings">Einstellungen speichern</button>
+      </div>
+      <div class="msg" id="settingsMsg"></div>
+    </section>
+
+    <!-- Läufe -->
+    <section class="card">
+      <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:8px">
+        <h2 style="margin:0">🕑 Letzte Abrufe</h2>
+        <button id="refresh">Aktualisieren</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Zeit</th><th>Art</th><th>Status</th><th></th></tr></thead>
+          <tbody id="runs"><tr><td colspan="4" class="hint">Lade …</td></tr></tbody>
+        </table>
+      </div>
+      <p class="hint">Automatische Läufe starten alle 10 Minuten und prüfen nur, wenn laut Intervall und Zeitfenster fällig –
+        sonst enden sie nach wenigen Sekunden.</p>
+    </section>
+
+    <p class="hint" style="text-align:center"><button id="logout">Token aus diesem Browser entfernen</button></p>
+  </div>
+</main>
+
+<script>
+(() => {
+  // Repo aus der GitHub-Pages-Adresse ableiten (<owner>.github.io/<repo>/), sonst Standard.
+  const host = location.hostname.endsWith(".github.io") ? location.hostname.split(".")[0] : null;
+  const path = location.pathname.split("/").filter(Boolean)[0];
+  const OWNER = host || "pimpgyver8511-tech";
+  const REPO = (host && path) || "pokemon-restock-watcher";
+  const WORKFLOW = "watch.yml";
+  const API = `https://api.github.com/repos/${OWNER}/${REPO}`;
+  const KEY = "pokemon-watcher-token";
+  const VARS = ["WATCH_INTERVAL_MIN", "WATCH_FROM_HOUR", "WATCH_TO_HOUR", "DIGEST_HOUR", "PRICE_MIN", "PRICE_MAX", "INSTANT_ALERTS"];
+  const DEFAULTS = { WATCH_INTERVAL_MIN: "20", WATCH_FROM_HOUR: "0", WATCH_TO_HOUR: "24", DIGEST_HOUR: "8",
+                     PRICE_MIN: "50", PRICE_MAX: "80", INSTANT_ALERTS: "true" };
+
+  const $ = id => document.getElementById(id);
+  $("repoName").textContent = `${OWNER}/${REPO}`;
+
+  const store = {
+    get() { try { return localStorage.getItem(KEY) || ""; } catch { return ""; } },
+    set(v) { try { localStorage.setItem(KEY, v); } catch {} },
+    clear() { try { localStorage.removeItem(KEY); } catch {} },
+  };
+  let token = store.get();
+
+  function msg(el, text, kind) { el.textContent = text; el.className = "msg " + (kind || ""); }
+
+  async function gh(path, opts = {}) {
+    const res = await fetch(API + path, {
+      ...opts,
+      headers: { "Accept": "application/vnd.github+json", "Authorization": `Bearer ${token}`,
+                 "X-GitHub-Api-Version": "2022-11-28", ...(opts.body ? { "Content-Type": "application/json" } : {}) },
+    });
+    if (!res.ok) {
+      let detail = "";
+      try { detail = (await res.json()).message || ""; } catch {}
+      const err = new Error(`${res.status} ${detail}`.trim());
+      err.status = res.status;
+      throw err;
+    }
+    return res.status === 204 ? null : res.json();
+  }
+
+  function explain(e) {
+    if (e.status === 401) return "Token ungültig oder abgelaufen.";
+    if (e.status === 403) return "Keine Berechtigung – prüfe beim Token „Actions“ und „Variables“ = Read and write.";
+    if (e.status === 404) return "Repo nicht gefunden – ist der Token für dieses Repo freigegeben?";
+    return "Fehler: " + e.message;
+  }
+
+  // Stunden-Auswahl füllen
+  for (const [id, max] of [["from", 23], ["to", 24], ["digest", 23]]) {
+    for (let h = 0; h <= max; h++) $(id).add(new Option(`${String(h).padStart(2, "0")}:00 Uhr`, String(h)));
+  }
+
+  // ---------------------------------------------------------------- Zugang
+  async function connect() {
+    try {
+      await gh("");
+      $("tokenCard").classList.add("hidden");
+      $("app").classList.remove("hidden");
+      loadSettings();
+      loadRuns();
+    } catch (e) {
+      $("tokenCard").classList.remove("hidden");
+      $("app").classList.add("hidden");
+      msg($("tokenMsg"), explain(e), "err");
+    }
+  }
+
+  $("saveToken").onclick = () => {
+    token = $("tokenInput").value.trim();
+    if (!token) return msg($("tokenMsg"), "Bitte Token einfügen.", "err");
+    store.set(token);
+    $("tokenInput").value = "";
+    msg($("tokenMsg"), "Prüfe …");
+    connect();
+  };
+  $("logout").onclick = () => { store.clear(); token = ""; location.reload(); };
+
+  // ---------------------------------------------------------------- Einstellungen
+  async function loadSettings() {
+    const values = { ...DEFAULTS };
+    try {
+      const data = await gh("/actions/variables?per_page=30");
+      for (const v of data.variables) if (VARS.includes(v.name) && v.value !== "") values[v.name] = v.value;
+    } catch (e) { msg($("settingsMsg"), explain(e), "err"); }
+    const sel = $("interval");
+    if (![...sel.options].some(o => o.value === values.WATCH_INTERVAL_MIN)) {
+      sel.add(new Option(`${values.WATCH_INTERVAL_MIN} Minuten`, values.WATCH_INTERVAL_MIN));
+    }
+    sel.value = values.WATCH_INTERVAL_MIN;
+    $("from").value = values.WATCH_FROM_HOUR;
+    $("to").value = values.WATCH_TO_HOUR;
+    $("digest").value = values.DIGEST_HOUR;
+    $("pmin").value = values.PRICE_MIN;
+    $("pmax").value = values.PRICE_MAX;
+    $("instant").checked = values.INSTANT_ALERTS !== "false";
+  }
+
+  async function setVar(name, value) {
+    try {
+      await gh(`/actions/variables/${name}`, { method: "PATCH", body: JSON.stringify({ name, value }) });
+    } catch (e) {
+      if (e.status !== 404) throw e;
+      await gh("/actions/variables", { method: "POST", body: JSON.stringify({ name, value }) });
+    }
+  }
+
+  $("saveSettings").onclick = async () => {
+    const pmin = parseFloat($("pmin").value), pmax = parseFloat($("pmax").value);
+    if (!(pmin >= 0) || !(pmax > 0) || pmin > pmax) {
+      return msg($("settingsMsg"), "Bitte einen gültigen Preisbereich angeben (ab ≤ bis).", "err");
+    }
+    const values = {
+      WATCH_INTERVAL_MIN: $("interval").value, WATCH_FROM_HOUR: $("from").value, WATCH_TO_HOUR: $("to").value,
+      DIGEST_HOUR: $("digest").value, PRICE_MIN: String(pmin), PRICE_MAX: String(pmax),
+      INSTANT_ALERTS: $("instant").checked ? "true" : "false",
+    };
+    $("saveSettings").disabled = true;
+    msg($("settingsMsg"), "Speichere …");
+    try {
+      for (const [k, v] of Object.entries(values)) await setVar(k, v);
+      msg($("settingsMsg"), "✓ Gespeichert – gilt ab dem nächsten Lauf.", "ok");
+    } catch (e) {
+      msg($("settingsMsg"), explain(e), "err");
+    } finally {
+      $("saveSettings").disabled = false;
+    }
+  };
+
+  // ---------------------------------------------------------------- Läufe
+  const fmt = new Intl.DateTimeFormat("de-DE", { dateStyle: "short", timeStyle: "short", timeZone: "Europe/Berlin" });
+
+  function statusPill(run) {
+    if (run.status !== "completed") return `<span class="pill s-run">läuft …</span>`;
+    const map = { success: ["ok", "s-ok"], failure: ["Fehler", "s-err"], cancelled: ["abgebrochen", "s-other"] };
+    const [text, cls] = map[run.conclusion] || [run.conclusion || "?", "s-other"];
+    return `<span class="pill ${cls}">${text}</span>`;
+  }
+
+  async function loadRuns() {
+    try {
+      const data = await gh(`/actions/workflows/${WORKFLOW}/runs?per_page=12`);
+      const rows = data.workflow_runs.map(r => `<tr>
+          <td>${fmt.format(new Date(r.created_at))}</td>
+          <td>${r.event === "schedule" ? "automatisch" : "manuell"}</td>
+          <td>${statusPill(r)}</td>
+          <td><a href="${r.html_url}" target="_blank" rel="noopener">Details</a></td></tr>`);
+      $("runs").innerHTML = rows.join("") || `<tr><td colspan="4" class="hint">Noch keine Läufe.</td></tr>`;
+      return data.workflow_runs;
+    } catch (e) {
+      $("runs").innerHTML = `<tr><td colspan="4" class="msg err">${explain(e)}</td></tr>`;
+      return [];
+    }
+  }
+  $("refresh").onclick = loadRuns;
+
+  async function dispatch(inputs, label, btn) {
+    btn.disabled = true;
+    msg($("runMsg"), `${label} wird gestartet …`);
+    try {
+      const before = new Date();
+      await gh(`/actions/workflows/${WORKFLOW}/dispatches`, { method: "POST", body: JSON.stringify({ ref: "main", inputs }) });
+      msg($("runMsg"), `✓ ${label} gestartet. Status aktualisiert sich automatisch …`, "ok");
+      // ca. 3 Minuten beobachten, bis der neue Lauf fertig ist
+      for (let i = 0; i < 36; i++) {
+        await new Promise(r => setTimeout(r, 5000));
+        const runs = await loadRuns();
+        const mine = runs.find(r => r.event === "workflow_dispatch" && new Date(r.created_at) >= new Date(before - 60000));
+        if (mine && mine.status === "completed") {
+          const ok = mine.conclusion === "success";
+          msg($("runMsg"), ok ? `✓ ${label} abgeschlossen.` : `✗ ${label} fehlgeschlagen – siehe „Details“.`, ok ? "ok" : "err");
+          break;
+        }
+      }
+    } catch (e) {
+      msg($("runMsg"), explain(e), "err");
+    } finally {
+      btn.disabled = false;
+    }
+  }
+  $("runNow").onclick = () => dispatch({ test_mail: "false" }, "Abruf", $("runNow"));
+  $("testMail").onclick = () => dispatch({ test_mail: "true" }, "Test-Mail", $("testMail"));
+
+  if (token) connect();
+})();
+</script>
+</body>
+</html>

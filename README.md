@@ -43,6 +43,23 @@ Repo → **Actions → Pokémon-Watcher → Run workflow**
 
 Ab dann läuft der Watcher automatisch.
 
+## Web-Oberfläche
+Unter **https://pimpgyver8511-tech.github.io/pokemon-restock-watcher/** kannst du:
+- einen Abruf oder eine Test-Mail **manuell starten**,
+- **Intervall, aktives Zeitfenster, Uhrzeit der Tagesmail, Preisbereich und Sofort-Alarm** einstellen,
+- die letzten Abrufe mit Status sehen.
+
+Einmalig einrichten:
+1. Repo → **Settings → Pages** → „Build and deployment“: Source **Deploy from a branch**,
+   Branch **main**, Ordner **/docs** → Save. Nach 1–2 Minuten ist die Seite erreichbar.
+2. Einen **Fine-grained Personal Access Token** erstellen
+   (<https://github.com/settings/personal-access-tokens/new>): nur für dieses Repo,
+   Berechtigungen *Actions* und *Variables* jeweils **Read and write**. Den Token auf der Seite einfügen –
+   er bleibt nur in deinem Browser gespeichert.
+
+Die Einstellungen landen als Repo-Variablen (Settings → Secrets and variables → Actions → Variables) und haben
+Vorrang vor `config.yaml`.
+
 ## Anpassen
 Alles steht in `config.yaml`: Preisgrenzen, Shops, Such-URLs, News-Feeds.
 - **Neuen Shop hinzufügen:** Eintrag mit `name`, `country`, `ships_to_de` und entweder `urls`

@@ -2,8 +2,9 @@ name: Pokémon-Watcher
 
 on:
   schedule:
-    # Alle 20 Minuten. GitHub startet geplante Läufe teils mit einigen Minuten Verzögerung.
-    - cron: "7,27,47 * * * *"
+    # Alle 10 Minuten anstoßen; ob wirklich geprüft wird, entscheiden Intervall und Zeitfenster
+    # (Web-Oberfläche bzw. config.yaml). GitHub startet geplante Läufe teils einige Minuten später.
+    - cron: "3-59/10 * * * *"
   workflow_dispatch:
     inputs:
       test_mail:
@@ -34,6 +35,14 @@ jobs:
       MAIL_TO: ${{ secrets.MAIL_TO }}
       STATE_FILE: state/state.json
       DEBUG_DIR: debug
+      # Einstellungen aus der Web-Oberfläche (Repo-Variablen); leer = Wert aus config.yaml.
+      WATCH_INTERVAL_MIN: ${{ vars.WATCH_INTERVAL_MIN }}
+      WATCH_FROM_HOUR: ${{ vars.WATCH_FROM_HOUR }}
+      WATCH_TO_HOUR: ${{ vars.WATCH_TO_HOUR }}
+      DIGEST_HOUR: ${{ vars.DIGEST_HOUR }}
+      PRICE_MIN: ${{ vars.PRICE_MIN }}
+      PRICE_MAX: ${{ vars.PRICE_MAX }}
+      INSTANT_ALERTS: ${{ vars.INSTANT_ALERTS }}
     steps:
       - uses: actions/checkout@v4
 
@@ -59,7 +68,11 @@ jobs:
 
       - name: Shops prüfen
         if: ${{ !inputs.test_mail }}
-        run: python -m watcher.main ${{ inputs.shop && format('--shop "{0}"', inputs.shop) || '' }}
+        # Manuell gestartete Läufe prüfen immer, unabhängig von Intervall und Zeitfenster.
+        run: >-
+          python -m watcher.main
+          ${{ github.event_name == 'workflow_dispatch' && '--force' || '' }}
+          ${{ inputs.shop && format('--shop "{0}"', inputs.shop) || '' }}
 
       - name: Stand speichern
         if: ${{ !inputs.test_mail && !inputs.shop }}

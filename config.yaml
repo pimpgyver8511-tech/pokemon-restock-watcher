@@ -17,6 +17,12 @@ price:
   min: 50.00   # EUR, ohne Versand
   max: 80.00
 
+# Abrufzeiten. Werte aus der Web-Oberfläche (GitHub-Variablen) haben Vorrang.
+schedule:
+  interval_minutes: 20   # alle wie viel Minuten prüfen (mind. 10)
+  active_from: 0         # nur zwischen active_from und active_to Uhr (deutsche Zeit) prüfen;
+  active_to: 24          # 0 und 24 = rund um die Uhr, z. B. 22 und 7 = nachts
+
 # E-Mails: eine Tagesübersicht (News, Warnungen, Stand aller Shops) ab dieser Uhrzeit (deutsche Zeit).
 digest_hour: 8
 # Treffer im Preisbereich sofort per Mail melden (true) oder nur in der Tagesübersicht (false)?

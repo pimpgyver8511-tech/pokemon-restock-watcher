@@ -45,8 +45,10 @@ Ab dann läuft der Watcher automatisch.
 
 ## Web-Oberfläche
 Unter **https://pimpgyver8511-tech.github.io/pokemon-restock-watcher/** kannst du:
+- **alle Shops mit Preis, Status und Link** sehen – Angebote im Preisbereich ganz oben, dazu die Restock-News,
 - einen Abruf oder eine Test-Mail **manuell starten**,
-- **Intervall, aktives Zeitfenster, Uhrzeit der Tagesmail, Preisbereich und Sofort-Alarm** einstellen,
+- **Intervall, aktives Zeitfenster, Uhrzeit der Tagesmail, Preisbereich, Sofort-Alarm** einstellen und
+  **E-Mails ganz abschalten**,
 - die letzten Abrufe mit Status sehen.
 
 Einmalig einrichten:
@@ -57,6 +59,7 @@ Einmalig einrichten:
    Berechtigungen *Actions* und *Variables* jeweils **Read and write**. Den Token auf der Seite einfügen –
    er bleibt nur in deinem Browser gespeichert.
 
+Der Stand jedes Abrufs wird als `status.json` auf den Branch `status` geschrieben; die Seite liest ihn von dort.
 Die Einstellungen landen als Repo-Variablen (Settings → Secrets and variables → Actions → Variables) und haben
 Vorrang vor `config.yaml`.
 

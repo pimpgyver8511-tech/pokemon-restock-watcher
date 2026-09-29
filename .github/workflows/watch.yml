@@ -16,8 +16,8 @@ on:
         required: false
 
 permissions:
-  contents: read
-  actions: write # für den Keepalive-Schritt unten
+  contents: write # Stand für die Web-Oberfläche auf den Branch "status" schreiben
+  actions: write  # für den Keepalive-Schritt unten
 
 concurrency:
   group: watcher
@@ -43,6 +43,8 @@ jobs:
       PRICE_MIN: ${{ vars.PRICE_MIN }}
       PRICE_MAX: ${{ vars.PRICE_MAX }}
       INSTANT_ALERTS: ${{ vars.INSTANT_ALERTS }}
+      EMAIL_ENABLED: ${{ vars.EMAIL_ENABLED }}
+      STATUS_FILE: status/status.json
     steps:
       - uses: actions/checkout@v4
 
@@ -80,6 +82,21 @@ jobs:
         with:
           path: state
           key: watcher-state-${{ github.run_id }}
+
+      # Aktuellen Stand für die Web-Oberfläche veröffentlichen (Branch "status", Datei status.json).
+      - name: Stand veröffentlichen
+        if: ${{ !inputs.test_mail && hashFiles('status/status.json') != '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          gh api "repos/$REPO/git/ref/heads/status" >/dev/null 2>&1 \
+            || gh api -X POST "repos/$REPO/git/refs" -f ref=refs/heads/status -f sha="$GITHUB_SHA" >/dev/null
+          SHA=$(gh api "repos/$REPO/contents/status.json?ref=status" --jq .sha 2>/dev/null) || SHA=""
+          gh api -X PUT "repos/$REPO/contents/status.json" \
+            -f branch=status -f message="Stand $(date -u +%Y-%m-%dT%H:%MZ)" \
+            -f content="$(base64 -w0 status/status.json)" ${SHA:+-f sha="$SHA"} >/dev/null
+          echo "status.json aktualisiert"
 
       # Seiten, auf denen das Produkt nicht erkannt wurde, zur Fehlersuche aufbewahren.
       - name: Debug-Seiten sichern

@@ -146,9 +146,11 @@ def evaluate(cfg: dict, state: dict, shop: dict, best: Result | None, errors: li
                 st["fail_alerted"] = True
                 events.append((1, f"⚠️ {name}: seit {st['fails']} Läufen nicht prüfbar – {errors[-1]}"))
         else:
-            # Seite erreichbar, Produkt aber (noch) nicht gelistet.
-            st.update(fails=0, fail_alerted=False, last_error=None)
-            st.setdefault("status", "not_listed")
+            # Seite erreichbar, Produkt aber (nicht mehr) gelistet.
+            if st.get("hit"):
+                events.append((2, f"❌ {name}: nicht mehr im Zielbereich (nicht mehr gelistet)"))
+            st.update(fails=0, fail_alerted=False, last_error=None, status="not_listed",
+                      hit=False, price=None, url=None, last_ok=now.isoformat(timespec="minutes"))
         return events
 
     st.update(fails=0, fail_alerted=False, last_error=None)
@@ -175,6 +177,40 @@ def evaluate(cfg: dict, state: dict, shop: dict, best: Result | None, errors: li
     st.update(hit=hit, status=o.availability, price=o.price, url=best.url,
               last_ok=now.isoformat(timespec="minutes"))
     return events
+
+
+def shop_link(shop: dict, product_cfg: dict) -> str | None:
+    """Link, wenn kein konkretes Angebot bekannt ist: bekannte Produktseite oder Shop-Suche."""
+    if shop.get("urls"):
+        return shop["urls"][0]
+    searches = shop.get("search") or []
+    searches = [searches] if isinstance(searches, str) else searches
+    return searches[0].format(ean=product_cfg["eans"][0]) if searches else None
+
+
+def snapshot(cfg: dict, state: dict, now: datetime) -> dict:
+    """Stand für die Web-Oberfläche (status.json)."""
+    shops = []
+    for shop in cfg["shops"]:
+        st = state["shops"].get(shop["name"], {})
+        status = st.get("status") or "not_listed"
+        shops.append({
+            "name": shop["name"], "country": shop["country"],
+            "ships_to_de": shop.get("ships_to_de") == "yes",
+            "status": status, "price": st.get("price"),
+            "in_range": bool(st.get("hit")),
+            "url": st.get("url") if status != "not_listed" and st.get("url") else None,
+            "shop_url": shop_link(shop, cfg["product"]),
+            "error": st.get("last_error") if st.get("fails") else None,
+            "last_ok": st.get("last_ok"), "last_restock": st.get("last_restock"),
+        })
+    return {
+        "checked_at": now.isoformat(timespec="seconds"),
+        "product": cfg["product"]["name"],
+        "price": cfg["price"],
+        "shops": shops,
+        "news": state.get("news_recent", []),
+    }
 
 
 def overview(cfg: dict, state: dict) -> str:
@@ -225,6 +261,10 @@ def run(cfg: dict, state: dict, now: datetime, only: str | None = None,
     news_items: list[news.NewsItem] = []
     if with_news and cfg.get("news"):
         news_items, news_errors = news.check(cfg["news"], state, now)
+        recent = state.setdefault("news_recent", [])
+        recent[:0] = [{"title": i.title, "link": i.link, "source": i.source,
+                       "published": (i.published or now).isoformat(timespec="minutes")} for i in news_items]
+        del recent[30:]
         for e in news_errors:
             print(f"News-Feed-Fehler: {e}")
 
@@ -337,13 +377,20 @@ def main(argv: list[str] | None = None) -> int:
 
     subject, body = run(cfg, state, now, only=args.shop, with_news=not args.no_news)
 
+    if (status_file := os.environ.get("STATUS_FILE")) and not args.shop:
+        Path(status_file).parent.mkdir(parents=True, exist_ok=True)
+        Path(status_file).write_text(json.dumps(snapshot(cfg, state, now), indent=1, ensure_ascii=False))
+
     if summary := os.environ.get("GITHUB_STEP_SUMMARY"):
         with open(summary, "a") as f:
             f.write(f"### {cfg['product']['name']}\n\n{overview(cfg, state)}\n")
 
+    mail_on = os.environ.get("EMAIL_ENABLED", "").strip().lower() not in ("false", "0", "nein", "no", "off")
     if subject:
         print(f"\n--- Mail: {subject}\n{body}")
-        if not args.dry_run:
+        if not mail_on:
+            print("(E-Mails sind in der Web-Oberfläche abgeschaltet – nicht versendet)")
+        elif not args.dry_run:
             try:
                 mailer.send(subject, body)
             except Exception as e:

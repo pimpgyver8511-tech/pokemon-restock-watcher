@@ -175,6 +175,27 @@ class FlowTests(unittest.TestCase):
         self.assertEqual(self.state["pending"], [])
 
 
+class SnapshotTests(unittest.TestCase):
+    setUp = FlowTests.setUp
+    run_with = FlowTests.run_with
+
+    def test_snapshot_links_and_delisting(self):
+        self.run_with(JSONLD_PAGE % "InStock")
+        snap = main.snapshot(self.cfg, self.state, NOW)
+        mm = snap["shops"][0]
+        self.assertEqual((mm["status"], mm["price"], mm["in_range"], mm["url"]),
+                         ("in_stock", 59.99, True, "https://mm.example/p"))
+        self.assertEqual(mm["shop_url"], "https://mm.example/p")
+
+        self.run_with(OTHER_PRODUCT)  # Produkt verschwindet von der Seite
+        mm = main.snapshot(self.cfg, self.state, NOW)["shops"][0]
+        self.assertEqual((mm["status"], mm["price"], mm["in_range"], mm["url"]), ("not_listed", None, False, None))
+
+    def test_shop_link_from_search(self):
+        shop = {"search": ["https://s.example/?q={ean}"]}
+        self.assertEqual(main.shop_link(shop, P), "https://s.example/?q=0196214144842")
+
+
 class ScheduleTests(unittest.TestCase):
     def test_overrides(self):
         cfg = main.apply_overrides(yaml.safe_load(yaml.safe_dump(CFG)), {

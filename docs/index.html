@@ -51,6 +51,26 @@
   .pill { display: inline-block; padding: 1px 8px; border-radius: 99px; font-size: .8rem; border: 1px solid currentColor; white-space: nowrap; }
   .s-ok { color: var(--ok); } .s-run { color: var(--warn); } .s-err { color: var(--err); } .s-other { color: var(--muted); }
   .hidden { display: none; }
+  .offers { list-style: none; margin: 0; padding: 0; }
+  .offer { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: center;
+           padding: 12px; border: 1px solid var(--line); border-radius: 10px; margin-bottom: 8px; }
+  .offer.hit { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 10%, var(--card)); }
+  .offer .shop { font-weight: 600; }
+  .offer .meta { grid-column: 1; display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center;
+                 font-size: .88rem; color: var(--muted); }
+  .offer .price { font-weight: 700; color: var(--text); font-size: 1rem; }
+  .offer.hit .price { color: var(--ok); }
+  .offer a.go { grid-column: 2; grid-row: 1 / span 2; text-decoration: none; border: 1px solid var(--line);
+                border-radius: 8px; padding: 8px 12px; color: var(--text); white-space: nowrap; font-size: .9rem; }
+  .offer.hit a.go { background: var(--ok); border-color: var(--ok); color: #fff; font-weight: 600; }
+  .banner { padding: 10px 12px; border-radius: 10px; margin-bottom: 12px; font-size: .92rem;
+            border: 1px solid var(--line); color: var(--muted); }
+  .banner.hit { border-color: var(--ok); color: var(--ok); font-weight: 600; }
+  .news { list-style: none; margin: 0; padding: 0; }
+  .news li { padding: 8px 0; border-bottom: 1px solid var(--line); font-size: .92rem; }
+  .news li:last-child { border-bottom: 0; }
+  .news a { color: var(--text); }
+  .news small { color: var(--muted); display: block; }
   details summary { cursor: pointer; color: var(--muted); font-size: .9rem; }
   code { font-size: .85em; }
   .table-wrap { overflow-x: auto; }
@@ -89,6 +109,22 @@
   </section>
 
   <div id="app" class="hidden">
+    <!-- Angebote -->
+    <section class="card">
+      <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:10px">
+        <h2 style="margin:0">🛒 Angebote</h2>
+        <span class="hint" id="checkedAt" style="margin:0"></span>
+      </div>
+      <div id="banner" class="banner hidden"></div>
+      <ul class="offers" id="offers"><li class="hint">Lade …</li></ul>
+    </section>
+
+    <!-- News -->
+    <section class="card">
+      <h2>📰 Restock-News</h2>
+      <ul class="news" id="news"><li class="hint">Lade …</li></ul>
+    </section>
+
     <!-- Aktionen -->
     <section class="card">
       <h2>▶️ Manuell starten</h2>
@@ -97,7 +133,7 @@
         <button id="testMail">Test-Mail senden</button>
       </div>
       <p class="hint">Ein manueller Abruf prüft sofort, unabhängig von Intervall und Zeitfenster, und dauert etwa 1–2 Minuten.
-        Ist etwas im Preisbereich verfügbar, kommt direkt eine Mail.</p>
+        Das Ergebnis erscheint danach oben unter „Angebote“ (und per Mail, falls aktiviert).</p>
       <div class="msg" id="runMsg"></div>
     </section>
 
@@ -140,6 +176,8 @@
         Alle Zeiten in deutscher Zeit.</p>
       <p style="margin:14px 0 0"><label class="check"><input type="checkbox" id="instant">
         <span>Treffer im Preisbereich <b>sofort</b> per Mail melden (sonst nur in der Tagesübersicht)</span></label></p>
+      <p style="margin:10px 0 0"><label class="check"><input type="checkbox" id="email">
+        <span>E-Mails senden (Sofort-Alarm und Tagesübersicht). Aus = nur noch diese Seite.</span></label></p>
       <div class="row" style="margin-top:16px">
         <button class="primary" id="saveSettings">Einstellungen speichern</button>
       </div>
@@ -176,9 +214,10 @@
   const WORKFLOW = "watch.yml";
   const API = `https://api.github.com/repos/${OWNER}/${REPO}`;
   const KEY = "pokemon-watcher-token";
-  const VARS = ["WATCH_INTERVAL_MIN", "WATCH_FROM_HOUR", "WATCH_TO_HOUR", "DIGEST_HOUR", "PRICE_MIN", "PRICE_MAX", "INSTANT_ALERTS"];
+  const VARS = ["WATCH_INTERVAL_MIN", "WATCH_FROM_HOUR", "WATCH_TO_HOUR", "DIGEST_HOUR", "PRICE_MIN", "PRICE_MAX", "INSTANT_ALERTS", "EMAIL_ENABLED"];
   const DEFAULTS = { WATCH_INTERVAL_MIN: "20", WATCH_FROM_HOUR: "0", WATCH_TO_HOUR: "24", DIGEST_HOUR: "8",
-                     PRICE_MIN: "50", PRICE_MAX: "80", INSTANT_ALERTS: "true" };
+                     PRICE_MIN: "50", PRICE_MAX: "80", INSTANT_ALERTS: "true",
+                     EMAIL_ENABLED: "true" };
 
   const $ = id => document.getElementById(id);
   $("repoName").textContent = `${OWNER}/${REPO}`;
@@ -195,7 +234,7 @@
   async function gh(path, opts = {}) {
     const res = await fetch(API + path, {
       ...opts,
-      headers: { "Accept": "application/vnd.github+json", "Authorization": `Bearer ${token}`,
+      headers: { "Accept": opts.accept || "application/vnd.github+json", "Authorization": `Bearer ${token}`,
                  "X-GitHub-Api-Version": "2022-11-28", ...(opts.body ? { "Content-Type": "application/json" } : {}) },
     });
     if (!res.ok) {
@@ -205,7 +244,8 @@
       err.status = res.status;
       throw err;
     }
-    return res.status === 204 ? null : res.json();
+    if (res.status === 204) return null;
+    return opts.accept ? res.text() : res.json();
   }
 
   function explain(e) {
@@ -226,6 +266,7 @@
       await gh("");
       $("tokenCard").classList.add("hidden");
       $("app").classList.remove("hidden");
+      loadStatus();
       loadSettings();
       loadRuns();
     } catch (e) {
@@ -263,6 +304,7 @@
     $("pmin").value = values.PRICE_MIN;
     $("pmax").value = values.PRICE_MAX;
     $("instant").checked = values.INSTANT_ALERTS !== "false";
+    $("email").checked = values.EMAIL_ENABLED !== "false";
   }
 
   async function setVar(name, value) {
@@ -283,6 +325,7 @@
       WATCH_INTERVAL_MIN: $("interval").value, WATCH_FROM_HOUR: $("from").value, WATCH_TO_HOUR: $("to").value,
       DIGEST_HOUR: $("digest").value, PRICE_MIN: String(pmin), PRICE_MAX: String(pmax),
       INSTANT_ALERTS: $("instant").checked ? "true" : "false",
+      EMAIL_ENABLED: $("email").checked ? "true" : "false",
     };
     $("saveSettings").disabled = true;
     msg($("settingsMsg"), "Speichere …");
@@ -321,7 +364,66 @@
       return [];
     }
   }
-  $("refresh").onclick = loadRuns;
+  $("refresh").onclick = () => { loadRuns(); loadStatus(); };
+
+  // ---------------------------------------------------------------- Angebote & News
+  const esc = t => String(t ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const safeUrl = u => /^https?:\/\//i.test(u || "") ? u : null;
+  const euro = p => p == null ? "" : p.toLocaleString("de-DE", { style: "currency", currency: "EUR" });
+  const flag = c => /^[A-Z]{2}$/.test(c) ? String.fromCodePoint(...[...c].map(ch => 0x1f1e6 + ch.charCodeAt(0) - 65)) : c;
+  const STATUS = {
+    in_stock: ["lieferbar", "s-ok", 1], preorder: ["vorbestellbar", "s-ok", 1],
+    out_of_stock: ["ausverkauft", "s-other", 2], unknown: ["unklar", "s-other", 3], not_listed: ["nicht gelistet", "s-other", 4],
+  };
+
+  async function loadStatus() {
+    let data;
+    try {
+      data = JSON.parse(await gh("/contents/status.json?ref=status", { accept: "application/vnd.github.raw+json" }));
+    } catch (e) {
+      const text = e.status === 404 ? "Noch kein Stand vorhanden – starte unten „Jetzt alle Shops prüfen“."
+                                    : explain(e);
+      $("offers").innerHTML = `<li class="hint">${esc(text)}</li>`;
+      $("news").innerHTML = "";
+      return;
+    }
+    $("checkedAt").textContent = "zuletzt geprüft: " + fmt.format(new Date(data.checked_at));
+    const range = `${euro(data.price.min)} – ${euro(data.price.max)}`;
+    const shops = data.shops.map(s => {
+      const [label, cls, rank] = s.error ? ["nicht prüfbar", "s-err", 5] : (STATUS[s.status] || STATUS.unknown);
+      return { ...s, label, cls, rank: s.in_range && !s.error ? 0 : rank };
+    }).sort((a, b) => a.rank - b.rank || (a.price ?? 1e9) - (b.price ?? 1e9) || a.name.localeCompare(b.name));
+
+    const hits = shops.filter(s => s.rank === 0);
+    const banner = $("banner");
+    banner.classList.remove("hidden");
+    banner.className = "banner" + (hits.length ? " hit" : "");
+    banner.textContent = hits.length
+      ? `🎉 ${hits.length} Angebot${hits.length > 1 ? "e" : ""} im Preisbereich ${range} – schnell sein!`
+      : `Aktuell kein Angebot im Preisbereich ${range}. Sobald eins auftaucht, steht es hier ganz oben.`;
+
+    $("offers").innerHTML = shops.map(s => {
+      const url = safeUrl(s.url) || safeUrl(s.shop_url);
+      const linkText = safeUrl(s.url) ? (s.rank === 0 ? "Jetzt kaufen →" : "Zum Angebot →") : "Im Shop ansehen →";
+      const extra = [
+        s.price != null && s.status !== "not_listed" ? `<span class="price">${euro(s.price)}</span>` : "",
+        `<span class="pill ${s.cls}">${s.label}</span>`,
+        !s.ships_to_de ? "<span>Versand nach DE prüfen</span>" : "",
+        s.last_restock ? `<span>zuletzt verfügbar ab ${esc(s.last_restock)}</span>` : "",
+        s.error ? `<span title="${esc(s.error)}">Shop blockt automatische Abrufe</span>` : "",
+      ].filter(Boolean).join("");
+      return `<li class="offer${s.rank === 0 ? " hit" : ""}">
+          <div class="shop">${flag(esc(s.country))}&nbsp;${esc(s.name)}</div>
+          ${url ? `<a class="go" href="${esc(url)}" target="_blank" rel="noopener">${linkText}</a>` : ""}
+          <div class="meta">${extra}</div></li>`;
+    }).join("");
+
+    $("news").innerHTML = (data.news || []).slice(0, 12).map(n => {
+      const url = safeUrl(n.link);
+      return `<li>${url ? `<a href="${esc(url)}" target="_blank" rel="noopener">${esc(n.title)}</a>` : esc(n.title)}
+        <small>${fmt.format(new Date(n.published))}</small></li>`;
+    }).join("") || `<li class="hint">Noch keine Meldungen gesammelt – neue Restock-News erscheinen hier.</li>`;
+  }
 
   async function dispatch(inputs, label, btn) {
     btn.disabled = true;
@@ -338,6 +440,7 @@
         if (mine && mine.status === "completed") {
           const ok = mine.conclusion === "success";
           msg($("runMsg"), ok ? `✓ ${label} abgeschlossen.` : `✗ ${label} fehlgeschlagen – siehe „Details“.`, ok ? "ok" : "err");
+          loadStatus();
           break;
         }
       }

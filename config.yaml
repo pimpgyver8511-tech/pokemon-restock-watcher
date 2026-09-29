@@ -11,7 +11,11 @@ product:
   name_any: ["30 jahre", "30th celebration"]
   type_any: ["top-trainer", "top trainer", "elite trainer", "elite-trainer"]
   # Varianten, die NICHT gemeint sind.
-  exclude_any: ["pokémon center", "pokemon center", "2-pack", "2er", "leer", "empty", "display", "sleeves", "hüllen"]
+  exclude_any: ["pokémon center", "pokemon center", "2-pack", "2er", "leer", "empty", "display", "sleeves", "hüllen",
+                # nur deutsche oder englische Ausgaben
+                "(fr)", "französisch", "francais", "français", "(it)", "italienisch", "italiano", "(es)",
+                "spanisch", "español", "(jp)", "japanisch", "japanese", "(kr)", "koreanisch", "chinesisch",
+                "(nl)", "niederländisch", "(pl)", "polnisch"]
 
 price:
   min: 50.00   # EUR, ohne Versand
@@ -93,12 +97,51 @@ shops:
     urls:
       - "https://www.toys-for-fun.com/de/pokemon-30-jahre-top-trainer-box.html"
 
-  # --- EU (Versand nach DE im Warenkorb prüfen) ---
+  # --- Europa: deutsche oder englische Ausgabe, Versand nach Deutschland ---
+  #     ships_to_de "check" = laut Shop EU-Versand, Kosten/Lieferbarkeit im Warenkorb prüfen
+  - name: playingcards.de (EN)
+    country: DE
+    ships_to_de: "yes"
+    urls:
+      - "https://www.playingcards.de/pokemon-sammelkartenspiel-top-trainer-box-30-jahre-englisch.html"
+  - name: Keepseven
+    country: DE
+    ships_to_de: "yes"
+    urls:
+      - "https://keepseven.de/product/pokemon-30-jahre-top-trainer-box-de/"
+  - name: gameware.at
+    country: AT
+    ships_to_de: "yes"
+    search: "https://www.gameware.at/info/space/Pokemon+30+Jahre+Top+Trainer+Box"
+  - name: Grubi & Co
+    country: AT
+    ships_to_de: "check"
+    search: "https://www.grubi-co.at/de/sammelkarten/pokemon/special-editions-55/30-jahre.html"
+  - name: Spielbrett
+    country: AT
+    ships_to_de: "check"
+    urls:
+      - "https://spielbrett.co.at/30-Jahre-Jubilaeum-Top-Trainer-Box-DE"
   - name: SpielRaum
     country: AT
     ships_to_de: "check"
     urls:
       - "https://www.spielraum.co.at/de/pokemon/product/30-jahre-top-trainer-box-de"
+  - name: playingcardshop.eu (EN)
+    country: EU
+    ships_to_de: "check"
+    urls:
+      - "https://www.playingcardshop.eu/pokemon-tcg-30th-celebration-elite-trainer-box.html"
+  - name: MaxGaming (EN)
+    country: SE
+    ships_to_de: "yes"
+    urls:
+      - "https://www.maxgaming.com/en/pokemon/pokemon-30th-celebration-elite-trainer-box"
+  - name: Poromagia (EN)
+    country: FI
+    ships_to_de: "check"
+    urls:
+      - "https://poromagia.com/en/catalogue/pokemon-30th-celebration-elite-trainer-box_1805905/"
   - name: Master of Games (EN)
     country: ES
     ships_to_de: "check"

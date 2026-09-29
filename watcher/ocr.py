@@ -100,9 +100,6 @@ def scan(brochure_id: str, publisher: str | None, pages_data: dict, product_cfg:
     pages = (pages_data.get("contents") or [])[:max_pages]
     first = None
     chars = 0
-    if pages:  # Diagnose: welche Bildvarianten liefert kaufda für Seite 1?
-        cands = sorted({f"{k}={v}" for k, v in _walk_strings(pages[0]) if v.startswith("http") and _IMG_RE.search(v)})
-        print(f"    Bildvarianten Seite 1 ({len(cands)}): " + " | ".join(c[:110] for c in cands[:8]))
     for n, page in enumerate(pages):
         url = page_images(page)
         first = first or url

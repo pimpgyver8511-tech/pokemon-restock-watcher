@@ -403,7 +403,8 @@ def shopify_offer(data: dict, product_cfg: dict) -> Offer | None:
     return Offer(
         available_from=available_from_text(f"{title} {body}"),
         name=title,
-        price=price / 100 if isinstance(price, (int, float)) else parse_price(price),
+        # Preis 0 = Shop blendet den Preis aus (z. B. ausverkauft) – dann unbekannt.
+        price=(price / 100 if isinstance(price, (int, float)) else parse_price(price)) or None,
         currency="EUR",
         availability=IN_STOCK if data.get("available") else OUT_OF_STOCK,
         gtins=gtins, source="shopify",

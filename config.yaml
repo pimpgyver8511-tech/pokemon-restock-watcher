@@ -199,8 +199,8 @@ flyers:
   queries: ["Pokemon", "Pokémon Sammelkarten", "Top-Trainer-Box"]
   pages: ["https://www.kaufda.de/Leipzig/Angebote/Pokemon"]
   max_brochures: 40
-  # Sonstige Pokémon-Angebote werden als Info angezeigt, aber nie als Treffer gemeldet.
-  related_any: ["pokémon", "pokemon"]
+  # Sonstige Pokémon-Sammelkarten-Angebote (Booster, Displays …) nur als Info, nie als Treffer.
+  related_any: ["sammelkarte", "sammelkartenspiel", "karten", "tcg", "booster", "trading card", "trainer"]
 
 # Restock-News: RSS-Feeds, neue Einträge mit passenden Stichworten werden gemeldet.
 news:

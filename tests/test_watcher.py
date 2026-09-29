@@ -268,7 +268,7 @@ class StoreTests(unittest.TestCase):
 
 class FlyerTests(unittest.TestCase):
     CFG = {"postal_code": "04275", "lat": 51.3, "lng": 12.37, "queries": ["Pokemon"], "pages": [],
-           "related_any": ["pokemon", "pokémon"]}
+           "related_any": ["booster", "sammelkarte"]}
     SEARCH = {"searchResults": {"contents": {"brochures": [{"content": {"id": "b1"}}]}}}
     PAGES = {"contents": [{"offers": [
         {"content": {"id": "o1", "publisher": {"name": "Müller"},
@@ -280,7 +280,8 @@ class FlyerTests(unittest.TestCase):
                                                            "endDate": "2026-10-04T23:59:59"}}]}},
         {"content": {"id": "o2", "publisher": {"name": "Kaufland"},
                      "products": [{"name": "Pokémon Booster"}], "deals": [{"type": "SALES_PRICE", "min": 4.99}]}},
-        {"content": {"id": "o3", "products": [{"name": "Krombacher Pils"}]}}]}]}
+        {"content": {"id": "o3", "products": [{"name": "Krombacher Pils"}]}},
+        {"content": {"id": "o4", "products": [{"name": "Funko Adventskalender Pokémon"}]}}]}]}
 
     def fake_get(self, url, timeout=25, headers=None):
         return json.dumps(self.SEARCH if "/api/search" in url else self.PAGES)

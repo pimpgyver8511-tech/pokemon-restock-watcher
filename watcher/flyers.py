@@ -52,7 +52,7 @@ def _classify(text: str, product_cfg: dict, cfg: dict) -> str | None:
     if matches_product(text, set(), product_cfg):
         return "exact"
     t = text.lower()
-    if any(w in t for w in cfg.get("related_any", [])):
+    if ("pokemon" in t or "pokémon" in t) and any(w in t for w in cfg.get("related_any", [])):
         return "pokemon"
     return None
 

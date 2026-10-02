@@ -63,8 +63,9 @@ Der Stand jedes Abrufs wird als `status.json` auf den Branch `status` geschriebe
 Die Einstellungen landen als Repo-Variablen (Settings → Secrets and variables → Actions → Variables) und haben
 Vorrang vor `config.yaml`.
 
-## Externer Taktgeber (falls GitHubs Zeitplan nicht startet)
-GitHub führt geplante Läufe (`schedule`) nicht immer zuverlässig aus. Dann stößt ein kostenloser externer
+## Externer Taktgeber (dringend empfohlen)
+GitHub führt geplante Läufe (`schedule`) bei kleinen Repos nur sehr unregelmäßig aus – in der Praxis
+oft nur alle 3–6 Stunden statt alle 10 Minuten. Die Oberfläche zeigt dann „⚠️ veraltet“. Abhilfe: stößt ein kostenloser externer
 Cron-Dienst den Watcher alle 10 Minuten an; Intervall und Zeitfenster aus der Web-Oberfläche gelten weiterhin.
 
 Einrichtung bei [cron-job.org](https://cron-job.org) (kostenlos): *Create cronjob* →

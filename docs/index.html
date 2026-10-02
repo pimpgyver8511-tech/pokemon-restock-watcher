@@ -429,7 +429,13 @@
       $("news").innerHTML = "";
       return;
     }
-    $("checkedAt").textContent = "zuletzt geprüft: " + fmt.format(new Date(data.checked_at));
+    // Veralteter Stand: GitHub verschiebt/verwirft geplante Läufe oft um Stunden
+    const ageMin = (Date.now() - new Date(data.checked_at)) / 60000;
+    const stale = ageMin > 3 * (Number(data.interval_min) || 20) + 15;
+    const age = ageMin < 90 ? `${Math.round(ageMin)} Min.` : `${(ageMin / 60).toFixed(1).replace(".", ",")} Std.`;
+    $("checkedAt").textContent = "zuletzt geprüft: " + fmt.format(new Date(data.checked_at)) + ` (vor ${age})`
+      + (stale ? " ⚠️ veraltet – der automatische Abruf läuft nicht regelmäßig (siehe README: cron-job.org)" : "");
+    $("checkedAt").style.color = stale ? "var(--warn)" : "";
     const range = `${euro(data.price.min)} – ${euro(data.price.max)}`;
     // Shops, die gerade automatische Abrufe blocken, ausblenden – ihr Stand wäre nicht aktuell.
     const blocked = data.shops.filter(s => s.error).map(s => s.name);

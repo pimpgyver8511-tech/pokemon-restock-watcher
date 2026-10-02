@@ -217,6 +217,7 @@ def snapshot(cfg: dict, state: dict, now: datetime) -> dict:
         })
     return {
         "checked_at": now.isoformat(timespec="seconds"),
+        "interval_min": (cfg.get("schedule") or {}).get("interval_minutes", 20),
         "product": cfg["product"]["name"],
         "price": cfg["price"],
         "shops": shops,

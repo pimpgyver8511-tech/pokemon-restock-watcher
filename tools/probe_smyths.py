@@ -1,30 +1,37 @@
-"""Einmalige Diagnose: Smyths-Toys-Prospekte rund um Leipzig (kaufda, marktguru)."""
+"""Einmalige Diagnose: Smyths-Toys-Prospekte auf kaufda (Händlerseite)."""
 import json, re, yaml
-from urllib.parse import quote
 from watcher import fetch, flyers
 
 cfg = yaml.safe_load(open("config.yaml"))["flyers"]
-for q in ["Smyths Toys", "Smyths", "Spielzeug"]:
-    data = flyers._json(f"{flyers.API}?query={quote(q)}&lat={cfg['lat']}&lng={cfg['lng']}&offset=0&limit=48")
-    bs = ((data.get("searchResults") or {}).get("contents") or {}).get("brochures") or []
-    pubs = sorted({json.dumps({k: (b.get("content") or {}).get(k) for k in ("id", "title")} | {"pub": ((b.get("content") or {}).get("publisher") or {}).get("name")}, ensure_ascii=False) for b in bs})
-    print(f"kaufda '{q}': {len(bs)} Prospekte")
-    for p in pubs:
-        if "smyth" in p.lower() or q == "Smyths Toys":
-            print("   ", p)
-for url in ["https://www.kaufda.de/Leipzig/Smyths-Toys", "https://www.kaufda.de/Geschaefte/Smyths-Toys",
-            "https://www.marktguru.de/r/smyths-toys", "https://www.smythstoys.com/de/de-de/prospekt"]:
+prod = yaml.safe_load(open("config.yaml"))["product"]
+for url in ["https://www.kaufda.de/Geschaefte/Smyths-Toys", "https://www.kaufda.de/Leipzig/Geschaefte/Smyths-Toys",
+            "https://www.kaufda.de/Leipzig/Smyths-Toys/p-r1234"]:
     try:
         t = fetch.get(url)
-        ids = set(re.findall(r'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}', t))
-        print(url, "OK", len(t), "B, Leipzig" if "leipzig" in t.lower() else "", "IDs:", list(ids)[:8])
-        for m in list(re.finditer(r"smyths[^<]{0,120}", t, re.I))[:5]:
-            print("   ", m.group(0)[:120])
     except Exception as e:
-        print(url, type(e).__name__, e)
-try:
-    h = flyers.marktguru_keys()
-    d = json.loads(fetch.get(f"https://api.marktguru.de/api/v1/offers/search?as=web&q=Smyths&zipCode=04275&limit=50&offset=0", headers=h))
-    print("marktguru Smyths:", d.get("totalResults"), [ (o.get("advertisers") or [{}])[0].get("name") for o in (d.get("results") or [])[:10]])
-except Exception as e:
-    print("marktguru", type(e).__name__, e)
+        print(url, e); continue
+    m = re.search(r'<script id="__NEXT_DATA__"[^>]*>(.*?)</script>', t, re.S)
+    print(url, len(t), "NEXT" if m else "")
+    if not m:
+        continue
+    d = json.loads(m.group(1))
+    found = {}
+    def walk(n, path=""):
+        if isinstance(n, dict):
+            if isinstance(n.get("id"), str) and re.fullmatch(r"[0-9a-f-]{36}", n["id"]) and ("title" in n or "publisher" in n or "validUntil" in n or "validFrom" in n):
+                found[n["id"]] = {k: n.get(k) for k in ("title", "type", "validFrom", "validUntil", "pageCount")} | {"pub": (n.get("publisher") or {}).get("name") if isinstance(n.get("publisher"), dict) else n.get("publisherName"), "path": path[-60:]}
+            for k, v in n.items(): walk(v, path + "/" + k)
+        elif isinstance(n, list):
+            for v in n: walk(v, path)
+    walk(d)
+    for k, v in list(found.items())[:15]:
+        print("  ", k, json.dumps(v, ensure_ascii=False)[:230])
+    stores = re.findall(r"Leipzig[^\"<]{0,80}", t)
+    print("   Leipzig-Erwähnungen:", stores[:5])
+    for bid in [k for k, v in found.items() if "smyth" in json.dumps(v).lower()][:4]:
+        try:
+            offers = flyers.brochure_offers(cfg, bid, prod)
+            data, pub = flyers._PAGES[bid]
+            print("   Seiten:", len(data.get("contents") or []), "Pokémon-Angebote:", [(o["title"], o["price"]) for o in offers][:8])
+        except Exception as e:
+            print("   ", bid, type(e).__name__, e)

@@ -295,6 +295,24 @@ class FlyerTests(unittest.TestCase):
         self.assertIn("contentViewer/static/b1", offers[0]["url"])
         self.assertEqual(offers[0]["valid_until"], "2026-10-04")
 
+    def test_publisher_page(self):
+        nd = {"props": {"pageProps": {"pageInformation": {"brochures": {
+            "publisher": [{"contentId": "s1", "title": "Spielzeugkatalog"}], "topRanked": [{"contentId": "x9"}]}}}}}
+        html = f'<html><a href="/">x</a><script id="__NEXT_DATA__" type="application/json">{json.dumps(nd)}</script></html>'
+        seen = []
+
+        def fake(url, timeout=25, headers=None):
+            if "Geschaefte" in url:
+                return html
+            if "/brochures/" in url:
+                seen.append(url.split("/brochures/")[1].split("/")[0])
+            return json.dumps({"searchResults": {}} if "/api/search" in url else {"contents": []})
+        cfg = {**self.CFG, "publisher_pages": ["https://www.kaufda.de/Geschaefte/Smyths-Toys"], "max_brochures": 1}
+        with mock.patch.object(fetch, "get", side_effect=fake):
+            _, errors = flyers.check(cfg, P)
+        self.assertEqual(errors, [])
+        self.assertEqual(seen, ["s1"])
+
     def test_flyer_hit_in_run(self):
         cfg = {**CFG, "stores": None, "shopify_search": None, "shops": [], "flyers": self.CFG}
         state = main.load_state(Path("/nonexistent"))

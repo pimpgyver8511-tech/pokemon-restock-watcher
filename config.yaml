@@ -260,6 +260,9 @@ flyers:
   queries: ["Pokemon", "Pokémon", "Pokemon Karten", "Pokémon Sammelkarten", "Top-Trainer-Box"]
   # Alle Prospekte dieser Händler werden komplett nach Pokémon-Angeboten durchsucht.
   retailers: ["MediaMarkt", "Saturn", "Müller", "Rossmann", "Kaufland", "HIT", "Smyths Toys", "Thalia"]
+  # Händler, die die kaufda-Suche nicht findet: aktuelle Prospekte direkt von ihrer Händlerseite
+  publisher_pages:
+    - "https://www.kaufda.de/Geschaefte/Smyths-Toys"
   # Zusätzlich fest eingetragene Prospekte (ID aus dem kaufda-Link …/contentViewer/static/<ID>)
   brochures: ["bc0cd54d-74c5-4f29-872f-92a7053cab6a"]
   pages: ["https://www.kaufda.de/Leipzig/Angebote/Pokemon"]

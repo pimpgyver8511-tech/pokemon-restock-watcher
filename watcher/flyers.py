@@ -91,6 +91,21 @@ def brochure_offers(cfg: dict, brochure_id: str, product_cfg: dict) -> list[dict
     return found
 
 
+def publisher_brochures(url: str) -> set[str]:
+    """Prospekt-IDs eines Händlers von seiner kaufda-Seite (z. B. /Geschaefte/Smyths-Toys).
+
+    Manche Händler findet die kaufda-Suche nicht; ihre Händlerseite listet die aktuellen
+    Prospekte aber unter pageInformation.brochures.publisher.
+    """
+    html = fetch.get(url)
+    m = re.search(r'<script id="__NEXT_DATA__"[^>]*>(.*?)</script>', html, re.S)
+    if not m:
+        return set()
+    info = ((json.loads(m.group(1)).get("props") or {}).get("pageProps") or {}).get("pageInformation") or {}
+    items = (info.get("brochures") or {}).get("publisher") or []
+    return {b.get("contentId") for b in items if isinstance(b, dict) and b.get("contentId")}
+
+
 def page_offers(cfg: dict, url: str, product_cfg: dict) -> list[dict]:
     html = fetch.get(url)
     m = re.search(r'<script id="__NEXT_DATA__"[^>]*>(.*?)</script>', html, re.S)
@@ -162,14 +177,23 @@ def check(cfg: dict, product_cfg: dict, state: dict | None = None) -> tuple[list
     offers: dict[str, dict] = {}
     errors: list[str] = []
     brochure_ids: set[str] = set()
+    priority: set[str] = set(cfg.get("brochures", []))  # fest eingetragene und Händlerseiten-Prospekte zuerst
     for q in cfg.get("queries", []) + cfg.get("retailers", []):
         try:
             brochure_ids |= search_brochures(cfg, q, max_items=48)
         except Exception as e:  # Prospekte dürfen den restlichen Lauf nie abbrechen
             errors.append(f"Suche '{q}': {type(e).__name__}: {e}")
+    for url in cfg.get("publisher_pages", []):
+        try:
+            ids = publisher_brochures(url)
+            print(f"Händlerseite {url.rsplit('/', 1)[-1]}: {len(ids)} aktuelle Prospekte")
+            brochure_ids |= ids
+            priority |= ids
+        except Exception as e:
+            errors.append(f"{url}: {type(e).__name__}: {e}")
     brochure_ids |= set(cfg.get("brochures", []))
     print(f"Prospekte: {len(brochure_ids)} Prospekte werden durchsucht")
-    for bid in sorted(brochure_ids)[: cfg.get("max_brochures", 40)]:
+    for bid in sorted(brochure_ids, key=lambda b: (b not in priority, b))[: cfg.get("max_brochures", 40)]:
         try:
             for o in brochure_offers(cfg, bid, product_cfg):
                 offers[o["id"] or f"{bid}-{o['title']}"] = o

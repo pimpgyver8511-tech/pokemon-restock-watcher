@@ -40,9 +40,14 @@ more_products:
     price:
       min: 20.00
       max: 45.00
-    urls:
-      playingcards.de (EN):
-        - "https://www.playingcards.de/pokemon-sammelkartenspiel-boosterbundle-30-jahre-6-packungen-englisch.html"
+    urls:   # bekannte Produktseiten je Shop (Name wie unter shops)
+      Spiele-Riese: ["https://www.spiele-riese.de/shop/spielwelten/sammelkarten/19857/pokemon-30-jahre-boosterbundle"]
+      Gate to the Games: ["https://www.gate-to-the-games.de/Pokemon-30-Jahre-Booster-Bundle-deutsch"]
+      Spielbrett: ["https://spielbrett.co.at/30-Jahre-Boosterbundle-DE"]
+      SpielRaum: ["https://www.spielraum.co.at/de/pokemon/product/30-jahre-30c-boosterbundle-de"]
+      playingcards.de (EN): ["https://www.playingcards.de/pokemon-sammelkartenspiel-boosterbundle-30-jahre-6-packungen-englisch.html"]
+      playingcardshop.eu (EN): ["https://www.playingcardshop.eu/pokemon-tcg-30th-celebration-booster-bundle-6-packs.html"]
+      Speelkaartenwinkel (EN): ["https://www.speelkaartenwinkel.nl/pokemon-30th-celebration-booster-bundle-6-pakjes.html"]
 
 # Abrufzeiten. Werte aus der Web-Oberfläche (GitHub-Variablen) haben Vorrang.
 schedule:

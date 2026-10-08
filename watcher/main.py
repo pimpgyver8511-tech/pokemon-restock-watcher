@@ -406,9 +406,14 @@ def run(cfg: dict, state: dict, now: datetime, only: str | None = None,
         recent = state.setdefault("news_recent", [])
         recent[:0] = [{"title": i.title, "link": i.link, "source": i.source,
                        "published": (i.published or now).isoformat(timespec="minutes")} for i in news_items]
-        links: set[str] = set()
-        recent[:] = [n for n in recent if news.relevant_title(n["title"], cfg["news"])
-                     and not (n["link"] in links or links.add(n["link"]))][:30]
+        seen_news: set[str] = set()  # gleiche Meldung über mehrere Feeds nur einmal
+
+        def first(n):
+            keys = {n["link"], n["title"].strip().lower()}
+            dup = bool(keys & seen_news)
+            seen_news.update(keys)
+            return not dup
+        recent[:] = [n for n in recent if news.relevant_title(n["title"], cfg["news"]) and first(n)][:30]
         for e in news_errors:
             print(f"News-Feed-Fehler: {e}")
 

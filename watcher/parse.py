@@ -373,6 +373,10 @@ def is_asset(url: str) -> bool:
     return bool(_ASSET_RE.search(urlparse(url).path + ("?" if urlparse(url).query else "")))
 
 
+# Links auf weitere Suchergebnis-/Sortierseiten sind keine Produkte
+_SEARCH_URL = re.compile(r"[/?&](?:search|suche|catalogsearch)\b|[?&](?:q|qs|s|suche|search|add-to-cart)=", re.I)
+
+
 def product_links(html: str, base_url: str, product_cfg: dict, limit: int = 3) -> list[str]:
     """Links auf einer Suchergebnisseite, die wie das gesuchte Produkt aussehen."""
     c = collect(html)
@@ -380,7 +384,7 @@ def product_links(html: str, base_url: str, product_cfg: dict, limit: int = 3) -
     seen: list[str] = []
     for href, text in c.links:
         url = urljoin(base_url, htmllib.unescape(href)).split("#")[0]
-        if urlparse(url).netloc != host or url in seen or url == base_url or is_asset(url):
+        if urlparse(url).netloc != host or url in seen or url == base_url or is_asset(url) or _SEARCH_URL.search(url):
             continue
         slug = re.sub(r"[-_/+%]+", " ", urlparse(url).path.lower()).replace("pok c3 a9mon", "pokemon")
         if matches_product(f"{text} {slug}", set(), product_cfg) or any(

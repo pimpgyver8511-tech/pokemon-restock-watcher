@@ -76,6 +76,8 @@ shops:
     country: DE
     ships_to_de: "yes"
     seller_any: ["kaufland"]
+    urls:
+      - "https://www.kaufland.de/product/568721940/"
     search: "https://www.kaufland.de/s/?search_value={ean}"
   - name: Hugendubel
     country: DE
@@ -273,6 +275,8 @@ flyers:
     retailers: ["MediaMarkt", "Saturn", "Müller", "Rossmann", "Kaufland", "HIT", "Smyths", "Thalia", "expert", "Globus"]
     max_pages: 60
     max_brochures_per_run: 4   # neue Prospekte werden über mehrere Läufe verteilt gelesen
+    # Diese Händler zuerst lesen (Kaufland: Pokémon-Aktion ab 12.10. in Filialen angekündigt)
+    priority: ["Kaufland"]
   # Alle übrigen Pokémon-Angebote (Karten, Spielzeug, Plüsch …) werden als Info angezeigt,
   # aber nie als Treffer gemeldet. Leere Liste = alles mit "Pokémon".
   related_any: []
@@ -283,6 +287,7 @@ news:
     - "https://news.google.com/rss/search?q=%22Top-Trainer-Box%2030%20Jahre%22&hl=de&gl=DE&ceid=DE:de"
     - "https://news.google.com/rss/search?q=%22Pok%C3%A9mon%2030%20Jahre%22%20Restock%20OR%20Nachschub%20OR%20wieder%20verf%C3%BCgbar&hl=de&gl=DE&ceid=DE:de"
     - "https://news.google.com/rss/search?q=%2230th%20Celebration%22%20%22Elite%20Trainer%20Box%22%20restock&hl=en&gl=GB&ceid=GB:en"
+    - "https://news.google.com/rss/search?q=Kaufland%20Pok%C3%A9mon%20%2230%20Jahre%22&hl=de&gl=DE&ceid=DE:de"
     - "https://news.google.com/rss/search?q=Smyths%20Pok%C3%A9mon%20%2230%20Jahre%22%20OR%20%2230th%20Celebration%22&hl=de&gl=DE&ceid=DE:de"
     # Deals der mydealz-Gruppe "Pokémon" (Community meldet Restocks oft als Erstes)
     - "https://www.mydealz.de/rss/gruppe/pokemon"
@@ -299,8 +304,11 @@ news:
   # Die Überschrift muss eines dieser Wörter enthalten (Groß-/Kleinschreibung egal) …
   must_any: ["30 jahre", "30th celebration", "jubiläum"]
   # … und Überschrift oder Text muss sich auf die Top-Trainer-/Elite-Trainer-Box beziehen.
-  type_any: ["top-trainer", "top trainer", "toptrainer", "elite trainer", "elite-trainer", "ttb", "etb"]
+  type_any: ["top-trainer", "top trainer", "toptrainer", "trainer-box", "trainer box", "trainertasche",
+             "elite trainer", "elite-trainer", "ttb", "etb"]
   # Meldungen mit diesen Wörtern ignorieren (US-Deals, andere Produkte, andere Sprachen).
   exclude_any: ["$", "amazon.com", "target", "walmart", "best buy", "gamestop",
-                "sticker", "mini-tin", "tin box", "booster bundle", "tcg live", "blister", "sammelmappe",
                 "amazon it", "amazon fr", "amazon jp", "amazon es", "japanisch", "japanese"]
+  # Andere 30-Jahre-Produkte nur ignorieren, wenn die Überschrift nicht auch die Box nennt
+  # (sonst fiele z. B. „Top Trainer Box & 2er Blister bei Kaufland“ heraus).
+  other_products_any: ["sticker", "mini-tin", "tin box", "booster bundle", "tcg live", "blister", "sammelmappe"]

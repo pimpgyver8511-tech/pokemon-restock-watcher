@@ -325,7 +325,9 @@ def run(cfg: dict, state: dict, now: datetime, only: str | None = None,
         recent = state.setdefault("news_recent", [])
         recent[:0] = [{"title": i.title, "link": i.link, "source": i.source,
                        "published": (i.published or now).isoformat(timespec="minutes")} for i in news_items]
-        recent[:] = [n for n in recent if news.relevant_title(n["title"], cfg["news"])][:30]
+        links: set[str] = set()
+        recent[:] = [n for n in recent if news.relevant_title(n["title"], cfg["news"])
+                     and not (n["link"] in links or links.add(n["link"]))][:30]
         for e in news_errors:
             print(f"News-Feed-Fehler: {e}")
 

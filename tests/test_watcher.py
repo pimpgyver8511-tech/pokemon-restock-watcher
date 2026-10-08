@@ -120,6 +120,14 @@ class NewsTests(unittest.TestCase):
             again, _ = news.check({**CFG["news"], "feeds": ["https://feed.example/rss"]}, state, NOW)
             self.assertEqual(again, [])
 
+    def test_box_with_blister_is_relevant(self):
+        cfg = yaml.safe_load((main.ROOT / "config.yaml").read_text())["news"]
+        item = lambda t: news.NewsItem(id=t, title=t, link="https://x", published=None, source="mydealz")
+        self.assertTrue(news.relevant(item("[Kaufland lokal] Pokémon 30 Jahre Top Trainer Box & 2er Blister 55€"), cfg))
+        self.assertTrue(news.relevant(item("Pokemon 30 Jahre Jubiläum Trainertasche & 2er Blister |Kaufland Leipzig| 55,00€"), cfg))
+        self.assertFalse(news.relevant(item("Pokémon 30 Jahre 2er Blister bei Kaufland"), cfg))
+        self.assertTrue(news.relevant_title("Pokemon 30 Jahre Jubiläum Trainertasche & 2er Blister", cfg))
+
 
 class FlowTests(unittest.TestCase):
     """Zustandswechsel: nur bei Änderung mailen."""

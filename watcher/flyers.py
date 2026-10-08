@@ -149,7 +149,12 @@ def ocr_offers(cfg: dict, product_cfg: dict, state: dict, current_ids: set[str])
     wanted = [r.lower() for r in ocfg.get("retailers", [])]
     budget = ocfg.get("max_brochures_per_run", 6)
     pinned = set(cfg.get("brochures", []))
-    for bid in sorted(_PAGES, key=lambda b: b not in pinned):  # fest eingetragene Prospekte zuerst
+    first = [r.lower() for r in ocfg.get("priority", [])]  # z. B. Kaufland vor einem angekündigten Drop
+
+    def order(b):
+        pub = (_PAGES[b][1] or "").lower()
+        return (b not in pinned, not any(r in pub for r in first))
+    for bid in sorted(_PAGES, key=order):  # fest eingetragene, dann vorrangige Händler zuerst
         data, publisher = _PAGES[bid]
         if bid in cache or budget <= 0:
             continue

@@ -48,11 +48,20 @@ def parse_feed(xml_text: str, source: str) -> list[NewsItem]:
     return items
 
 
+def _other_product(text: str, title: str, cfg: dict) -> bool:
+    """Andere 30-Jahre-Produkte (Blister, Tins …) – außer die Überschrift nennt auch die Box.
+
+    Beispiel: „Kaufland lokal: 30 Jahre Top Trainer Box & 2er Blister“ ist relevant.
+    """
+    return (any(w in text for w in cfg.get("other_products_any", []))
+            and not any(w in title for w in cfg["type_any"]))
+
+
 def relevant(item: NewsItem, cfg: dict) -> bool:
     """Nur Meldungen zur Top-Trainer-/Elite-Trainer-Box, nicht zu anderen 30-Jahre-Produkten."""
     title = item.title.lower()
     text = f"{title} {item.source}".lower()
-    if any(w in text for w in cfg.get("exclude_any", [])):
+    if any(w in text for w in cfg.get("exclude_any", [])) or _other_product(text, title, cfg):
         return False
     return any(w in title for w in cfg["must_any"]) and any(w in text for w in cfg["type_any"])
 
@@ -60,12 +69,15 @@ def relevant(item: NewsItem, cfg: dict) -> bool:
 def relevant_title(title: str, cfg: dict) -> bool:
     """Grobprüfung für bereits gespeicherte Meldungen (nur die Überschrift ist bekannt)."""
     t = title.lower()
-    return any(w in t for w in cfg["must_any"]) and not any(w in t for w in cfg.get("exclude_any", []))
+    return (any(w in t for w in cfg["must_any"]) and not any(w in t for w in cfg.get("exclude_any", []))
+            and not _other_product(t, t, cfg))
 
 
 def check(cfg: dict, state: dict, now: datetime | None = None) -> tuple[list[NewsItem], list[str]]:
     """Neue relevante Meldungen und Fehlermeldungen je Feed."""
     now = now or datetime.now(timezone.utc)
+    if state.get("news_filter") != 2:  # Filter geändert → Meldungen der letzten Wochen neu bewerten
+        state["news_seen"], state["news_filter"] = [], 2
     seen: list[str] = state.setdefault("news_seen", [])
     first_run = not seen and not state.get("news_initialized")
     fresh: list[NewsItem] = []

@@ -164,6 +164,27 @@ class ExtraProductTests(unittest.TestCase):
         self.assertFalse(main_entry["in_range"])
 
 
+class RaffleTests(unittest.TestCase):
+    JS = {"title": "Pokémon 30 Jahre Booster-Bundle", "available": True, "price": 4499, "variants": [{"barcode": None}]}
+
+    def run_check(self, html):
+        bundle = {"eans": [], "exclude_any": [], **CFG["more_products"][0]}
+        with mock.patch.object(fetch, "get_json", return_value=self.JS), mock.patch.object(fetch, "get", return_value=html):
+            return main.check_url("https://feen.example/products/bundle", bundle)
+
+    def test_raffle_is_not_orderable(self):
+        html = "<main>Verlosung: Dieses Produkt wird nicht direkt gekauft, sondern per Zufallsprinzip verlost.</main>"
+        self.assertEqual(self.run_check(html).availability, "out_of_stock")
+
+    def test_raffle_link_in_menu_is_ignored(self):
+        html = "<header><a href='/raffle'>Verlosung (Raffle) per Zufallsprinzip</a></header><main>In den Warenkorb</main>"
+        self.assertEqual(self.run_check(html).availability, "in_stock")
+
+    def test_preorder_note(self):
+        html = "<main>HINWEIS: Dieser Artikel ist derzeit nicht auf Lager, kann aber vorbestellt werden.</main>"
+        self.assertEqual(self.run_check(html).availability, "preorder")
+
+
 class FlowTests(unittest.TestCase):
     """Zustandswechsel: nur bei Änderung mailen."""
 

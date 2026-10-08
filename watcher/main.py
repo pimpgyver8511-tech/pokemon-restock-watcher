@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -14,7 +15,7 @@ from zoneinfo import ZoneInfo
 import yaml
 
 from . import fetch, flyers, mailer, news, shopify, stores
-from .parse import ORDERABLE, PREORDER, Offer, extract, is_asset, product_links, shopify_offer
+from .parse import IN_STOCK, ORDERABLE, OUT_OF_STOCK, PREORDER, Offer, extract, is_asset, product_links, shopify_offer
 
 ROOT = Path(__file__).resolve().parent.parent
 LABEL = {"in_stock": "lieferbar", "preorder": "vorbestellbar",
@@ -45,17 +46,42 @@ def _dump(shop: str, url: str, html: str) -> None:
     (Path(d) / name).write_text(f"<!-- {url} -->\n{html}")
 
 
+# Verlosung statt Verkauf (z. B. Feenturm): Shop meldet "verfügbar", kaufen kann man aber nicht.
+_RAFFLE = re.compile(r"per zufallsprinzip|wird nicht direkt gekauft|über eine verlosung|verlosung \(raffle\)"
+                     r"|enter the raffle|raffle entry", re.I)
+_CHROME = re.compile(r"<(header|footer|nav)\b.*?</\1>", re.I | re.S)  # Menüs/Fußzeile nicht werten
+_PREORDER_NOTE = re.compile(r"nicht auf lager,? kann aber vorbestellt werden", re.I)
+
+
+def page_check(offer: Offer, html: str, url: str) -> Offer:
+    """Hinweise auf der Produktseite, die die gemeldete Verfügbarkeit einschränken."""
+    if offer.availability in ORDERABLE and _RAFFLE.search(_CHROME.sub(" ", html)):
+        print(f"  ↳ nur Verlosung, nicht direkt kaufbar: {url}")
+        offer.availability = OUT_OF_STOCK
+    elif offer.availability == IN_STOCK and _PREORDER_NOTE.search(html):
+        offer.availability = PREORDER
+    return offer
+
+
 def check_url(url: str, product_cfg: dict, shop: str = "") -> Offer | None:
     if "/products/" in url:  # Shopify-Shop: offizielle JSON-Schnittstelle nutzen
         try:
-            return shopify_offer(fetch.get_json(url.split("?")[0].rstrip("/") + ".js"), product_cfg)
+            offer = shopify_offer(fetch.get_json(url.split("?")[0].rstrip("/") + ".js"), product_cfg)
         except fetch.FetchError:
-            pass
+            offer = None
+        if offer is not None:
+            if offer.availability in ORDERABLE:  # "available" kann von Vorbestell-/Verlosungs-Apps stammen
+                try:
+                    offer = page_check(offer, fetch.get(url), url)
+                except fetch.FetchError:
+                    pass
+            return offer
     html = fetch.get(url)
     offer = extract(html, product_cfg)
     if offer is None:
         _dump(shop, url, html)
-    return offer
+        return None
+    return page_check(offer, html, url)
 
 
 def is_marketplace(shop: dict, offer: Offer) -> bool:

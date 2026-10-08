@@ -48,15 +48,19 @@ def search_brochures(cfg: dict, query: str, max_items: int = 240) -> set[str]:
     return ids
 
 
-def _classify(text: str, product_cfg: dict, cfg: dict) -> str | None:
-    """exact = die 30-Jahre-Top-Trainer-Box, pokemon = sonstige Pokémon-Karten (nur Info)."""
+def _classify(text: str, product_cfg: dict, cfg: dict) -> tuple[str | None, str | None]:
+    """-> (Art, Produkt). exact = ein überwachtes Produkt (Top-Trainer-Box oder z. B. Booster-Bundle),
+    pokemon = sonstige Pokémon-Karten (nur Info)."""
     if matches_product(text, set(), product_cfg):
-        return "exact"
+        return "exact", "main"
+    for extra in cfg.get("_extras", []):
+        if matches_product(text, set(), extra):
+            return "exact", extra["id"]
     t = text.lower()
     related = cfg.get("related_any") or []
     if ("pokemon" in t or "pokémon" in t) and (not related or any(w in t for w in related)):
-        return "pokemon"
-    return None
+        return "pokemon", None
+    return None, None
 
 
 def brochure_offers(cfg: dict, brochure_id: str, product_cfg: dict) -> list[dict]:
@@ -72,14 +76,14 @@ def brochure_offers(cfg: dict, brochure_id: str, product_cfg: dict) -> list[dict
             desc = " ".join(d.get("paragraph") or "" for d in product.get("description") or [])
             title = " ".join(filter(None, [product.get("brandName"), product.get("name")]))
             cats = " ".join(x.get("name") or "" for x in product.get("categoryPaths") or [])
-            kind = _classify(f"{title} {desc} {cats}", product_cfg, cfg)
+            kind, pid = _classify(f"{title} {desc} {cats}", product_cfg, cfg)
             if not kind:
                 continue
             deal = next((d for d in c.get("deals") or [] if d.get("type") == "SALES_PRICE"), {})
             validity = ((c.get("publicationProfiles") or [{}])[0].get("validity") or {})
             parent = c.get("parentContent") or {}
             found.append({
-                "id": c.get("id"), "kind": kind, "store": (c.get("publisher") or {}).get("name"),
+                "id": c.get("id"), "kind": kind, "product": pid, "store": (c.get("publisher") or {}).get("name"),
                 "title": title or product.get("name"), "description": desc[:160],
                 "price": deal.get("min") or deal.get("max"),
                 "valid_from": (validity.get("startDate") or "")[:10] or None,
@@ -117,12 +121,12 @@ def page_offers(cfg: dict, url: str, product_cfg: dict) -> list[dict]:
     found = []
     for it in items:
         title = " ".join(filter(None, [it.get("brand"), it.get("title")]))
-        kind = _classify(f"{title} {it.get('description') or ''}", product_cfg, cfg)
+        kind, pid = _classify(f"{title} {it.get('description') or ''}", product_cfg, cfg)
         if not kind:
             continue
         parent = it.get("parentContent") or {}
         found.append({
-            "id": it.get("id"), "kind": kind, "store": it.get("publisherName"), "title": title,
+            "id": it.get("id"), "kind": kind, "product": pid, "store": it.get("publisherName"), "title": title,
             "description": (it.get("description") or "")[:160],
             "price": (it.get("prices") or {}).get("mainPrice"),
             "valid_from": (it.get("validFrom") or "")[:10] or None,
@@ -170,6 +174,7 @@ def ocr_offers(cfg: dict, product_cfg: dict, state: dict, current_ids: set[str])
             params = urlencode({"lat": cfg["lat"], "lng": cfg["lng"], "zip": cfg["postal_code"], "page": h["page"]})
             offers.append({
                 "id": f"ocr-{bid}-{h['page']}", "kind": "exact" if h["exact"] else "pokemon",
+                "product": "main" if h["exact"] else None,
                 "store": entry["publisher"], "title": f"Pokémon auf Seite {h['page'] + 1} (Texterkennung)",
                 "description": h["snippet"][:160], "price": None, "ocr_prices": h["prices"],
                 "valid_from": None, "valid_until": None, "source": "ocr",
@@ -178,7 +183,9 @@ def ocr_offers(cfg: dict, product_cfg: dict, state: dict, current_ids: set[str])
     return offers
 
 
-def check(cfg: dict, product_cfg: dict, state: dict | None = None) -> tuple[list[dict], list[str]]:
+def check(cfg: dict, product_cfg: dict, state: dict | None = None,
+          extras: list[dict] = ()) -> tuple[list[dict], list[str]]:
+    cfg = {**cfg, "_extras": list(extras)}
     offers: dict[str, dict] = {}
     errors: list[str] = []
     brochure_ids: set[str] = set()
@@ -257,12 +264,12 @@ def marktguru_offers(cfg: dict, product_cfg: dict) -> list[dict]:
         for o in data.get("results") or []:
             product = o.get("product") or {}
             title = " ".join(filter(None, [(o.get("brand") or {}).get("name"), product.get("name")]))
-            kind = _classify(f"{title} {o.get('description') or ''}", product_cfg, cfg)
+            kind, pid = _classify(f"{title} {o.get('description') or ''}", product_cfg, cfg)
             if not kind:
                 continue
             validity = (o.get("validityDates") or [{}])[0]
             found.append({
-                "id": f"mg-{o.get('id')}", "kind": kind,
+                "id": f"mg-{o.get('id')}", "kind": kind, "product": pid,
                 "store": ", ".join(a.get("name", "") for a in o.get("advertisers") or []) or None,
                 "title": title, "description": (o.get("description") or "")[:160], "price": o.get("price"),
                 "valid_from": (validity.get("from") or "")[:10] or None,

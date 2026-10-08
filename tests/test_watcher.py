@@ -129,6 +129,41 @@ class NewsTests(unittest.TestCase):
         self.assertTrue(news.relevant_title("Pokemon 30 Jahre Jubiläum Trainertasche & 2er Blister", cfg))
 
 
+class ExtraProductTests(unittest.TestCase):
+    """Weitere Produkte (more_products), z. B. das Booster-Bundle."""
+    SEARCH = '<html><a href="/p/bundle">Pokémon 30 Jahre Booster Bundle (deutsch)</a><a href="/p/ttb">x</a></html>'
+    PAGE = """<html><head><title>Pokémon 30 Jahre Booster-Bundle</title>
+<script type="application/ld+json">{"@type":"Product","name":"Pokémon 30 Jahre Booster-Bundle",
+"offers":{"@type":"Offer","price":"39.99","priceCurrency":"EUR","availability":"https://schema.org/InStock"}}</script>
+</head><body>In den Warenkorb</body></html>"""
+
+    def fake_get(self, url, timeout=25, headers=None):
+        if "?q=" in url:
+            return self.SEARCH
+        if url.endswith("/p/bundle"):
+            return self.PAGE
+        return "<html><a href='/'>leer</a>" + " " * 50000 + "</html>"
+
+    def test_bundle_hit_and_snapshot(self):
+        cfg = {**CFG, "stores": None, "flyers": None, "shopify_search": None,
+               "shops": [{"name": "Testshop", "country": "DE", "ships_to_de": "yes",
+                          "urls": ["https://shop.example/p/ttb"], "search": "https://shop.example/?q={ean}"}]}
+        state = main.load_state(Path("/nonexistent"))
+        state["last_digest"] = "2026-09-29"
+        with mock.patch.object(fetch, "get", side_effect=self.fake_get) as get:
+            subject, body = main.run(cfg, state, NOW, with_news=False)
+        called = [c.args[0] for c in get.call_args_list]
+        self.assertIn("https://shop.example/?q=30+Jahre+Booster+Bundle", called)
+        self.assertIn("Testshop (Booster-Bundle)", subject)
+        self.assertTrue(state["shops"]["bundle|Testshop"]["hit"])
+        snap = main.snapshot(cfg, state, NOW)
+        self.assertEqual([p["id"] for p in snap["products"]], ["main", "bundle"])
+        bundle = [s for s in snap["shops"] if s["product"] == "bundle"]
+        self.assertEqual((bundle[0]["price"], bundle[0]["in_range"]), (39.99, True))
+        main_entry = [s for s in snap["shops"] if s["product"] == "main"][0]
+        self.assertFalse(main_entry["in_range"])
+
+
 class FlowTests(unittest.TestCase):
     """Zustandswechsel: nur bei Änderung mailen."""
 

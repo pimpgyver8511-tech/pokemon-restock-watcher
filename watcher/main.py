@@ -8,6 +8,7 @@ import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
+from urllib.parse import quote_plus
 from zoneinfo import ZoneInfo
 
 import yaml
@@ -72,7 +73,10 @@ def check_shop(shop: dict, product_cfg: dict, known_urls: list[str]) -> tuple[li
 
     searches = shop.get("search") or []
     searches = [searches] if isinstance(searches, str) else searches
-    search_urls = list(dict.fromkeys(t.format(ean=e) for t in searches for e in product_cfg["eans"]))
+    terms = list(product_cfg["eans"]) + [quote_plus(t) for t in product_cfg.get("search_terms", [])]
+    if not product_cfg.get("main", True):  # feste Seiten (ohne {ean}) gehören zur Hauptbox
+        searches = [t for t in searches if "{ean}" in t]
+    search_urls = list(dict.fromkeys(t.format(ean=e) for t in searches for e in terms))
     for search_url in search_urls:
         try:
             html = fetch.get(search_url)
@@ -135,12 +139,19 @@ def fmt_price(p: float | None) -> str:
     return f"{p:.2f} €".replace(".", ",") if p is not None else "Preis ?"
 
 
+def state_key(shop: dict, product: dict | None) -> str:
+    """Stand je Shop; weitere Produkte (z. B. Booster-Bundle) unter eigenem Schlüssel."""
+    return shop["name"] if not product or product.get("main", True) else f"{product['id']}|{shop['name']}"
+
+
 def evaluate(cfg: dict, state: dict, shop: dict, best: Result | None, errors: list[str],
-             now: datetime) -> list[tuple[int, str]]:
+             now: datetime, product: dict | None = None) -> list[tuple[int, str]]:
     """Vergleicht mit dem letzten Stand. Liefert (Priorität, Text); 1 = löst Mail aus, 2 = nur Info."""
     events: list[tuple[int, str]] = []
-    name = shop["name"]
-    st = state["shops"].setdefault(name, {})
+    extra = product is not None and not product.get("main", True)
+    price_cfg = product["price"] if extra else cfg["price"]
+    name = f"{shop['name']} ({product.get('short') or product['name']})" if extra else shop["name"]
+    st = state["shops"].setdefault(state_key(shop, product), {})
     ship = "" if shop.get("ships_to_de") == "yes" else " (Versand nach DE im Warenkorb prüfen)"
 
     if best is None:
@@ -163,7 +174,7 @@ def evaluate(cfg: dict, state: dict, shop: dict, best: Result | None, errors: li
     o = best.offer
     was_hit = st.get("hit", False)
     # Preisvergleiche zeigen oft Einladungs-/Altpreise (z. B. Amazon 52,99 €) – nie als Treffer werten.
-    hit = o.availability in ORDERABLE and in_range(o, cfg["price"]) and not shop.get("aggregator")
+    hit = o.availability in ORDERABLE and in_range(o, price_cfg) and not shop.get("aggregator")
     orderable = o.availability in ORDERABLE
     was_orderable = st.get("status") in ORDERABLE
     what = "VORBESTELLBAR" if o.availability == PREORDER else "VERFÜGBAR"
@@ -176,7 +187,7 @@ def evaluate(cfg: dict, state: dict, shop: dict, best: Result | None, errors: li
         events.append((2, f"💶 {name}: Preis geändert {fmt_price(st.get('price'))} → {fmt_price(o.price)}\n   {best.url}"))
     elif orderable and not was_orderable and not hit and cfg.get("notify_out_of_range"):
         events.append((1, f"🔸 {name} [{shop['country']}]: {what}, aber {fmt_price(o.price)} "
-                          f"(außerhalb {fmt_price(cfg['price']['min'])}–{fmt_price(cfg['price']['max'])})\n   {best.url}"))
+                          f"(außerhalb {fmt_price(price_cfg['min'])}–{fmt_price(price_cfg['max'])})\n   {best.url}"))
     elif was_hit and not hit:
         reason = LABEL.get(o.availability, o.availability) if not orderable else f"jetzt {fmt_price(o.price)}"
         events.append((2, f"❌ {name}: nicht mehr im Zielbereich ({reason})"))
@@ -194,32 +205,82 @@ def shop_link(shop: dict, product_cfg: dict) -> str | None:
         return shop["urls"][0]
     searches = shop.get("search") or []
     searches = [searches] if isinstance(searches, str) else searches
-    return searches[0].format(ean=product_cfg["eans"][0]) if searches else None
+    terms = list(product_cfg["eans"]) + [quote_plus(t) for t in product_cfg.get("search_terms", [])]
+    searches = [t for t in searches if "{ean}" in t or product_cfg.get("main", True)]
+    return searches[0].format(ean=terms[0]) if searches and terms else None
+
+
+def extra_products(cfg: dict) -> list[dict]:
+    """Weitere überwachte Produkte (config: more_products), z. B. Booster-Bundle."""
+    out = []
+    for p in cfg.get("more_products") or []:
+        out.append({"eans": [], "exclude_any": [], **p, "main": False})
+    return out
+
+
+def extra_shops(cfg: dict, product: dict, state: dict) -> list[dict]:
+    """Shops für ein weiteres Produkt: bekannte Produktseiten, EAN-/Textsuche und Shopify-Suche."""
+    known = product.get("urls") or {}
+    shops = []
+    for shop in cfg["shops"]:
+        if shop.get("discovered"):
+            continue
+        searches = shop.get("search") or []
+        searches = [searches] if isinstance(searches, str) else searches
+        urls = known.get(shop["name"], [])
+        if urls or any("{ean}" in t for t in searches):
+            shops.append({**shop, "urls": urls})
+    if (sq := cfg.get("shopify_search")) and product.get("shopify_queries"):
+        hosts = {u.split("/")[2] for s in cfg["shops"] for u in s.get("urls", []) if "/products/" in u}
+        sub = {"queries": product["shopify_queries"],
+               "domains": list(dict.fromkeys(sq.get("domains", []) + sorted(hosts)))}
+        names = {s["name"] for s in shops}
+        for v in shopify.discover(sub, [], product, state, key=f"shopify_found_{product['id']}"):
+            # gleicher Laden wie ein konfigurierter Shop → unter dessen Namen führen
+            same = next((s for s in cfg["shops"] if any(v["name"] in u for u in s.get("urls", []))), None)
+            if same and same["name"] in names:
+                next(s for s in shops if s["name"] == same["name"])["urls"] += v["urls"]
+            elif same:
+                shops.append({**same, "urls": v["urls"]})
+                names.add(same["name"])
+            else:
+                shops.append(v)
+    return shops
+
+
+def shop_entry(cfg: dict, state: dict, shop: dict, product: dict | None = None) -> dict:
+    st = state["shops"].get(state_key(shop, product), {})
+    status = st.get("status") or "not_listed"
+    main_product = product is None or product.get("main", True)
+    return {
+        "name": shop["name"], "country": shop["country"],
+        "product": "main" if main_product else product["id"],
+        "aggregator": bool(shop.get("aggregator")), "discovered": bool(shop.get("discovered")),
+        "ships_to_de": shop.get("ships_to_de") == "yes",
+        "status": status, "price": st.get("price"),
+        "in_range": bool(st.get("hit")),
+        "url": st.get("url") if status != "not_listed" and st.get("url") else None,
+        "shop_url": shop_link(shop, cfg["product"] if main_product else product),
+        "error": st.get("last_error") if st.get("fails") else None,
+        "available_from": st.get("available_from"),
+        "last_ok": st.get("last_ok"), "last_restock": st.get("last_restock"),
+    }
 
 
 def snapshot(cfg: dict, state: dict, now: datetime) -> dict:
     """Stand für die Web-Oberfläche (status.json)."""
-    shops = []
-    for shop in cfg["shops"]:
-        st = state["shops"].get(shop["name"], {})
-        status = st.get("status") or "not_listed"
-        shops.append({
-            "name": shop["name"], "country": shop["country"],
-            "aggregator": bool(shop.get("aggregator")), "discovered": bool(shop.get("discovered")),
-            "ships_to_de": shop.get("ships_to_de") == "yes",
-            "status": status, "price": st.get("price"),
-            "in_range": bool(st.get("hit")),
-            "url": st.get("url") if status != "not_listed" and st.get("url") else None,
-            "shop_url": shop_link(shop, cfg["product"]),
-            "error": st.get("last_error") if st.get("fails") else None,
-            "available_from": st.get("available_from"),
-            "last_ok": st.get("last_ok"), "last_restock": st.get("last_restock"),
-        })
+    shops = [shop_entry(cfg, state, shop) for shop in cfg["shops"]]
+    for product in extra_products(cfg):
+        shops += [shop_entry(cfg, state, shop, product) for shop in state.get(f"shops_{product['id']}", [])]
     return {
         "checked_at": now.isoformat(timespec="seconds"),
         "interval_min": (cfg.get("schedule") or {}).get("interval_minutes", 20),
         "product": cfg["product"]["name"],
         "price": cfg["price"],
+        "products": [{"id": "main", "name": cfg["product"]["name"], "short": cfg["product"].get("short", "Top-Trainer-Box"),
+                      "price": cfg["price"]}]
+                    + [{"id": p["id"], "name": p["name"], "short": p.get("short", p["name"]), "price": p["price"]}
+                       for p in extra_products(cfg)],
         "shops": shops,
         "news": state.get("news_recent", []),
         "stores": state.get("store_entries", []),
@@ -284,6 +345,24 @@ def run(cfg: dict, state: dict, now: datetime, only: str | None = None,
             else ("FEHLER: " + "; ".join(errors) if errors else "nicht gelistet")))
         events += evaluate(cfg, state, shop, best, errors, now)
 
+    for product in extra_products(cfg):
+        shops = extra_shops(cfg, product, state) if not only else [
+            s for s in extra_shops(cfg, product, state) if s["name"].lower() == only.lower()]
+        if not only:
+            state[f"shops_{product['id']}"] = shops
+        for shop in shops:
+            key = state_key(shop, product)
+            known = state["discovered"].get(key, [])
+            results, errors, discovered = check_shop(shop, product, known)
+            if discovered:
+                state["discovered"][key] = list(dict.fromkeys(known + discovered))[-5:]
+            best = best_result(results, product["price"])
+            o = best.offer if best else None
+            print(f"[{product.get('short', product['id'])}] {shop['name']:<22} " + (
+                f"{LABEL.get(o.availability)} {fmt_price(o.price)} [{o.source}] {best.url}" if o
+                else ("FEHLER: " + "; ".join(errors) if errors else "nicht gelistet")))
+            events += evaluate(cfg, state, shop, best, errors, now, product)
+
     if cfg.get("stores") and not only:
         entries, store_errors = stores.check(cfg["stores"], cfg["product"], state)
         for e in store_errors:
@@ -300,7 +379,8 @@ def run(cfg: dict, state: dict, now: datetime, only: str | None = None,
             state["store_entries"] = entries
 
     if cfg.get("flyers") and not only:
-        offers, flyer_errors = flyers.check(cfg["flyers"], cfg["product"], state)
+        offers, flyer_errors = flyers.check(cfg["flyers"], cfg["product"], state, extra_products(cfg))
+        prices = {p["id"]: p["price"] for p in extra_products(cfg)}
         for e in flyer_errors:
             print(f"Prospekt-Fehler: {e}")
         today = now.astimezone(BERLIN).strftime("%Y-%m-%d")
@@ -309,8 +389,9 @@ def run(cfg: dict, state: dict, now: datetime, only: str | None = None,
             current = not o.get("valid_until") or o["valid_until"] >= today
             print(f"  Prospekt {o['kind']}: {o.get('store')} – {o.get('title')} {o.get('price')} € "
                   f"({o.get('valid_from')}–{o.get('valid_until')})")
+            pr = prices.get(o.get("product"), cfg["price"])
             if (o["kind"] == "exact" and current and o.get("price") is not None
-                    and cfg["price"]["min"] <= o["price"] <= cfg["price"]["max"] and o["id"] not in seen):
+                    and pr["min"] <= o["price"] <= pr["max"] and o["id"] not in seen):
                 period = f"{o.get('valid_from') or '?'} bis {o.get('valid_until') or '?'}"
                 events.append((1, f"✅ {o.get('store')} [Prospekt Leipzig]: {o.get('title')} für "
                                   f"{fmt_price(o['price'])} (gültig {period})\n   {o.get('url') or ''}"))

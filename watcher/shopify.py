@@ -29,10 +29,11 @@ def search(domain: str, query: str, product_cfg: dict) -> list[str]:
     return found
 
 
-def discover(cfg: dict, shops: list[dict], product_cfg: dict, state: dict) -> list[dict]:
+def discover(cfg: dict, shops: list[dict], product_cfg: dict, state: dict,
+             key: str = "shopify_found") -> list[dict]:
     """Virtuelle Shop-Einträge für Shopify-Läden, in denen die Box (neu) gelistet ist."""
     known_hosts = {u.split("/")[2] for s in shops for u in s.get("urls", []) if "//" in u}
-    found: dict[str, list[str]] = state.setdefault("shopify_found", {})
+    found: dict[str, list[str]] = state.setdefault(key, {})
     for domain in cfg.get("domains", []):
         if domain in known_hosts or f"www.{domain}" in known_hosts:
             continue
@@ -45,6 +46,6 @@ def discover(cfg: dict, shops: list[dict], product_cfg: dict, state: dict) -> li
                 break
         if urls:
             found[domain] = list(dict.fromkeys(found.get(domain, []) + urls))[-5:]
-    print(f"Shopify-Suche: Box gelistet bei {sorted(found) or 'keinem weiteren Shop'}")
+    print(f"Shopify-Suche ({product_cfg.get('short', 'Box')}): gelistet bei {sorted(found) or 'keinem weiteren Shop'}")
     return [{"name": domain.removeprefix("www."), "country": "DE", "ships_to_de": "yes",
              "urls": urls, "discovered": True} for domain, urls in sorted(found.items())]

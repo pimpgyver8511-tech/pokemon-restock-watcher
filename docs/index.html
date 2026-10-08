@@ -63,6 +63,9 @@
   .offer a.go { grid-column: 2; grid-row: 1 / span 2; text-decoration: none; border: 1px solid var(--line);
                 border-radius: 8px; padding: 8px 12px; color: var(--text); white-space: nowrap; font-size: .9rem; }
   .offer.hit a.go { background: var(--ok); border-color: var(--ok); color: #fff; font-weight: 600; }
+  .offers li.prod { list-style: none; font-weight: 700; font-size: 1.02rem; margin: 18px 0 2px; }
+  .offers li.prod:first-child { margin-top: 0; }
+  .offers li.prod small { font-weight: 400; color: var(--muted); }
   .banner { padding: 10px 12px; border-radius: 10px; margin-bottom: 12px; font-size: .92rem;
             border: 1px solid var(--line); color: var(--muted); }
   .banner.hit { border-color: var(--ok); color: var(--ok); font-weight: 600; }
@@ -437,11 +440,17 @@
       + (stale ? " ⚠️ veraltet – der automatische Abruf läuft nicht regelmäßig (siehe README: cron-job.org)" : "");
     $("checkedAt").style.color = stale ? "var(--warn)" : "";
     const range = `${euro(data.price.min)} – ${euro(data.price.max)}`;
+    // Überwachte Produkte (Top-Trainer-Box + z. B. Booster-Bundle), je mit eigenem Preisbereich
+    const products = data.products || [{ id: "main", short: "Top-Trainer-Box", name: data.product, price: data.price }];
+    const prod = Object.fromEntries(products.map(p => [p.id, p]));
+    const rangeOf = p => `${euro(p.price.min)} – ${euro(p.price.max)}`;
+    const inPrice = (o, pid) => { const p = prod[pid || "main"] || prod.main;
+      return o.price != null && o.price >= p.price.min && o.price <= p.price.max; };
     // Shops, die gerade automatische Abrufe blocken, ausblenden – ihr Stand wäre nicht aktuell.
-    const blocked = data.shops.filter(s => s.error).map(s => s.name);
+    const blocked = [...new Set(data.shops.filter(s => s.error).map(s => s.name))];
     const shops = data.shops.filter(s => !s.error).map(s => {
       const [label, cls, rank] = STATUS[s.status] || STATUS.unknown;
-      return { ...s, label, cls, rank: s.in_range ? 0 : rank };
+      return { ...s, product: s.product || "main", label, cls, rank: s.in_range ? 0 : rank };
     }).sort((a, b) => a.rank - b.rank || (a.price ?? 1e9) - (b.price ?? 1e9) || a.name.localeCompare(b.name));
     const direct = shops.filter(s => !s.aggregator);
     const compare = shops.filter(s => s.aggregator);
@@ -459,37 +468,45 @@
         s.last_restock && !s.aggregator ? `<span>zuletzt verfügbar ab ${esc(s.last_restock)}</span>` : "",
       ].filter(Boolean).join("");
       return `<li class="offer${s.rank === 0 ? " hit" : ""}">
-          <div class="shop">${flag(esc(s.country))}&nbsp;${esc(s.name.replace(" (Preisvergleich)", ""))}</div>
+          <div class="shop">${flag(esc(s.country))}&nbsp;${esc(s.name.replace(" (Preisvergleich)", ""))}${
+            s.aggregator && s.product !== "main" ? ` <small>(${esc(prod[s.product]?.short || s.product)})</small>` : ""}</div>
           ${url ? `<a class="go" href="${esc(url)}" target="_blank" rel="noopener">${linkText}</a>` : ""}
           <div class="meta">${extra}</div></li>`;
     };
 
-    // Shop-Angebote in Gruppen: Treffer, bestellbar, ausverkauft (mit Preis), nicht gelistet
-    const groups = [
-      ["Im Preisbereich", direct.filter(s => s.rank === 0)],
-      ["Lieferbar, aber teurer", direct.filter(s => s.rank === 1)],
-      ["Ausverkauft – wird bei Restock gemeldet", direct.filter(s => s.rank === 2 || s.rank === 3)],
-      ["Nicht gelistet", direct.filter(s => s.rank === 4)],
-    ].filter(([, list]) => list.length);
-    $("offers").innerHTML = groups.map(([title, list]) =>
-      `<li class="sub">${title} (${list.length})</li>` + list.map(renderShop).join("")).join("")
+    // Shop-Angebote je Produkt in Gruppen: Treffer, bestellbar, ausverkauft (mit Preis), nicht gelistet
+    const productBlock = p => {
+      const mine = direct.filter(s => s.product === p.id);
+      const groups = [
+        ["Im Preisbereich", mine.filter(s => s.rank === 0)],
+        ["Lieferbar, aber teurer", mine.filter(s => s.rank === 1)],
+        ["Ausverkauft – wird bei Restock gemeldet", mine.filter(s => s.rank === 2 || s.rank === 3)],
+        ["Nicht gelistet", mine.filter(s => s.rank === 4)],
+      ].filter(([, list]) => list.length);
+      const head = products.length > 1
+        ? `<li class="prod">🎴 ${esc(p.short || p.name)} <small>· Zielpreis ${rangeOf(p)}</small></li>` : "";
+      return head + (groups.map(([title, list]) =>
+        `<li class="sub">${title} (${list.length})</li>` + list.map(renderShop).join("")).join("")
+        || `<li class="hint">Noch keine Shop-Daten – kommen mit dem nächsten Abruf.</li>`);
+    };
+    $("offers").innerHTML = products.map(productBlock).join("")
       + (blocked.length ? `<li class="hint">Ausgeblendet, weil der Shop automatische Abrufe gerade blockt: ${blocked.map(esc).join(", ")}</li>` : "");
     $("compare").innerHTML = compare.map(renderShop).join("") || `<li class="hint">Keine Preisvergleiche erreichbar.</li>`;
 
-    const flyerHits = (data.flyers || []).filter(o => o.kind === "exact" && o.price != null
-      && o.price >= data.price.min && o.price <= data.price.max);
+    const flyerHits = (data.flyers || []).filter(o => o.kind === "exact" && inPrice(o, o.product));
     const hits = direct.filter(s => s.rank === 0).length + flyerHits.length;
     const banner = $("banner");
     banner.classList.remove("hidden");
     banner.className = "banner" + (hits ? " hit" : "");
+    const ranges = products.map(p => `${p.short || p.name} ${rangeOf(p)}`).join(", ");
     banner.textContent = hits
-      ? `🎉 ${hits} Angebot${hits > 1 ? "e" : ""} im Preisbereich ${range} – schnell sein!`
-      : `Aktuell kein Angebot im Preisbereich ${range}. Sobald eins auftaucht, steht es hier ganz oben.`;
+      ? `🎉 ${hits} Angebot${hits > 1 ? "e" : ""} im Zielpreis (${ranges}) – schnell sein!`
+      : `Aktuell kein Angebot im Zielpreis (${ranges}). Sobald eins auftaucht, steht es hier ganz oben.`;
 
     const inRange = direct.filter(s => s.rank === 0).length;
     const newsCount = (data.news || []).length;
     const flyerCount = (data.flyers || []).length;
-    $("cnt-shops").textContent = `${direct.length} Shops`;
+    $("cnt-shops").textContent = `${new Set(direct.map(s => s.name)).size} Shops`;
     $("cnt-compare").textContent = `${compare.length}`;
     $("cnt-flyers").textContent = `${flyerCount}`;
     $("cnt-news").textContent = `${newsCount}`;
@@ -526,12 +543,12 @@
       $("flyers").innerHTML = (data.flyers || []).map(o => {
         const url = safeUrl(o.url);
         const exact = o.kind === "exact";
-        const hit = exact && o.price != null && o.price >= data.price.min && o.price <= data.price.max;
+        const hit = exact && inPrice(o, o.product);
         return `<li class="offer${hit ? " hit" : ""}">
           <div class="shop">${esc(o.store || "?")} – ${esc(o.title || "")}</div>
           ${url ? `<a class="go" href="${esc(url)}" target="_blank" rel="noopener">Prospekt →</a>` : ""}
           <div class="meta">${o.price != null ? `<span class="price">${euro(o.price)}</span>` : ""}
-            <span class="pill ${exact ? "s-ok" : "s-other"}">${exact ? "Top-Trainer-Box" : "weiteres Pokémon-Angebot"}</span>
+            <span class="pill ${exact ? "s-ok" : "s-other"}">${exact ? esc(prod[o.product || "main"]?.short || "Top-Trainer-Box") : "weiteres Pokémon-Angebot"}</span>
             ${o.valid_from || o.valid_until ? `<span>gültig ${d(o.valid_from)} – ${d(o.valid_until)}</span>` : ""}
             ${o.ocr_prices && o.ocr_prices.length ? `<span>erkannte Preise: ${o.ocr_prices.map(euro).join(", ")}</span>` : ""}
             ${o.source === "ocr" ? `<span title="${esc(o.description || "")}">via Texterkennung</span>`

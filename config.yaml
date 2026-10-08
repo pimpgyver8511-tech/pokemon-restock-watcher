@@ -21,6 +21,29 @@ price:
   min: 50.00   # EUR, ohne Versand
   max: 80.00
 
+# Weitere Produkte, die zusätzlich überwacht werden (eigener Preisbereich, Abschnitt in der Übersicht).
+# Shops werden über ihre EAN-/Textsuche (search mit {ean}), bekannte Produktseiten (urls je Shop)
+# und die Shopify-Suche abgefragt; Prospekte und News erkennen die Produkte über name_any/type_any.
+more_products:
+  - id: bundle
+    name: "Pokémon 30 Jahre Booster-Bundle"
+    short: "Booster-Bundle"
+    eans: []            # deutsche EAN noch unbekannt – Erkennung über den Namen
+    search_terms: ["30 Jahre Booster Bundle"]
+    shopify_queries: ["30 Jahre Booster Bundle", "30th Celebration Booster Bundle"]
+    name_any: ["30 jahre", "30th celebration"]
+    type_any: ["booster-bundle", "booster bundle", "boosterbundle"]
+    exclude_any: ["display", "case", "karton", "leer", "empty", "pokémon center", "pokemon center",
+                  "(fr)", "französisch", "(it)", "italienisch", "(es)", "spanisch", "(jp)", "japanisch",
+                  "japanese", "(kr)", "koreanisch", "chinesisch", "(nl)", "niederländisch", "(pl)", "polnisch"]
+    # UVP ca. 30 €, Marktpreis derzeit ca. 75–85 €
+    price:
+      min: 20.00
+      max: 45.00
+    urls:
+      playingcards.de (EN):
+        - "https://www.playingcards.de/pokemon-sammelkartenspiel-boosterbundle-30-jahre-6-packungen-englisch.html"
+
 # Abrufzeiten. Werte aus der Web-Oberfläche (GitHub-Variablen) haben Vorrang.
 schedule:
   interval_minutes: 20   # alle wie viel Minuten prüfen (mind. 10)
@@ -250,7 +273,7 @@ stores_disabled:
 # Läden, die oben schon als Shop eingetragen sind, werden übersprungen.
 shopify_search:
   queries: ["30 Jahre Top-Trainer-Box", "30 Jahre Top Trainer Box"]
-  domains: ["racoon-rises.com", "godofcards.com", "adventurecardz.de", "www.cartaro.de", "blackprism.de",
+  domains: ["feenturm.de", "racoon-rises.com", "godofcards.com", "adventurecardz.de", "www.cartaro.de", "blackprism.de",
             "kofuku.de", "brettspielbude.de",
             "geeksheaven.de", "cardcosmos.de", "www.card-knights.de"]
 
@@ -305,10 +328,10 @@ news:
   must_any: ["30 jahre", "30th celebration", "jubiläum"]
   # … und Überschrift oder Text muss sich auf die Top-Trainer-/Elite-Trainer-Box beziehen.
   type_any: ["top-trainer", "top trainer", "toptrainer", "trainer-box", "trainer box", "trainertasche",
-             "elite trainer", "elite-trainer", "ttb", "etb"]
+             "elite trainer", "elite-trainer", "ttb", "etb", "booster-bundle", "booster bundle", "boosterbundle"]
   # Meldungen mit diesen Wörtern ignorieren (US-Deals, andere Produkte, andere Sprachen).
   exclude_any: ["$", "amazon.com", "target", "walmart", "best buy", "gamestop",
                 "amazon it", "amazon fr", "amazon jp", "amazon es", "japanisch", "japanese"]
   # Andere 30-Jahre-Produkte nur ignorieren, wenn die Überschrift nicht auch die Box nennt
   # (sonst fiele z. B. „Top Trainer Box & 2er Blister bei Kaufland“ heraus).
-  other_products_any: ["sticker", "mini-tin", "tin box", "booster bundle", "tcg live", "blister", "sammelmappe"]
+  other_products_any: ["sticker", "mini-tin", "tin box", "tcg live", "blister", "sammelmappe"]

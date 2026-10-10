@@ -293,6 +293,7 @@ flyers:
   # Händler, die die kaufda-Suche nicht findet: aktuelle Prospekte direkt von ihrer Händlerseite
   publisher_pages:
     - "https://www.kaufda.de/Geschaefte/Smyths-Toys"
+    - "https://www.kaufda.de/Geschaefte/Kaufland"   # Sonder-/Extra-Prospekte (z. B. Pokémon ab 12.10.)
   # Zusätzlich fest eingetragene Prospekte (ID aus dem kaufda-Link …/contentViewer/static/<ID>)
   brochures: ["bc0cd54d-74c5-4f29-872f-92a7053cab6a"]
   pages: ["https://www.kaufda.de/Leipzig/Angebote/Pokemon"]

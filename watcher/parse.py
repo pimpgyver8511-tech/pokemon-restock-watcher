@@ -403,6 +403,16 @@ def shopify_offer(data: dict, product_cfg: dict) -> Offer | None:
     if not matches_product(title, gtins, product_cfg):
         return None
     price = data.get("price")
+    available = bool(data.get("available"))
+    # Varianten in anderen Sprachen (z. B. "Español") ausklammern: Shopify meldet sonst den
+    # Preis der günstigsten und die Verfügbarkeit irgendeiner Variante.
+    excl = product_cfg.get("exclude_any", [])
+    own = [v for v in variants if not any(x in (v.get("title") or "").lower() for x in excl)]
+    if variants and len(own) < len(variants):
+        if not own:
+            return None
+        best = min(own, key=lambda v: (not v.get("available"), v.get("price") or 0))
+        price, available = best.get("price"), bool(best.get("available"))
     body = re.sub(r"<[^>]+>", " ", htmllib.unescape(data.get("description") or ""))
     return Offer(
         available_from=available_from_text(f"{title} {body}"),
@@ -410,6 +420,6 @@ def shopify_offer(data: dict, product_cfg: dict) -> Offer | None:
         # Preis 0 = Shop blendet den Preis aus (z. B. ausverkauft) – dann unbekannt.
         price=(price / 100 if isinstance(price, (int, float)) else parse_price(price)) or None,
         currency="EUR",
-        availability=IN_STOCK if data.get("available") else OUT_OF_STOCK,
+        availability=IN_STOCK if available else OUT_OF_STOCK,
         gtins=gtins, source="shopify",
     )

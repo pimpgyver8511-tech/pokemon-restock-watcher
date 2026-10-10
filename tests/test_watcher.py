@@ -6,7 +6,7 @@ from unittest import mock
 
 import yaml
 
-from watcher import fetch, flyers, main, news, ocr, shopify, stores
+from watcher import fetch, flyers, main, news, ocr, parse, shopify, stores
 from watcher.parse import (IN_STOCK, OUT_OF_STOCK, PREORDER, available_from_text, extract, parse_price,
                            product_links, shopify_offer)
 
@@ -183,6 +183,20 @@ class RaffleTests(unittest.TestCase):
     def test_preorder_note(self):
         html = "<main>HINWEIS: Dieser Artikel ist derzeit nicht auf Lager, kann aber vorbestellt werden.</main>"
         self.assertEqual(self.run_check(html).availability, "preorder")
+
+
+class ShopifyVariantTests(unittest.TestCase):
+    def test_other_language_variant_is_ignored(self):
+        data = {"title": "30th Celebration Elite Trainer Box", "available": True, "price": 6990,
+                "variants": [{"title": "Español", "available": False, "price": 6990},
+                             {"title": "Inglés", "available": True, "price": 25990}]}
+        o = parse.shopify_offer(data, P)
+        self.assertEqual((o.price, o.availability), (259.90, "in_stock"))
+
+    def test_only_excluded_variants(self):
+        data = {"title": "30th Celebration Elite Trainer Box", "available": True, "price": 6990,
+                "variants": [{"title": "Español", "available": True, "price": 6990}]}
+        self.assertIsNone(parse.shopify_offer(data, P))
 
 
 class FlowTests(unittest.TestCase):

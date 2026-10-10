@@ -312,6 +312,7 @@ def snapshot(cfg: dict, state: dict, now: datetime) -> dict:
         "stores": state.get("store_entries", []),
         "flyers": state.get("flyer_offers", []),
         "flyers_area": cfg["flyers"].get("postal_code") if cfg.get("flyers") else None,
+        "trips": cfg.get("trips") or [],
         "stores_area": ({"postal_code": cfg["stores"].get("postal_code"), "radius_km": cfg["stores"].get("radius_km")}
                         if cfg.get("stores") else None),
     }

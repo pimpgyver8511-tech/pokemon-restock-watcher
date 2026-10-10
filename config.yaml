@@ -68,6 +68,47 @@ notify_out_of_range: false
 # Nach so vielen Fehlschlägen in Folge erscheint einmalig eine Warnung in der Tagesübersicht (bei 20-Min-Takt ≈ 4 h).
 failure_alert_after: 12
 
+# Anlaufstellen vor Ort auf Reisen: eigener Abschnitt in der Übersicht (nach "until" ausgeblendet).
+# Keine automatische Prüfung – die Läden haben keine abfragbaren Bestände; zum Vor-Ort-Nachfragen.
+trips:
+  - title: "Palma de Mallorca"
+    from: "2026-10-12"
+    until: "2026-10-21"
+    note: "Ketten verkaufen in Spanien fast nur die spanische Ausgabe – gezielt nach Englisch/Deutsch fragen."
+    ask: "¿Tienen la Caja de Entrenador Élite de 30 aniversario (30th Celebration Elite Trainer Box) en inglés o en alemán?"
+    spots:
+      - name: "Tristant Shop"
+        address: "Carrer d'Enric Alzamora 6, Palma"
+        kind: "Fachgeschäft"
+        note: "Anime & Sammelkarten – führt Pokémon-Karten auch auf Deutsch und Englisch. Bestand wechselt, vorher Instagram/Website prüfen."
+        links:
+          Website: "https://tristantshop.com/"
+          Eintrag: "https://www.mallorca.com/de/verzeichnis/firma/tristant-shop-palma-y4n7qsa0"
+      - name: "Gamers Palma"
+        address: "Carrer d'Eusebi Estada 67, Palma"
+        kind: "Fachgeschäft"
+        note: "Kartenladen mit Turnieren (v. a. Magic), englische Pokémon-Produkte gelistet."
+        links:
+          Pokémon-Sortiment: "https://gamers-palma.com/cartas-pokemon/"
+      - name: "Ludicon Juegos"
+        address: "Carrer del Marquès de Fontsanta 76, Palma"
+        kind: "Fachgeschäft"
+        note: "Spieleladen mit kleiner Pokémon-Ecke, Sprache unklar."
+        links:
+          Pokémon-Sortiment: "https://ludicon.es/tienda/80-pokemon-tcg"
+      - name: "El Corte Inglés Palma"
+        kind: "Kaufhaus"
+        note: "Spielwarenabteilung – meist spanische Ausgabe."
+      - name: "FNAC Porto Pi Palma"
+        kind: "Kette"
+        note: "Meist spanische Ausgabe."
+      - name: "MediaMarkt Palma"
+        kind: "Kette"
+        note: "Meist spanische Ausgabe."
+      - name: "Toys R Us Palma"
+        kind: "Kette"
+        note: "Meist spanische Ausgabe."
+
 # Shops: nur Händler, die selbst verkaufen (keine Marktplätze) und nach Deutschland liefern.
 # Entfernt, weil sie automatische Abrufe dauerhaft blocken: Thalia (DE/AT), Smyths Toys, Morawa,
 # Card Corner, Comicplanet, gameware.at, Poromagia, TCG Company, TBHstore.

@@ -156,6 +156,14 @@
       <ul class="offers" id="flyers"></ul>
     </section>
 
+    <!-- Anlaufstellen auf Reisen -->
+    <section class="card hidden" id="tripsCard">
+      <div class="sec-head"><h2 id="tripsTitle">📍 Vor Ort</h2><span class="count" id="cnt-trips"></span></div>
+      <p class="hint sec-desc" id="tripsDesc"></p>
+      <div id="tripAsk" class="banner hidden"></div>
+      <ul class="offers" id="trips"></ul>
+    </section>
+
     <!-- Filialen -->
     <section class="card hidden" id="storesCard">
       <div class="sec-head"><h2 id="storesTitle">🏬 Filialen in deiner Nähe</h2></div>
@@ -514,6 +522,8 @@
       ["sec-shops", "🛒 Shops", inRange ? `<b>${inRange} im Preisbereich</b>` : `${direct.length}`],
       ["sec-compare", "📊 Preisvergleiche", `${compare.length}`],
       ...(data.flyers_area ? [["flyersCard", "🗞️ Prospekte", flyerHits.length ? `<b>${flyerHits.length} Treffer</b>` : `${flyerCount}`]] : []),
+      ...((data.trips || []).some(t => !t.until || new Date().toISOString().slice(0, 10) <= t.until)
+        ? [["tripsCard", "📍 Vor Ort", `${(data.trips.find(t => !t.until || new Date().toISOString().slice(0, 10) <= t.until).spots || []).length}`]] : []),
       ["sec-news", "📰 News", `${newsCount}`],
     ].map(([id, label, n]) => `<a href="#${id}">${label} · ${n}</a>`).join("");
 
@@ -554,6 +564,34 @@
             ${o.source === "ocr" ? `<span title="${esc(o.description || "")}">via Texterkennung</span>`
               : `<span>via ${o.source === "marktguru" ? "marktguru" : "kaufda"}</span>`}</div></li>`;
       }).join("") || `<li class="hint">Aktuell keine Pokémon-Angebote in den Prospekten.</li>`;
+    }
+
+    // Anlaufstellen auf Reisen (nur bis zum Reiseende sichtbar)
+    const today = new Date().toISOString().slice(0, 10);
+    const trip = (data.trips || []).find(t => !t.until || today <= t.until);
+    const tripsCard = $("tripsCard");
+    tripsCard.classList.toggle("hidden", !trip);
+    if (trip) {
+      const dd = v => v ? new Date(v).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit" }) : "";
+      $("tripsTitle").textContent = `📍 Vor Ort: ${trip.title}` + (trip.from ? ` (${dd(trip.from)}–${dd(trip.until)})` : "");
+      $("tripsDesc").textContent = (trip.note || "") + " Bestände werden nicht automatisch geprüft – zum Nachfragen vor Ort.";
+      const ask = $("tripAsk");
+      ask.classList.toggle("hidden", !trip.ask);
+      ask.innerHTML = trip.ask ? `🗣️ Nachfragen: <i>${esc(trip.ask)}</i>` : "";
+      const spots = trip.spots || [];
+      $("cnt-trips").textContent = `${spots.length}`;
+      $("trips").innerHTML = spots.map(sp => {
+        const q = encodeURIComponent([sp.name, sp.address || trip.title].join(", "));
+        const maps = `https://www.google.com/maps/search/?api=1&query=${q}`;
+        const links = Object.entries(sp.links || {}).map(([label, u]) => safeUrl(u)
+          ? `<span><a href="${esc(u)}" target="_blank" rel="noopener">${esc(label)} ↗</a></span>` : "").join("");
+        return `<li class="offer${sp.kind === "Fachgeschäft" ? " hit" : ""}">
+          <div class="shop">${esc(sp.name)}</div>
+          <a class="go" href="${esc(maps)}" target="_blank" rel="noopener">Route →</a>
+          <div class="meta"><span class="pill ${sp.kind === "Fachgeschäft" ? "s-ok" : "s-other"}">${esc(sp.kind || "Laden")}</span>
+            ${sp.address ? `<span>${esc(sp.address)}</span>` : ""}
+            ${sp.note ? `<span>${esc(sp.note)}</span>` : ""}${links}</div></li>`;
+      }).join("");
     }
 
     $("news").innerHTML = (data.news || []).slice(0, 12).map(n => {

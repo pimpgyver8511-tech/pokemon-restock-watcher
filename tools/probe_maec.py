@@ -13,9 +13,9 @@ for q in ["Mäc-Geiz", "Mäc Geiz", "Maec Geiz", "MäcGeiz"]:
         print(f"Suche '{q}': {len(bs)} Prospekte")
         for b in bs:
             c = b.get("content") or {}
-            pub = (c.get("publisher") or {}).get("name")
-            if pub and "geiz" in pub.lower():
-                ids.add(c["id"]); print("   ", c["id"], pub, c.get("title"))
+            print("   ", c.get("id"), json.dumps({k: c.get(k) for k in ("title", "publisherName", "publisher", "validFrom", "validUntil")}, ensure_ascii=False)[:300])
+            if q == "Mäc-Geiz" and c.get("id"):
+                ids.add(c["id"])
     except Exception as e:
         print(q, e)
 for slug in ["Maec-Geiz", "Mäc-Geiz", "Maec-Geiz-Leipzig", "Mac-Geiz", "MaecGeiz"]:

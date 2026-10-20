@@ -151,7 +151,7 @@
     <!-- Prospekte -->
     <section class="card hidden" id="flyersCard">
       <div class="sec-head"><h2 id="flyersTitle">🗞️ Prospekte</h2><span class="count" id="cnt-flyers"></span></div>
-      <p class="hint sec-desc">Pokémon-Angebote aus aktuellen Prospekten (kaufda.de, marktguru.de). Hervorgehoben: die
+      <p class="hint sec-desc">Pokémon-Angebote aus aktuellen Prospekten (kaufda.de, marktguru.de, discounto.de). Hervorgehoben: die
         Top-Trainer-Box im Preisbereich.</p>
       <ul class="offers" id="flyers"></ul>
     </section>
@@ -561,7 +561,8 @@
             <span class="pill ${exact ? "s-ok" : "s-other"}">${exact ? esc(prod[o.product || "main"]?.short || "Top-Trainer-Box") : "weiteres Pokémon-Angebot"}</span>
             ${o.valid_from || o.valid_until ? `<span>gültig ${d(o.valid_from)} – ${d(o.valid_until)}</span>` : ""}
             ${o.ocr_prices && o.ocr_prices.length ? `<span>erkannte Preise: ${o.ocr_prices.map(euro).join(", ")}</span>` : ""}
-            ${o.source === "ocr" ? `<span title="${esc(o.description || "")}">via Texterkennung</span>`
+            ${o.source === "ocr" || o.source === "discounto"
+              ? `<span title="${esc(o.description || "")}">via Texterkennung${o.source === "discounto" ? " (discounto)" : ""}</span>`
               : `<span>via ${o.source === "marktguru" ? "marktguru" : "kaufda"}</span>`}</div></li>`;
       }).join("") || `<li class="hint">Aktuell keine Pokémon-Angebote in den Prospekten.</li>`;
     }

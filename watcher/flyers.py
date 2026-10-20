@@ -222,6 +222,12 @@ def check(cfg: dict, product_cfg: dict, state: dict | None = None,
             offers.setdefault(o["id"], o)
     except Exception as e:
         errors.append(f"OCR: {type(e).__name__}: {e}")
+    for entry in cfg.get("discounto", []):
+        try:
+            for o in discounto_offers(entry, product_cfg, state if state is not None else {}):
+                offers.setdefault(o["id"], o)
+        except Exception as e:
+            errors.append(f"discounto {entry.get('retailer')}: {type(e).__name__}: {e}")
     if cfg.get("marktguru", True):
         try:
             mg = marktguru_offers(cfg, product_cfg)
@@ -278,3 +284,63 @@ def marktguru_offers(cfg: dict, product_cfg: dict) -> list[dict]:
                 "source": "marktguru",
             })
     return found
+
+
+# --------------------------------------------------------------------------- discounto.de
+
+DISCOUNTO = "https://www.discounto.de/Prospekte/Anbieter:{slug}/"
+DISCOUNTO_PAGE = "https://src.discounto.de/Prospekt/{slug}/{date}/detail/seite_{n}.webp"
+
+
+def discounto_brochures(slug: str) -> list[str]:
+    """Startdaten der aktuellen und kommenden Prospekte eines Händlers (z. B. Mäc-Geiz, nicht bei kaufda)."""
+    dates: set[str] = set()
+    for url in (DISCOUNTO.format(slug=slug), DISCOUNTO.format(slug=slug) + "naechste-woche/"):
+        html = fetch.get(url)
+        dates |= set(re.findall(rf"src\.discounto\.de/Prospekt/{re.escape(slug)}/(\d{{4}}-\d{{2}}-\d{{2}})/", html))
+    return sorted(dates)
+
+
+def discounto_offers(entry: dict, product_cfg: dict, state: dict) -> list[dict]:
+    """Seitenbilder eines discounto-Prospekts einmalig per Texterkennung lesen (Ergebnis je Prospekt gemerkt)."""
+    slug, retailer = entry["slug"], entry.get("retailer", entry["slug"])
+    cache: dict = state.setdefault("discounto_cache", {})
+    dates = discounto_brochures(slug)
+    print(f"discounto {retailer}: Prospekte ab {', '.join(dates) or '–'}")
+    for key in [k for k in cache if k.startswith(f"{slug}/") and k.split("/", 1)[1] not in dates]:
+        del cache[key]  # abgelaufen
+    if ocr.available():
+        for date in dates:
+            key = f"{slug}/{date}"
+            if key in cache:
+                continue
+            hits, pages = [], 0
+            for n in range(1, entry.get("max_pages", 40) + 1):
+                try:
+                    text = ocr.ocr_image(DISCOUNTO_PAGE.format(slug=slug, date=date, n=n))
+                except fetch.FetchError:
+                    break  # keine weitere Seite
+                pages += 1
+                if found := ocr.find_pokemon(text, product_cfg):
+                    hits.append({"page": n, **found})
+            print(f"  OCR discounto {retailer} {date}: {pages} Seiten, {len(hits)} mit Pokémon")
+            if pages:
+                cache[key] = {"hits": hits}
+    else:
+        print("OCR: tesseract nicht installiert – discounto übersprungen")
+    offers = []
+    for date in dates:
+        for h in (cache.get(f"{slug}/{date}") or {}).get("hits", []):
+            offers.append({
+                "id": f"discounto-{slug}-{date}-{h['page']}", "kind": "exact" if h["exact"] else "pokemon",
+                "product": "main" if h["exact"] else None, "store": retailer,
+                "title": f"Pokémon auf Seite {h['page']} (Texterkennung)", "description": h["snippet"][:160],
+                "price": None, "ocr_prices": h["prices"], "valid_from": date, "valid_until": None,
+                "source": "discounto", "url": DISCOUNTO.format(slug=slug) + ("naechste-woche/" if date > _today() else ""),
+            })
+    return offers
+
+
+def _today() -> str:
+    from datetime import date
+    return date.today().isoformat()

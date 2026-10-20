@@ -199,6 +199,30 @@ class ShopifyVariantTests(unittest.TestCase):
         self.assertIsNone(parse.shopify_offer(data, P))
 
 
+class DiscountoTests(unittest.TestCase):
+    def test_pages_read_once_and_pokemon_found(self):
+        listing = '<img src="https://src.discounto.de/Prospekt/Mac-Geiz/2026-10-26/list/seite_1.webp">'
+        texts = {1: "Kaffee 3,99", 2: "Pokémon Top-Trainer-Box 30 Jahre nur 54,99"}
+
+        def fake_ocr(url):
+            n = int(url.rsplit("seite_", 1)[1].split(".")[0])
+            if n not in texts:
+                raise fetch.FetchError("HTTP 404")
+            return texts[n]
+        state = {}
+        entry = {"retailer": "Mäc-Geiz", "slug": "Mac-Geiz"}
+        with mock.patch.object(fetch, "get", return_value=listing), \
+                mock.patch.object(ocr, "available", return_value=True), \
+                mock.patch.object(ocr, "ocr_image", side_effect=fake_ocr) as o:
+            offers = flyers.discounto_offers(entry, P, state)
+            self.assertEqual(o.call_count, 3)  # Seite 1, 2 und die fehlende Seite 3
+            again = flyers.discounto_offers(entry, P, state)
+            self.assertEqual(o.call_count, 3)  # zweiter Lauf: aus dem Zwischenspeicher
+        self.assertEqual(offers, again)
+        self.assertEqual([(x["store"], x["kind"], x["valid_from"]) for x in offers], [("Mäc-Geiz", "exact", "2026-10-26")])
+        self.assertIn(54.99, offers[0]["ocr_prices"])
+
+
 class FlowTests(unittest.TestCase):
     """Zustandswechsel: nur bei Änderung mailen."""
 

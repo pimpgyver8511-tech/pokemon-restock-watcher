@@ -1,47 +1,39 @@
-"""Einmalige Diagnose: Mäc-Geiz-Prospekte auf kaufda/marktguru rund um 04275."""
+"""Einmalige Diagnose: Mäc-Geiz-Prospekt ab 26.10. – welche Quelle ist lesbar?"""
 import json, re, yaml
 from urllib.parse import quote
-from watcher import fetch, flyers, ocr
+from watcher import fetch, flyers
 
 cfg = yaml.safe_load(open("config.yaml"))
 fc, prod = cfg["flyers"], cfg["product"]
-ids = set()
-for q in ["Mäc-Geiz", "Mäc Geiz", "Maec Geiz", "MäcGeiz"]:
+txt = lambda h: re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", re.sub(r"<script.*?</script>|<style.*?</style>", " ", h, flags=re.S)))
+# kaufda: andere Standorte, wo Mäc-Geiz gelistet ist
+for name, lat, lng in [("Chemnitz", 50.8278, 12.9214), ("Leipzig", 51.3397, 12.3731), ("Halle", 51.4825, 11.9697)]:
+    data = flyers._json(f"{flyers.API}?query={quote('Mäc-Geiz')}&lat={lat}&lng={lng}&offset=0&limit=48")
+    bs = ((data.get("searchResults") or {}).get("contents") or {}).get("brochures") or []
+    print(name, [((b.get('content') or {}).get('publisher') or {}).get('name') for b in bs])
+for url in ["https://www.kaufda.de/Chemnitz/Maec-Geiz/p-r51", "https://www.kaufda.de/Leipzig/Maec-Geiz/p-r51"]:
     try:
-        data = flyers._json(f"{flyers.API}?query={quote(q)}&lat={fc['lat']}&lng={fc['lng']}&offset=0&limit=48")
-        bs = ((data.get("searchResults") or {}).get("contents") or {}).get("brochures") or []
-        print(f"Suche '{q}': {len(bs)} Prospekte")
-        for b in bs:
-            c = b.get("content") or {}
-            print("   ", c.get("id"), json.dumps({k: c.get(k) for k in ("title", "publisherName", "publisher", "validFrom", "validUntil")}, ensure_ascii=False)[:300])
-            if q == "Mäc-Geiz" and c.get("id"):
-                ids.add(c["id"])
+        print(url, flyers.publisher_brochures(url))
     except Exception as e:
-        print(q, e)
-for slug in ["Maec-Geiz", "Mäc-Geiz", "Maec-Geiz-Leipzig", "Mac-Geiz", "MaecGeiz"]:
-    url = f"https://www.kaufda.de/Geschaefte/{slug}"
+        print(url, e)
+for url in ["https://www.discounto.de/Prospekte/Anbieter:Mac-Geiz/naechste-woche/",
+            "https://www.discounto.de/Prospekte/Anbieter:Mac-Geiz/",
+            "https://www.prospektangebote.de/geschaefte/mac-geiz/prospekte-angebote",
+            "https://www.prospektangebote.de/robots.txt", "https://www.discounto.de/robots.txt",
+            "https://www.maec-geiz.de/", "https://www.maec-geiz.de/prospekt"]:
     try:
-        got = flyers.publisher_brochures(url)
-        print("Händlerseite", url, "->", got)
-        ids |= got
+        h = fetch.get(url)
     except Exception as e:
-        print("Händlerseite", url, e)
-try:
-    h = flyers.marktguru_keys()
-    d = json.loads(fetch.get("https://api.marktguru.de/api/v1/offers/search?as=web&q=Pokemon&zipCode=04275&limit=100&offset=0", headers=h))
-    print("marktguru Händler mit Pokémon:", sorted({a.get("name") for o in d.get("results") or [] for a in o.get("advertisers") or []}))
-except Exception as e:
-    print("marktguru", e)
-for bid in sorted(ids):
-    try:
-        offers = flyers.brochure_offers({**fc, "_extras": []}, bid, prod)
-        data, pub = flyers._PAGES[bid]
-        pages = data.get("contents") or []
-        v = next(((o.get("content") or {}).get("publicationProfiles") or [{}])[0].get("validity")
-                 for p in pages for o in p.get("offers") or [])
-        print(f"MÄC-GEIZ {bid}: {pub}, {len(pages)} Seiten, gültig {v}, Pokémon: {[(o['title'], o['price']) for o in offers]}")
-        if ocr.available():
-            for h_ in ocr.scan(bid, pub, data, prod, max_pages=60) or []:
-                print(f"   OCR Seite {h_['page']+1}: Preise {h_['prices']} | {h_['snippet'][:160]}")
-    except Exception as e:
-        print(bid, type(e).__name__, e)
+        print("==", url, e); continue
+    t = txt(h)
+    print("==", url, len(h), "B")
+    if "robots" in url:
+        print("   ", h[:600].replace("\n", " | ")); continue
+    for m in list(re.finditer(r"pok[eé]mon", t, re.I))[:6]:
+        print("   [pokemon]", t[max(0, m.start()-150): m.start()+200])
+    for m in list(re.finditer(r"26\.10|gültig|ab \d\d\.\d\d", t, re.I))[:4]:
+        print("   [datum]", t[max(0, m.start()-80): m.start()+120])
+    imgs = list(dict.fromkeys(re.findall(r'https?://[^"\'\s>]+\.(?:jpe?g|png|webp)', h)))
+    print("   Bilder:", len(imgs), imgs[:4])
+    pdfs = re.findall(r'https?://[^"\'\s>]+\.pdf', h)
+    print("   PDFs:", pdfs[:4])

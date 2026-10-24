@@ -1,5 +1,5 @@
 {
- "checked_at": "2026-10-24T19:50:53+00:00",
+ "checked_at": "2026-10-24T22:07:27+00:00",
  "interval_min": 20,
  "product": "Pokémon 30 Jahre Top-Trainer-Box",
  "price": {
@@ -34,14 +34,14 @@
    "aggregator": false,
    "discovered": false,
    "ships_to_de": true,
-   "status": "in_stock",
+   "status": "not_listed",
    "price": null,
    "in_range": false,
-   "url": "https://www.mediamarkt.de/de/product/_pokemon-30th-celebration-etb-englisch-sammelkarten-184378520.html",
+   "url": null,
    "shop_url": "https://www.mediamarkt.de/de/search.html?query=0196214144842",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-10-24T19:50+00:00",
+   "last_ok": "2026-10-24T22:07+00:00",
    "last_restock": "24.10. 01:17"
   },
   {
@@ -51,14 +51,14 @@
    "aggregator": false,
    "discovered": false,
    "ships_to_de": true,
-   "status": "in_stock",
+   "status": "not_listed",
    "price": null,
    "in_range": false,
-   "url": "https://www.saturn.de/de/product/_pokemon-30th-celebration-etb-englisch-sammelkarten-184378520.html",
+   "url": null,
    "shop_url": "https://www.saturn.de/de/search.html?query=0196214144842",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-10-24T19:50+00:00",
+   "last_ok": "2026-10-24T22:07+00:00",
    "last_restock": "24.10. 01:17"
   },
   {
@@ -75,7 +75,7 @@
    "shop_url": "https://www.mueller.de/search/?q=0196214144842",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-10-24T19:50+00:00",
+   "last_ok": "2026-10-24T22:07+00:00",
    "last_restock": null
   },
   {
@@ -126,7 +126,7 @@
    "shop_url": "https://www.hugendubel.de/de/search?q=0196214144842",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-10-24T19:50+00:00",
+   "last_ok": "2026-10-24T22:07+00:00",
    "last_restock": null
   },
   {
@@ -194,7 +194,7 @@
    "shop_url": "https://pokeselect.nl/product/30th-celebration-elite-trainer-box",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-10-24T19:50+00:00",
+   "last_ok": "2026-10-24T22:07+00:00",
    "last_restock": "29.09. 21:10"
   },
   {
@@ -211,7 +211,7 @@
    "shop_url": "https://www.idealo.de/preisvergleich/MainSearchProductCategory.html?q=0196214144842",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-10-24T19:50+00:00",
+   "last_ok": "2026-10-24T22:07+00:00",
    "last_restock": "09.10. 08:47"
   },
   {
@@ -262,7 +262,7 @@
    "shop_url": "https://www.brettspielbude.de/products/pokemon-30-jahre-top-trainer-box",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-10-24T19:50+00:00",
+   "last_ok": "2026-10-24T22:07+00:00",
    "last_restock": "19.10. 19:02"
   },
   {
@@ -296,7 +296,7 @@
    "shop_url": "https://geeksheaven.de/products/pokemon-30-jahre-top-trainer-box-deutsch-vorbestellung",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-10-24T19:50+00:00",
+   "last_ok": "2026-10-24T22:07+00:00",
    "last_restock": "19.10. 12:18"
   },
   {
@@ -313,7 +313,7 @@
    "shop_url": "https://cardcosmos.de/products/pokemon-30-jahre-top-trainer-box-deutsch",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-10-24T19:50+00:00",
+   "last_ok": "2026-10-24T22:07+00:00",
    "last_restock": null
   },
   {
@@ -330,7 +330,7 @@
    "shop_url": "https://www.card-knights.de/products/pokemon-30-jahre-top-trainer-box-de",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-10-24T19:50+00:00",
+   "last_ok": "2026-10-24T22:07+00:00",
    "last_restock": null
   },
   {
@@ -347,7 +347,7 @@
    "shop_url": "https://www.gate-to-the-games.de/Pokemon-30-Jahre-Top-Trainer-Box-deutsch",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-10-24T19:50+00:00",
+   "last_ok": "2026-10-24T22:07+00:00",
    "last_restock": null
   },
   {
@@ -364,7 +364,7 @@
    "shop_url": "https://www.toys-for-fun.com/de/pokemon-30-jahre-top-trainer-box.html",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-10-24T19:50+00:00",
+   "last_ok": "2026-10-24T22:07+00:00",
    "last_restock": "15.10. 07:13"
   },
   {
@@ -381,7 +381,7 @@
    "shop_url": "https://www.playingcards.de/pokemon-sammelkartenspiel-top-trainer-box-30-jahre-englisch.html",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-10-24T19:50+00:00",
+   "last_ok": "2026-10-24T22:07+00:00",
    "last_restock": null
   },
   {
@@ -398,7 +398,7 @@
    "shop_url": "https://keepseven.de/product/pokemon-30-jahre-top-trainer-box-de/",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-10-24T19:50+00:00",
+   "last_ok": "2026-10-24T22:07+00:00",
    "last_restock": null
   },
   {
@@ -415,7 +415,7 @@
    "shop_url": "https://www.grubi-co.at/de/sammelkarten/pokemon/special-editions-55/30-jahre.html",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-10-24T19:50+00:00",
+   "last_ok": "2026-10-24T22:07+00:00",
    "last_restock": "22.10. 22:06"
   },
   {
@@ -432,7 +432,7 @@
    "shop_url": "https://spielbrett.co.at/30-Jahre-Jubilaeum-Top-Trainer-Box-DE",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-10-24T19:50+00:00",
+   "last_ok": "2026-10-24T22:07+00:00",
    "last_restock": null
   },
   {
@@ -449,7 +449,7 @@
    "shop_url": "https://www.spielraum.co.at/de/pokemon/product/30-jahre-top-trainer-box-de",
    "error": null,
    "available_from": "30.10.2026",
-   "last_ok": "2026-10-24T19:50+00:00",
+   "last_ok": "2026-10-24T22:07+00:00",
    "last_restock": null
   },
   {
@@ -466,7 +466,7 @@
    "shop_url": "https://www.playingcardshop.eu/pokemon-tcg-30th-celebration-elite-trainer-box.html",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-10-24T19:50+00:00",
+   "last_ok": "2026-10-24T22:07+00:00",
    "last_restock": null
   },
   {
@@ -483,7 +483,7 @@
    "shop_url": "https://www.maxgaming.com/en/pokemon/pokemon-30th-celebration-elite-trainer-box",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-10-24T19:50+00:00",
+   "last_ok": "2026-10-24T22:07+00:00",
    "last_restock": null
   },
   {
@@ -500,7 +500,7 @@
    "shop_url": "https://tcg-love.de/pokemon-30-jahre-top-trainer-box-deutsch/",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-10-24T19:50+00:00",
+   "last_ok": "2026-10-24T22:07+00:00",
    "last_restock": null
   },
   {
@@ -517,7 +517,7 @@
    "shop_url": "https://www.speelkaartenwinkel.nl/pokemon-30th-celebration-elite-trainer-box.html",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-10-24T19:50+00:00",
+   "last_ok": "2026-10-24T22:07+00:00",
    "last_restock": null
   },
   {
@@ -534,7 +534,7 @@
    "shop_url": "https://tcgworld.nl/products/30th-celebration-elite-trainer-box",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-10-24T19:50+00:00",
+   "last_ok": "2026-10-24T22:07+00:00",
    "last_restock": "07.10. 18:22"
   },
   {
@@ -551,7 +551,7 @@
    "shop_url": "https://dracoon.nl/product/pokemon-30th-celebration-elite-trainer-box/",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-10-24T19:50+00:00",
+   "last_ok": "2026-10-24T22:07+00:00",
    "last_restock": null
   },
   {
@@ -585,7 +585,7 @@
    "shop_url": "https://globalcardshop.com/product/30th-celebration-elite-trainer-box/",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-10-24T19:50+00:00",
+   "last_ok": "2026-10-24T22:07+00:00",
    "last_restock": null
   },
   {
@@ -602,7 +602,7 @@
    "shop_url": "https://masterofgames.es/en/elite-trainer-boxes/6678--preorder-english-pokemon-tcg-30th-celebration-elite-trainer-box-0196214144828.html",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-10-24T19:50+00:00",
+   "last_ok": "2026-10-24T22:07+00:00",
    "last_restock": null
   },
   {
@@ -619,7 +619,7 @@
    "shop_url": "https://blackprism.de/products/30-jahre-top-trainer-box-deutsch-neu-ovp",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-10-24T19:50+00:00",
+   "last_ok": "2026-10-24T22:07+00:00",
    "last_restock": null
   },
   {
@@ -636,7 +636,7 @@
    "shop_url": "https://feenturm.de/products/pokemon-tcg-30th-celebration-elite-trainer-box-deutsch-jetzt-vorbestellen-kopie",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-10-24T19:50+00:00",
+   "last_ok": "2026-10-24T22:07+00:00",
    "last_restock": "08.10. 18:52"
   },
   {
@@ -653,7 +653,7 @@
    "shop_url": "https://racoon-rises.com/products/pkm-30-jahre-top-trainer-box-de",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-10-24T19:50+00:00",
+   "last_ok": "2026-10-24T22:07+00:00",
    "last_restock": null
   },
   {
@@ -670,7 +670,7 @@
    "shop_url": "https://www.mediamarkt.de/de/search.html?query=30+Jahre+Booster+Bundle",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-10-24T19:50+00:00",
+   "last_ok": "2026-10-24T22:07+00:00",
    "last_restock": "14.10. 11:45"
   },
   {
@@ -687,7 +687,7 @@
    "shop_url": "https://www.saturn.de/de/search.html?query=30+Jahre+Booster+Bundle",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-10-24T19:50+00:00",
+   "last_ok": "2026-10-24T22:07+00:00",
    "last_restock": "22.10. 08:01"
   },
   {
@@ -704,7 +704,7 @@
    "shop_url": "https://www.mueller.de/search/?q=30+Jahre+Booster+Bundle",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-10-24T19:50+00:00",
+   "last_ok": "2026-10-24T22:07+00:00",
    "last_restock": null
   },
   {
@@ -755,7 +755,7 @@
    "shop_url": "https://www.hugendubel.de/de/search?q=30+Jahre+Booster+Bundle",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-10-24T19:50+00:00",
+   "last_ok": "2026-10-24T22:07+00:00",
    "last_restock": null
   },
   {
@@ -766,13 +766,13 @@
    "discovered": false,
    "ships_to_de": true,
    "status": "in_stock",
-   "price": 65.0,
+   "price": 64.99,
    "in_range": false,
    "url": "https://www.idealo.de/preisvergleich/OffersOfProduct/214298170_-30-jahre-boosterbundle-de-pokemon.html",
    "shop_url": "https://www.idealo.de/preisvergleich/MainSearchProductCategory.html?q=30+Jahre+Booster+Bundle",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-10-24T19:50+00:00",
+   "last_ok": "2026-10-24T22:07+00:00",
    "last_restock": "12.10. 10:29"
   },
   {
@@ -806,7 +806,7 @@
    "shop_url": "https://www.gate-to-the-games.de/Pokemon-30-Jahre-Booster-Bundle-deutsch",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-10-24T19:50+00:00",
+   "last_ok": "2026-10-24T22:07+00:00",
    "last_restock": null
   },
   {
@@ -823,7 +823,7 @@
    "shop_url": "https://www.playingcards.de/pokemon-sammelkartenspiel-boosterbundle-30-jahre-6-packungen-englisch.html",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-10-24T19:50+00:00",
+   "last_ok": "2026-10-24T22:07+00:00",
    "last_restock": null
   },
   {
@@ -840,7 +840,7 @@
    "shop_url": "https://spielbrett.co.at/30-Jahre-Boosterbundle-DE",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-10-24T19:50+00:00",
+   "last_ok": "2026-10-24T22:07+00:00",
    "last_restock": null
   },
   {
@@ -857,7 +857,7 @@
    "shop_url": "https://www.spielraum.co.at/de/pokemon/product/30-jahre-30c-boosterbundle-de",
    "error": null,
    "available_from": "30.10.2026",
-   "last_ok": "2026-10-24T19:50+00:00",
+   "last_ok": "2026-10-24T22:07+00:00",
    "last_restock": null
   },
   {
@@ -874,7 +874,7 @@
    "shop_url": "https://www.playingcardshop.eu/pokemon-tcg-30th-celebration-booster-bundle-6-packs.html",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-10-24T19:50+00:00",
+   "last_ok": "2026-10-24T22:07+00:00",
    "last_restock": null
   },
   {
@@ -891,7 +891,7 @@
    "shop_url": "https://www.speelkaartenwinkel.nl/pokemon-30th-celebration-booster-bundle-6-pakjes.html",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-10-24T19:50+00:00",
+   "last_ok": "2026-10-24T22:07+00:00",
    "last_restock": null
   },
   {
@@ -908,7 +908,7 @@
    "shop_url": "https://blackprism.de/products/30-jahre-booster-bundle-deutsch-neu-ovp",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-10-24T19:50+00:00",
+   "last_ok": "2026-10-24T22:07+00:00",
    "last_restock": "11.10. 21:02"
   },
   {
@@ -925,7 +925,7 @@
    "shop_url": "https://cardcosmos.de/products/pokemon-30-jahre-boosterbundle-deutsch",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-10-24T19:50+00:00",
+   "last_ok": "2026-10-24T22:07+00:00",
    "last_restock": "16.10. 23:14"
   },
   {
@@ -942,7 +942,7 @@
    "shop_url": "https://feenturm.de/products/pokemon-tcg-30th-celebration-booster-bundle-deutsch-jetzt-vorbestellen",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-10-24T19:50+00:00",
+   "last_ok": "2026-10-24T22:07+00:00",
    "last_restock": "08.10. 18:52"
   },
   {
@@ -959,7 +959,7 @@
    "shop_url": "https://geeksheaven.de/products/pokemon-30-jahre-booster-bundle-deutsch",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-10-24T19:50+00:00",
+   "last_ok": "2026-10-24T22:07+00:00",
    "last_restock": "08.10. 18:52"
   },
   {
@@ -976,7 +976,7 @@
    "shop_url": "https://tcgworld.nl/products/30th-celebration-booster-bundle",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-10-24T19:50+00:00",
+   "last_ok": "2026-10-24T22:07+00:00",
    "last_restock": "21.10. 00:25"
   },
   {
@@ -993,7 +993,7 @@
    "shop_url": "https://www.card-knights.de/products/pokemon-karmesin-purpur-30-jahre-boosterbundle-6-booster-de",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-10-24T19:50+00:00",
+   "last_ok": "2026-10-24T22:07+00:00",
    "last_restock": null
   }
  ],
@@ -1079,136 +1079,6 @@
  ],
  "stores": [],
  "flyers": [
-  {
-   "id": "e6644f08-4895-47b8-96e2-f1c25fc2f33f",
-   "kind": "pokemon",
-   "product": null,
-   "store": "GLOBUS",
-   "title": "Kinder Mix Pokémon Adventskalender",
-   "description": "198 g",
-   "price": 9.99,
-   "valid_from": "2026-10-18",
-   "valid_until": "2026-10-24",
-   "url": "https://www.kaufda.de/contentViewer/static/fed97e8e-eef1-4a7b-9751-9e56aeb314da?lat=51.3197&lng=12.3714&zip=04275&page=13&productId=e6644f08-4895-47b8-96e2-f1c25fc2f33f"
-  },
-  {
-   "id": "4e742fc7-45a5-44ab-9b72-ead92162ee1b",
-   "kind": "pokemon",
-   "product": null,
-   "store": "Marktkauf",
-   "title": "Ferrero Pokémon Adventskalender",
-   "description": "Nur solange der Vorrat reicht. 198 g",
-   "price": 11.99,
-   "valid_from": "2026-10-18",
-   "valid_until": "2026-10-24",
-   "url": "https://www.kaufda.de/contentViewer/static/e16293ea-45fb-4ed4-9350-a70f5f7bf994?lat=51.3197&lng=12.3714&zip=04275&page=7&productId=4e742fc7-45a5-44ab-9b72-ead92162ee1b"
-  },
-  {
-   "id": "e460d4dc-8dce-4f7c-8622-c2374014387f",
-   "kind": "pokemon",
-   "product": null,
-   "store": "Netto Marken-Discount",
-   "title": "Pokémon Pokeball Tin-Box",
-   "description": "mit 3 Boosterpacks und 2 Stickerbögen",
-   "price": 14.99,
-   "valid_from": "2026-10-18",
-   "valid_until": "2026-10-24",
-   "url": "https://www.kaufda.de/contentViewer/static/130da2db-660a-41fb-b217-8c6e384d6966?lat=51.3197&lng=12.3714&zip=04275&page=53&productId=e460d4dc-8dce-4f7c-8622-c2374014387f"
-  },
-  {
-   "id": "mg-25349752",
-   "kind": "pokemon",
-   "product": null,
-   "store": "Netto Marken-Discount",
-   "title": "Pokémon Pokeball Tin",
-   "description": "mit 3 Boosterpacks und 2 Stickerbögen",
-   "price": 14.99,
-   "valid_from": "2026-10-18",
-   "valid_until": "2026-10-24",
-   "url": "https://www.marktguru.de/search/Pokemon",
-   "source": "marktguru"
-  },
-  {
-   "id": "8df1669f-2d96-4189-b19d-647cac232b7a",
-   "kind": "pokemon",
-   "product": null,
-   "store": "EDEKA",
-   "title": "Pokémon 3D Puzzle-Ball-Nachtlicht",
-   "description": "Mit 72 dreidimensionalen Puzzleteilen. LED-Leuchtsockel in 2 Stufen dimmbar. Ab 6 Jahren. Ø ca. 13 x 15,5 cm",
-   "price": 19.99,
-   "valid_from": "2026-10-18",
-   "valid_until": "2026-10-24",
-   "url": "https://www.kaufda.de/contentViewer/static/2bb0a86b-69a8-46e2-b5b6-2c831f1bb677?lat=51.3197&lng=12.3714&zip=04275&page=35&productId=8df1669f-2d96-4189-b19d-647cac232b7a"
-  },
-  {
-   "id": "7e274269-7121-446f-a65d-70a334ff037f",
-   "kind": "pokemon",
-   "product": null,
-   "store": "Marktkauf",
-   "title": "Pokémon-Adventskalender",
-   "description": "Ab 4 Jahren.",
-   "price": 24.99,
-   "valid_from": "2026-10-18",
-   "valid_until": "2026-10-24",
-   "url": "https://www.kaufda.de/contentViewer/static/e16293ea-45fb-4ed4-9350-a70f5f7bf994?lat=51.3197&lng=12.3714&zip=04275&page=4&productId=7e274269-7121-446f-a65d-70a334ff037f"
-  },
-  {
-   "id": "5fcdb2cc-845a-4cb4-b828-0ff1df241bfa",
-   "kind": "pokemon",
-   "product": null,
-   "store": "REWE",
-   "title": "Jazwares Pokemon Adventskalender",
-   "description": "Happy Holidays!, Holiday Calendar, 24 gifts inside!, includes 10 figures and special finish accessories, 59 pieces",
-   "price": 24.99,
-   "valid_from": "2026-10-18",
-   "valid_until": "2026-10-24",
-   "url": "https://www.kaufda.de/contentViewer/static/e75c51d4-fe59-4880-961f-7cf01f3630ea?lat=51.3197&lng=12.3714&zip=04275&page=26&productId=5fcdb2cc-845a-4cb4-b828-0ff1df241bfa"
-  },
-  {
-   "id": "885900fd-7b10-41e7-ba48-6954579b0cf9",
-   "kind": "pokemon",
-   "product": null,
-   "store": "REWE",
-   "title": "Jazwares Pokemon Adventskalender",
-   "description": "Happy Holidays!, Holiday Calendar, 24 gifts inside!, includes 10 figures and special finish accessories, 59 pieces",
-   "price": 24.99,
-   "valid_from": "2026-10-18",
-   "valid_until": "2026-10-24",
-   "url": "https://www.kaufda.de/contentViewer/static/7e0a9f31-cef0-4278-bbd9-8c68cb14a01c?lat=51.3197&lng=12.3714&zip=04275&page=27&productId=885900fd-7b10-41e7-ba48-6954579b0cf9"
-  },
-  {
-   "id": "mg-25359397",
-   "kind": "pokemon",
-   "product": null,
-   "store": "REWE",
-   "title": "Jazwares Adventskalender Pokémon",
-   "description": "Details im Prospekt",
-   "price": 24.99,
-   "valid_from": "2026-10-18",
-   "valid_until": "2026-10-24",
-   "url": "https://www.marktguru.de/search/Pok%C3%A9mon",
-   "source": "marktguru"
-  },
-  {
-   "id": "ocr-fed97e8e-eef1-4a7b-9751-9e56aeb314da-13",
-   "kind": "pokemon",
-   "product": null,
-   "store": "GLOBUS",
-   "title": "Pokémon auf Seite 14 (Texterkennung)",
-   "description": "4” 229 + =; +2 ws nur a P Graf's Adventskalender Kinder Mix Pokémon Adventskalender Niederegger Mini-Adventskalender Lindt Adventskalender 15-25 % Vol 1 kg = 50",
-   "price": null,
-   "ocr_prices": [
-    1.08,
-    50.45,
-    45.14,
-    47.56,
-    101.13
-   ],
-   "valid_from": null,
-   "valid_until": null,
-   "source": "ocr",
-   "url": "https://www.kaufda.de/contentViewer/static/fed97e8e-eef1-4a7b-9751-9e56aeb314da?lat=51.3197&lng=12.3714&zip=04275&page=13"
-  },
   {
    "id": "discounto-Mac-Geiz-2026-10-26-1",
    "kind": "pokemon",

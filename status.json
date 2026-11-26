@@ -1,5 +1,5 @@
 {
- "checked_at": "2026-11-25T18:42:50+00:00",
+ "checked_at": "2026-11-26T01:57:18+00:00",
  "interval_min": 20,
  "product": "Pokémon 30 Jahre Top-Trainer-Box",
  "price": {
@@ -41,7 +41,7 @@
    "shop_url": "https://www.mediamarkt.de/de/search.html?query=0196214144842",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-11-25T18:42+00:00",
+   "last_ok": "2026-11-26T01:57+00:00",
    "last_restock": "25.11. 09:15"
   },
   {
@@ -58,7 +58,7 @@
    "shop_url": "https://www.saturn.de/de/search.html?query=0196214144842",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-11-25T18:42+00:00",
+   "last_ok": "2026-11-26T01:57+00:00",
    "last_restock": "25.11. 09:15"
   },
   {
@@ -143,7 +143,7 @@
    "shop_url": "https://geizhals.de/pok-mon-30-jahre-top-trainer-box-a3942792.html",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-11-25T18:42+00:00",
+   "last_ok": "2026-11-26T01:57+00:00",
    "last_restock": "29.09. 20:33"
   },
   {
@@ -171,13 +171,13 @@
    "discovered": false,
    "ships_to_de": false,
    "status": "in_stock",
-   "price": 149.9,
+   "price": 144.9,
    "in_range": false,
    "url": "https://geizhals.at/pok-mon-30-jahre-top-trainer-box-a3942792.html",
    "shop_url": "https://geizhals.at/pok-mon-30-jahre-top-trainer-box-a3942792.html",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-11-25T18:42+00:00",
+   "last_ok": "2026-11-26T01:57+00:00",
    "last_restock": "13.11. 22:39"
   },
   {
@@ -194,7 +194,7 @@
    "shop_url": "https://pokeselect.nl/product/30th-celebration-elite-trainer-box",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-11-25T18:42+00:00",
+   "last_ok": "2026-11-26T01:57+00:00",
    "last_restock": "29.09. 21:10"
   },
   {
@@ -205,13 +205,13 @@
    "discovered": false,
    "ships_to_de": true,
    "status": "in_stock",
-   "price": 129.0,
+   "price": 116.0,
    "in_range": false,
    "url": "https://www.idealo.de/preisvergleich/MainSearchProductCategory.html?q=0196214144842",
    "shop_url": "https://www.idealo.de/preisvergleich/MainSearchProductCategory.html?q=0196214144842",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-11-25T18:42+00:00",
+   "last_ok": "2026-11-26T01:57+00:00",
    "last_restock": "09.10. 08:47"
   },
   {
@@ -222,13 +222,13 @@
    "discovered": false,
    "ships_to_de": true,
    "status": "in_stock",
-   "price": 100.0,
+   "price": 109.99,
    "in_range": false,
    "url": "https://www.tcgcheck.de/pokemon/set/de/30-jahre/30-jahre-top-trainer-box",
    "shop_url": "https://www.tcgcheck.de/pokemon/set/de/30-jahre/30-jahre-top-trainer-box",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-11-25T18:42+00:00",
+   "last_ok": "2026-11-26T01:57+00:00",
    "last_restock": "29.09. 20:33"
   },
   {
@@ -279,7 +279,7 @@
    "shop_url": "https://www.cardsparadise.com/Pokemon-Jubilaeum-30-Jahre-Pokemon-Elite-Trainer-Box-Deutsch",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-11-25T18:42+00:00",
+   "last_ok": "2026-11-26T01:57+00:00",
    "last_restock": "03.10. 08:35"
   },
   {
@@ -296,7 +296,7 @@
    "shop_url": "https://geeksheaven.de/products/pokemon-30-jahre-top-trainer-box-deutsch-vorbestellung",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-11-25T18:42+00:00",
+   "last_ok": "2026-11-26T01:57+00:00",
    "last_restock": "21.11. 19:14"
   },
   {
@@ -313,7 +313,7 @@
    "shop_url": "https://cardcosmos.de/products/pokemon-30-jahre-top-trainer-box-deutsch",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-11-25T18:42+00:00",
+   "last_ok": "2026-11-26T01:57+00:00",
    "last_restock": null
   },
   {
@@ -330,7 +330,7 @@
    "shop_url": "https://www.card-knights.de/products/pokemon-30-jahre-top-trainer-box-de",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-11-25T18:42+00:00",
+   "last_ok": "2026-11-26T01:57+00:00",
    "last_restock": null
   },
   {
@@ -347,7 +347,7 @@
    "shop_url": "https://www.gate-to-the-games.de/Pokemon-30-Jahre-Top-Trainer-Box-deutsch",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-11-25T18:42+00:00",
+   "last_ok": "2026-11-26T01:57+00:00",
    "last_restock": "17.11. 12:40"
   },
   {
@@ -364,7 +364,7 @@
    "shop_url": "https://www.toys-for-fun.com/de/pokemon-30-jahre-top-trainer-box.html",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-11-25T18:42+00:00",
+   "last_ok": "2026-11-26T01:57+00:00",
    "last_restock": "15.10. 07:13"
   },
   {
@@ -381,7 +381,7 @@
    "shop_url": "https://www.playingcards.de/pokemon-sammelkartenspiel-top-trainer-box-30-jahre-englisch.html",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-11-25T18:42+00:00",
+   "last_ok": "2026-11-26T01:57+00:00",
    "last_restock": null
   },
   {
@@ -391,14 +391,14 @@
    "aggregator": false,
    "discovered": false,
    "ships_to_de": true,
-   "status": "in_stock",
+   "status": "out_of_stock",
    "price": 119.99,
    "in_range": false,
    "url": "https://keepseven.de/product/pokemon-30-jahre-top-trainer-box-de/",
    "shop_url": "https://keepseven.de/product/pokemon-30-jahre-top-trainer-box-de/",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-11-25T18:42+00:00",
+   "last_ok": "2026-11-26T01:57+00:00",
    "last_restock": "16.11. 21:16"
   },
   {
@@ -415,7 +415,7 @@
    "shop_url": "https://www.grubi-co.at/de/sammelkarten/pokemon/special-editions-55/30-jahre.html",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-11-25T18:42+00:00",
+   "last_ok": "2026-11-26T01:57+00:00",
    "last_restock": "13.11. 22:39"
   },
   {
@@ -432,7 +432,7 @@
    "shop_url": "https://spielbrett.co.at/30-Jahre-Jubilaeum-Top-Trainer-Box-DE",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-11-25T18:42+00:00",
+   "last_ok": "2026-11-26T01:57+00:00",
    "last_restock": null
   },
   {
@@ -449,7 +449,7 @@
    "shop_url": "https://www.spielraum.co.at/de/pokemon/product/30-jahre-top-trainer-box-de",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-11-25T18:42+00:00",
+   "last_ok": "2026-11-26T01:57+00:00",
    "last_restock": null
   },
   {
@@ -466,7 +466,7 @@
    "shop_url": "https://www.playingcardshop.eu/pokemon-tcg-30th-celebration-elite-trainer-box.html",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-11-25T18:42+00:00",
+   "last_ok": "2026-11-26T01:57+00:00",
    "last_restock": null
   },
   {
@@ -483,7 +483,7 @@
    "shop_url": "https://www.maxgaming.com/en/pokemon/pokemon-30th-celebration-elite-trainer-box",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-11-25T18:42+00:00",
+   "last_ok": "2026-11-26T01:57+00:00",
    "last_restock": null
   },
   {
@@ -500,7 +500,7 @@
    "shop_url": "https://tcg-love.de/pokemon-30-jahre-top-trainer-box-deutsch/",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-11-25T18:42+00:00",
+   "last_ok": "2026-11-26T01:57+00:00",
    "last_restock": null
   },
   {
@@ -517,7 +517,7 @@
    "shop_url": "https://www.speelkaartenwinkel.nl/pokemon-30th-celebration-elite-trainer-box.html",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-11-25T18:42+00:00",
+   "last_ok": "2026-11-26T01:57+00:00",
    "last_restock": null
   },
   {
@@ -534,7 +534,7 @@
    "shop_url": "https://tcgworld.nl/products/30th-celebration-elite-trainer-box",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-11-25T18:42+00:00",
+   "last_ok": "2026-11-26T01:57+00:00",
    "last_restock": "02.11. 20:37"
   },
   {
@@ -585,7 +585,7 @@
    "shop_url": "https://globalcardshop.com/product/30th-celebration-elite-trainer-box/",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-11-25T18:42+00:00",
+   "last_ok": "2026-11-26T01:57+00:00",
    "last_restock": null
   },
   {
@@ -602,7 +602,7 @@
    "shop_url": "https://masterofgames.es/en/elite-trainer-boxes/6678--preorder-english-pokemon-tcg-30th-celebration-elite-trainer-box-0196214144828.html",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-11-25T18:42+00:00",
+   "last_ok": "2026-11-26T01:57+00:00",
    "last_restock": null
   },
   {
@@ -619,7 +619,7 @@
    "shop_url": "https://blackprism.de/products/30-jahre-top-trainer-box-deutsch-neu-ovp",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-11-25T18:42+00:00",
+   "last_ok": "2026-11-26T01:57+00:00",
    "last_restock": null
   },
   {
@@ -636,7 +636,7 @@
    "shop_url": "https://feenturm.de/products/pokemon-tcg-30th-celebration-elite-trainer-box-deutsch-jetzt-vorbestellen-kopie",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-11-25T18:42+00:00",
+   "last_ok": "2026-11-26T01:57+00:00",
    "last_restock": "08.10. 18:52"
   },
   {
@@ -653,7 +653,7 @@
    "shop_url": "https://racoon-rises.com/products/pkm-30-jahre-top-trainer-box-de",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-11-25T18:42+00:00",
+   "last_ok": "2026-11-26T01:57+00:00",
    "last_restock": null
   },
   {
@@ -670,7 +670,7 @@
    "shop_url": "https://www.mediamarkt.de/de/search.html?query=30+Jahre+Booster+Bundle",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-11-25T18:42+00:00",
+   "last_ok": "2026-11-26T01:57+00:00",
    "last_restock": "14.10. 11:45"
   },
   {
@@ -687,7 +687,7 @@
    "shop_url": "https://www.saturn.de/de/search.html?query=30+Jahre+Booster+Bundle",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-11-25T18:42+00:00",
+   "last_ok": "2026-11-26T01:57+00:00",
    "last_restock": "22.10. 08:01"
   },
   {
@@ -772,7 +772,7 @@
    "shop_url": "https://www.idealo.de/preisvergleich/MainSearchProductCategory.html?q=30+Jahre+Booster+Bundle",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-11-25T18:42+00:00",
+   "last_ok": "2026-11-26T01:57+00:00",
    "last_restock": "12.10. 10:29"
   },
   {
@@ -806,7 +806,7 @@
    "shop_url": "https://www.gate-to-the-games.de/Pokemon-30-Jahre-Booster-Bundle-deutsch",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-11-25T18:42+00:00",
+   "last_ok": "2026-11-26T01:57+00:00",
    "last_restock": "17.11. 12:40"
   },
   {
@@ -823,7 +823,7 @@
    "shop_url": "https://www.playingcards.de/pokemon-sammelkartenspiel-boosterbundle-30-jahre-6-packungen-englisch.html",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-11-25T18:42+00:00",
+   "last_ok": "2026-11-26T01:57+00:00",
    "last_restock": null
   },
   {
@@ -840,7 +840,7 @@
    "shop_url": "https://spielbrett.co.at/30-Jahre-Boosterbundle-DE",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-11-25T18:42+00:00",
+   "last_ok": "2026-11-26T01:57+00:00",
    "last_restock": null
   },
   {
@@ -857,7 +857,7 @@
    "shop_url": "https://www.spielraum.co.at/de/pokemon/product/30-jahre-30c-boosterbundle-de",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-11-25T18:42+00:00",
+   "last_ok": "2026-11-26T01:57+00:00",
    "last_restock": null
   },
   {
@@ -874,7 +874,7 @@
    "shop_url": "https://www.playingcardshop.eu/pokemon-tcg-30th-celebration-booster-bundle-6-packs.html",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-11-25T18:42+00:00",
+   "last_ok": "2026-11-26T01:57+00:00",
    "last_restock": null
   },
   {
@@ -891,7 +891,7 @@
    "shop_url": "https://www.speelkaartenwinkel.nl/pokemon-30th-celebration-booster-bundle-6-pakjes.html",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-11-25T18:42+00:00",
+   "last_ok": "2026-11-26T01:57+00:00",
    "last_restock": null
   },
   {
@@ -908,7 +908,7 @@
    "shop_url": "https://adventurecardz.de/products/pokemon-30-jahre-bundle-premium-deck-set-psiana-ex-nachtara-ex-jp-boosterbundle-de",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-11-25T18:42+00:00",
+   "last_ok": "2026-11-26T01:57+00:00",
    "last_restock": "25.11. 19:42"
   },
   {
@@ -925,7 +925,7 @@
    "shop_url": "https://blackprism.de/products/30-jahre-booster-bundle-deutsch-neu-ovp",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-11-25T18:42+00:00",
+   "last_ok": "2026-11-26T01:57+00:00",
    "last_restock": "15.11. 18:52"
   },
   {
@@ -942,7 +942,7 @@
    "shop_url": "https://cardcosmos.de/products/pokemon-30-jahre-boosterbundle-deutsch",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-11-25T18:42+00:00",
+   "last_ok": "2026-11-26T01:57+00:00",
    "last_restock": "30.10. 20:20"
   },
   {
@@ -959,7 +959,7 @@
    "shop_url": "https://feenturm.de/products/pokemon-tcg-30th-celebration-booster-bundle-deutsch-jetzt-vorbestellen",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-11-25T18:42+00:00",
+   "last_ok": "2026-11-26T01:57+00:00",
    "last_restock": "08.10. 18:52"
   },
   {
@@ -976,7 +976,7 @@
    "shop_url": "https://geeksheaven.de/products/pokemon-30-jahre-booster-bundle-deutsch",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-11-25T18:42+00:00",
+   "last_ok": "2026-11-26T01:57+00:00",
    "last_restock": "16.11. 21:16"
   },
   {
@@ -993,7 +993,7 @@
    "shop_url": "https://tcgworld.nl/products/30th-celebration-booster-bundle",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-11-25T18:42+00:00",
+   "last_ok": "2026-11-26T01:57+00:00",
    "last_restock": "26.10. 18:30"
   },
   {
@@ -1010,7 +1010,7 @@
    "shop_url": "https://www.card-knights.de/products/pokemon-karmesin-purpur-30-jahre-boosterbundle-6-booster-de",
    "error": null,
    "available_from": null,
-   "last_ok": "2026-11-25T18:42+00:00",
+   "last_ok": "2026-11-26T01:57+00:00",
    "last_restock": null
   }
  ],
@@ -1139,7 +1139,7 @@
  "stores": [],
  "flyers": [
   {
-   "id": "24b0975e-92b2-4928-b7bb-5029d1f4514d",
+   "id": "8d72dfde-5431-4dfc-aee4-69e007fe97a0",
    "kind": "pokemon",
    "product": null,
    "store": "Netto Marken-Discount",
@@ -1148,7 +1148,7 @@
    "price": 3.49,
    "valid_from": "2026-11-22",
    "valid_until": "2026-11-28",
-   "url": "https://www.kaufda.de/contentViewer/static/5079b47c-fe8f-4c76-9b39-af1a23f752d7?lat=51.3197&lng=12.3714&zip=04275&page=50&productId=24b0975e-92b2-4928-b7bb-5029d1f4514d"
+   "url": "https://www.kaufda.de/contentViewer/static/a2d734fc-9cfe-4471-b452-fdd90692dd91?lat=51.3197&lng=12.3714&zip=04275&page=50&productId=8d72dfde-5431-4dfc-aee4-69e007fe97a0"
   },
   {
    "id": "mg-25854967",
@@ -1182,10 +1182,22 @@
    "store": "Netto Marken-Discount",
    "title": "Pokémon Sammelkarten",
    "description": "",
+   "price": 4.99,
+   "valid_from": "2026-11-22",
+   "valid_until": "2026-11-28",
+   "url": "https://www.kaufda.de/contentViewer/static/5079b47c-fe8f-4c76-9b39-af1a23f752d7?lat=51.3197&lng=12.3714&zip=04275&page=61&productId=f3f69370-f452-429a-ba73-c1cf12236b59"
+  },
+  {
+   "id": "f3e9810f-5e64-4c70-9a40-1f00e4ba832a",
+   "kind": "pokemon",
+   "product": null,
+   "store": "Netto Marken-Discount",
+   "title": "Pokémon Sammelkarten",
+   "description": "",
    "price": 6.99,
    "valid_from": "2026-11-26",
    "valid_until": "2026-11-27",
-   "url": "https://www.kaufda.de/contentViewer/static/5079b47c-fe8f-4c76-9b39-af1a23f752d7?lat=51.3197&lng=12.3714&zip=04275&page=60&productId=f3f69370-f452-429a-ba73-c1cf12236b59"
+   "url": "https://www.kaufda.de/contentViewer/static/a2d734fc-9cfe-4471-b452-fdd90692dd91?lat=51.3197&lng=12.3714&zip=04275&page=60&productId=f3e9810f-5e64-4c70-9a40-1f00e4ba832a"
   },
   {
    "id": "mg-25863432",
@@ -1299,6 +1311,18 @@
    "source": "marktguru"
   },
   {
+   "id": "3c19000c-008d-42e2-b39d-c16bf18de010",
+   "kind": "pokemon",
+   "product": null,
+   "store": "Netto Marken-Discount",
+   "title": "Pokémon First Partner Series 2/3",
+   "description": "u.v.m., inkl. 2 Boosterpacks für extra Überraschungen, englische Ausgabe mit hohem Sammelwert",
+   "price": 37.99,
+   "valid_from": "2026-11-27",
+   "valid_until": "2026-12-05",
+   "url": "https://www.kaufda.de/contentViewer/static/ec12b212-217e-403f-badb-0ebbdfe14f75?lat=51.3197&lng=12.3714&zip=04275&page=46&productId=3c19000c-008d-42e2-b39d-c16bf18de010"
+  },
+  {
    "id": "b946a16d-a5c5-494d-a2fe-fb1ab6c9b40a",
    "kind": "pokemon",
    "product": null,
@@ -1358,6 +1382,18 @@
    "valid_from": "2026-11-19",
    "valid_until": "2026-11-30",
    "url": "https://www.kaufda.de/contentViewer/static/3c9dbd24-7124-4029-a242-f0921c992246?lat=51.3197&lng=12.3714&zip=04275&page=4&productId=148c37ee-b467-4a4f-9087-c9ce7fd7a847"
+  },
+  {
+   "id": "8398b682-40c4-4fa9-851a-3f4978e01f8e",
+   "kind": "pokemon",
+   "product": null,
+   "store": "Netto Marken-Discount",
+   "title": "Pokemon Scarlet & Violet - Destined Rivals Elite Trainer Box",
+   "description": "9 Boosterpacks, exklusive Karten Sleeves, Neuware",
+   "price": 129.99,
+   "valid_from": "2026-12-03",
+   "valid_until": "2026-12-04",
+   "url": "https://www.kaufda.de/contentViewer/static/ec12b212-217e-403f-badb-0ebbdfe14f75?lat=51.3197&lng=12.3714&zip=04275&page=63&productId=8398b682-40c4-4fa9-851a-3f4978e01f8e"
   },
   {
    "id": "0c0b50c8-20cf-40b3-868a-efed0ffaa741",
